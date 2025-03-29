@@ -1,66 +1,41 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Radigile - A New Era of Team Growth
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Description
+Agile is more than a framework—it’s a mindset, a culture, a continuous journey of improvement. Yet, too many teams struggle to measure their progress, identify their blind spots, and turn Agile theory into meaningful practice. We’re changing that.
 
-## About Laravel
+Our **Agile Maturity Assessment Tool** is built for teams who believe that Agile is more than just stand-ups and sprints—it’s about **relentless experimentation**, **continuous learning**, and **real transformation**. Through **precision assessments**, **visual insights**, and **expert-driven feedback**, we empower teams to break through plateaus, uncover anti-patterns, and take actionable steps toward high performance.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+But we’re not stopping there. Our future vision is bold. With **Generative AI**, we will revolutionize how teams assess and improve, dynamically tailoring assessments and providing intelligent, context-aware coaching at scale. Imagine a tool that not only measures where you are—but actively guides you to where you need to be.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+This isn’t just an assessment—it’s an evolution engine for Agile teams. And we’re building it **open-source**, together—because real Agile transformation isn’t owned by one company, it’s driven by a community that refuses to settle.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+If you believe Agile can be better, if you know teams deserve more than checklists and rigid frameworks—this is your moment. **Join us. Shape the future.** Let’s build something that truly helps teams thrive.
 
-## Learning Laravel
+## Features
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Team Creation & Management:** Easily create and manage teams for assessments.
+- **Agile Maturity Assessment:** Fill out assessments to evaluate team maturity across different Agile categories.
+- **Customizable Question Library:** Manage, add, and update questions in the assessment library.
+- **Assessment Reports:** Download detailed reports, including radar charts and feedback, to help visualize and analyze team maturity.
+- **Insights & Metrics:** View category averages, overall maturity scores, and comparison with past assessments or industry benchmarks.
+- **Anti-Patterns & Recommendations:** Detect Agile anti-patterns and receive actionable insights and recommended Agile practices.
+- **User Dashboard:** Users can view and manage their teams, personal assessment results, and track their progress over time.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Project Status
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**Current Version:** 1.0.0-alpha
 
-## Laravel Sponsors
+**Milestones:**
+- Version 1.0.0-beta: Beta release
+- Future enhancements: Continuous improvements to features, question libraries, and additional insights and AI assistive technology.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Technologies Used
 
-### Premium Partners
+- **Backend:** PHP (Laravel Framework)
+- **Frontend:** [Frontend Framework/Library used if applicable, e.g., React, Vue.js]
+- **Database:** MySQL 
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Software
+- PHP >= 7.4
+- Composer
+- MySQL / PostgreSQL / SQLite (depending on your choice)
