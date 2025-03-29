@@ -10,6 +10,7 @@
     <header>
         <nav>
             <a href="{{ route('homepage') }}">Home</a>
+            <a href="{{ route('register') }}">Register</a>
         </nav>
     </header>
 
