@@ -20,6 +20,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'invitation_code',
+        'agreed_to_terms',
+        'email_verified_at',
+        'is_active',
     ];
 
     /**
@@ -41,7 +45,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'agree_to_terms' => 'boolean',
+            'is_active' => 'boolean',
         ];
     }
 }
