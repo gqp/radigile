@@ -31,8 +31,9 @@ If you believe Agile can be better, if you know teams deserve more than checklis
 
 ## Technologies Used
 
-- **Backend:** PHP (Laravel Framework)
-- **Frontend:** [Frontend Framework/Library used if applicable, e.g., React, Vue.js]
+- **Operating System:** Ubuntu 22.04
+- **Backend:** Laravel 11.26.0
+- **Frontend:** TBD [Frontend Framework/Library used if applicable, e.g., React, Vue.js]
 - **Database:** MySQL
 - PHP >= 7.4
 - Composer
