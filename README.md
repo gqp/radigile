@@ -33,9 +33,7 @@ If you believe Agile can be better, if you know teams deserve more than checklis
 
 - **Backend:** PHP (Laravel Framework)
 - **Frontend:** [Frontend Framework/Library used if applicable, e.g., React, Vue.js]
-- **Database:** MySQL 
-
-### Software
+- **Database:** MySQL
 - PHP >= 7.4
 - Composer
-- MySQL / PostgreSQL / SQLite (depending on your choice)
+- MySQL
