@@ -1,12 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body>
+@extends('layouts.app')
+
+@section('content')
+
 <div class="container mx-auto p-6">
     <h1 class="text-2xl font-bold mb-4">Register</h1>
 
@@ -70,5 +65,5 @@
         </div>
     </form>
 </div>
-</body>
-</html>
+
+@endsection
