@@ -9,6 +9,6 @@ class HomeController extends Controller
     public function index()
     {
         // Pass any required data to the homepage view
-        return view('homepage');
+        return view('homepage_view');
     }
 }
