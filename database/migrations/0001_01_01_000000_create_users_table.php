@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name', 255);
             $table->string('email', 255)->unique();
             $table->string('password');
-            $table->string('invitation_code', 64); // Link to 'invitations' table
+            $table->string('invitation_code', 64)->nullable(); // Link to 'invitations' table
             $table->boolean('agreed_to_terms')->default(false);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken(); // Add this line
