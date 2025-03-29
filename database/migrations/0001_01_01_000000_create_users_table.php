@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('invitation_code', 64); // Link to 'invitations' table
             $table->boolean('agreed_to_terms')->default(false);
             $table->timestamp('email_verified_at')->nullable();
+            $table->rememberToken(); // Add this line
             $table->boolean('is_active')->default(true);
             $table->softDeletes(); // Optional for soft deletion
             $table->timestamps();
