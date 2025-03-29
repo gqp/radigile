@@ -1,15 +1,23 @@
 # Radigile - A New Era of Team Growth
 
-## Description
-Agile is more than a framework—it’s a mindset, a culture, a continuous journey of improvement. Yet, too many teams struggle to measure their progress, identify their blind spots, and turn Agile theory into meaningful practice. We’re changing that.
+## Product Vision
+To empower teams with the insights, tools, and guidance to master Agile, break through plateaus, and achieve lasting transformation
 
-Our **Agile Maturity Assessment Tool** is built for teams who believe that Agile is more than just stand-ups and sprints—it’s about **relentless experimentation**, **continuous learning**, and **real transformation**. Through **precision assessments**, **visual insights**, and **expert-driven feedback**, we empower teams to break through plateaus, uncover anti-patterns, and take actionable steps toward high performance.
+## Mission Statement
+Our mission is to empower teams to unlock their full potential by providing tailored assessments, actionable insights, and continuous learning opportunities. We are committed to guiding organizations through their Agile transformation journey, enabling them to build high-performing teams that deliver exceptional value and drive sustainable change.
 
-But we’re not stopping there. Our future vision is bold. With **Generative AI**, we will revolutionize how teams assess and improve, dynamically tailoring assessments and providing intelligent, context-aware coaching at scale. Imagine a tool that not only measures where you are—but actively guides you to where you need to be.
+## Why This Matters
+Agile teams today are stuck in a cycle of *doing Agile* rather than *being Agile*. They follow the motions—stand-ups, retros, velocity tracking—without truly evolving. Leaders struggle to measure progress, teams hit invisible barriers, and organizations invest in Agile without understanding if it’s actually working.
 
-This isn’t just an assessment—it’s an evolution engine for Agile teams. And we’re building it **open-source**, together—because real Agile transformation isn’t owned by one company, it’s driven by a community that refuses to settle.
+**The result? Stagnation, frustration, and missed opportunities for real growth.**
 
-If you believe Agile can be better, if you know teams deserve more than checklists and rigid frameworks—this is your moment. **Join us. Shape the future.** Let’s build something that truly helps teams thrive.
+## The Solution: Data-Driven Growth with Personalized Insights
+We believe Agile is more than just frameworks—it’s a culture, a mindset, and a relentless pursuit of excellence. Our platform provides a dynamic **Agile Maturity Assessment Tool** that goes beyond checklists and self-reported scores. It:
+
+✅ **Identifies blind spots and anti-patterns** before they become blockers.  
+✅ **Delivers AI-powered recommendations** tailored to team challenges.  
+✅ **Provides leadership with actionable insights** to foster true Agile culture.  
+✅ **Creates a measurable path forward**, turning Agile adoption into Agile mastery.
 
 ## Features
 
