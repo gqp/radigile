@@ -43,8 +43,8 @@ class RegisterController extends Controller
         }
 
         $user = User::create([
-            'firstName' => $request->first-name,
-            'lastName' => $request->last-name,
+            'firstName' => $request->firstName,
+            'lastName' => $request->lastName,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'invitation_code' => $request->invitation_code,
