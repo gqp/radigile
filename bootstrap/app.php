@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 
@@ -14,7 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->append(VerifyCsrfToken::class);
-        $middleware->append(\Illuminate\Session\Middleware\StartSession::class);
+        $middleware->append(StartSession::class);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
