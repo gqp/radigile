@@ -11,7 +11,7 @@ Route::get('/', [HomeController::class, 'index'])->name('homepage');
 Route::get('test-email', function () {
     try {
         Mail::raw('This is a test email', function ($message) {
-            $message->to('gqplasited@gmail.com')->subject('Radigile - Test Email');
+            $message->to('gqplaisted@gmail.com')->subject('Radigile - Test Email');
         });
 
         return 'Email sent!';
