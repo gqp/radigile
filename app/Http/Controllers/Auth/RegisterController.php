@@ -19,7 +19,8 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'fist-name' => 'required|string|max:255',
+            'last-name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => [
                 'required',
@@ -42,7 +43,8 @@ class RegisterController extends Controller
         }
 
         $user = User::create([
-            'name' => $request->name,
+            'first-name' => $request->fisrt-name,
+            'last-name' => $request->last-name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'invitation_code' => $request->invitation_code,

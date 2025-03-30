@@ -19,10 +19,17 @@
     <form action="{{ route('register') }}" method="POST">
         @csrf
 
-        <!-- Name Field -->
+        <!-- First-Name Field -->
         <div class="mb-4">
-            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-            <input type="text" id="name" name="name" value="{{ old('name') }}" required
+            <label for="first-name" class="block text-sm font-medium text-gray-700">Name</label>
+            <input type="text" id="first-name" name="first-name" value="{{ old('first-name') }}" required
+                   class="block w-full mt-1 px-4 py-2 border rounded-md">
+        </div>
+
+        <!-- Last-Name Field -->
+        <div class="mb-4">
+            <label for="last-name" class="block text-sm font-medium text-gray-700">Name</label>
+            <input type="text" id="last-name" name="last-name" value="{{ old('last-name') }}" required
                    class="block w-full mt-1 px-4 py-2 border rounded-md">
         </div>
 

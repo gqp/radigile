@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 255);
+            $table->string('first-name', 255);
+            $table->string('last-name', 255);
             $table->string('email', 255)->unique();
             $table->string('password');
             $table->string('invitation_code', 64)->nullable(); // Link to 'invitations' table
