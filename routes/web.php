@@ -6,6 +6,22 @@ use App\Http\Controllers\Auth\RegisterController;
 
 // Homepage Routes
 Route::get('/', [HomeController::class, 'index'])->name('homepage');
+
+//Test Email Routes
+Route::get('test-email', function () {
+    try {
+        Mail::raw('This is a test email', function ($message) {
+            $message->to('gqplasited@gmail.com')->subject('Radigile - Test Email');
+        });
+
+        return 'Email sent!';
+    } catch (\Throwable $e) {
+        return 'Email failed to send: ' . $e->getMessage();
+    }
+});
+
+
+// Middleware Routes
 Route::group(['middleware' => ['web']], function () {
     // User Registration Routes
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
