@@ -30,7 +30,7 @@ class RegisterController extends Controller
                 'regex:/[A-Z]/',
                 'regex:/[0-9]/',
             ],
-            'invitation_code' => 'required|string|exists:invitations,code',
+            'invitation_code' => 'required|string|exists:invitations,invitation_code',
             'agreed_to_terms' => 'accepted',
         ]);
 
