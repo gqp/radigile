@@ -37,14 +37,14 @@ return [
 
     'mailers' => [
 
-        'smtp' => [
+        'mailgun' => [
             'transport' => 'mailgun',
             'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
             'port' => env('MAIL_PORT', 465),
             'encryption' => env('MAIL_ENCRYPTION', 'tls'),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
+            'timeout' => 120,
             'local_domain' => env('MAIL_EHLO_DOMAIN'), // Laravel 11 change
         ],
 
