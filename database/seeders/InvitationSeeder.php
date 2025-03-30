@@ -15,10 +15,24 @@ class InvitationSeeder extends Seeder
      */
     public function run(): void
     {
-        for ($i = 0; $i < 10; $i++) {
+        // List of predefined unique invitation codes
+        $invitationCodes = [
+            '2345',
+            '2346',
+            '2347',
+            '2348',
+            '2349',
+            '2350',
+            '2351',
+            '2352',
+            '2353',
+            '2354',
+        ];
+
+        // Loop through the predefined codes
+        foreach ($invitationCodes as $code) {
             Invitation::create([
-                //'invitation_code' => Str::random(64),
-                'invitation_code' => "2345",
+                'invitation_code' => $code,
                 'expires_at' => now()->addDays(rand(1, 7)),
             ]);
         }
