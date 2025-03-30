@@ -18,11 +18,6 @@ class InvitationSeeder extends Seeder
         for ($i = 0; $i < 10; $i++) {
             Invitation::create([
                 //'invitation_code' => Str::random(64),
-                'invitation_code' => "4567",
-                'expires_at' => now()->addDays(rand(1, 7)),
-            ]);
-            Invitation::create([
-                //'invitation_code' => Str::random(64),
                 'invitation_code' => "2345",
                 'expires_at' => now()->addDays(rand(1, 7)),
             ]);
