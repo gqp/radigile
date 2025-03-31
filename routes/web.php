@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\Admin\RoleManagementController; // For role management
 use App\Http\Middleware\CheckAccountLocked;
 
 // Homepage Route
@@ -45,6 +46,24 @@ Route::middleware(['auth', 'web', CheckAccountLocked::class])->group(function ()
     })->name('dashboard');
 
     Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
+});
+
+// admin Routes Group for Role-based Access
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    // Add more routes for admin functionalities here
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
+
+    // Role Management route
+    Route::put('/update-role/{user}', [RoleManagementController::class, 'updateRole'])->name('admin.updateRole');
+});
+
+// Routes for admin and Editor (Shared Access)
+Route::middleware(['auth', 'role:admin,editor'])->prefix('admin')->group(function () {
+    Route::get('/content', function () {
+        return view('admin.content');
+    })->name('admin.content');
 });
 
 // Email Verification Routes

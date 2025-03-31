@@ -17,15 +17,15 @@ return new class extends Migration
             $table->string('lastName', 255);
             $table->string('email', 255)->unique();
             $table->string('password');
+            $table->string('role')->default('member'); // Add this line
             $table->string('invitation_code', 64)->nullable(); // Link to 'invitations' table
             $table->boolean('agreed_to_terms')->default(false);
             $table->timestamp('email_verified_at')->nullable();
-            $table->rememberToken(); // Add this line
+            $table->rememberToken();
             $table->boolean('is_active')->default(true);
             $table->softDeletes(); // Optional for soft deletion
             $table->timestamps();
         });
-
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
