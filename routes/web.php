@@ -25,26 +25,28 @@ Route::get('test-email', function () {
     }
 });
 
-// Login, Logout, and Forgot Password Routes
+// Login, Registration, and Forgot Password Routes (Guest Only)
 Route::middleware(['guest', CheckAccountLocked::class])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('password.request');
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetPasswordLink'])->name('password.email');
-
-    // Registration Routes
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 });
 
-// Dashboard and Logout Routes (only for authenticated users)
+// Dashboard and Logout Routes (Authenticated Users Only)
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard'); // Replace with your dashboard view
     })->name('dashboard');
     Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 
-    // Email Verification Routes
-    Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
-    Route::post('/email/verify/resend', [VerificationController::class, 'resend'])->name('verification.resend');
+    Route::post('/email/verify/resend', [VerificationController::class, 'resend'])
+        ->name('verification.resend');
 });
+
+// Email Verification Routes
+Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
+    ->middleware('signed')
+    ->name('verification.verify');

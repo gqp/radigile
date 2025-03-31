@@ -3,20 +3,18 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 class VerificationController extends Controller
 {
-    public function verify(Request $request)
+    public function verify(EmailVerificationRequest $request)
     {
         if ($request->user()->hasVerifiedEmail()) {
             return redirect()->route('homepage')
                 ->with('status', 'Your email is already verified.');
         }
 
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
-        }
+        $request->fulfill();
 
         return redirect()->route('login')
             ->with('status', 'Email verified successfully. Please log in.');
@@ -32,5 +30,4 @@ class VerificationController extends Controller
 
         return back()->with('status', 'Verification email resent.');
     }
-
 }
