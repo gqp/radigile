@@ -7,14 +7,12 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\VerificationController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Middleware\CheckAccountLocked;
 
-
-// Homepage Routes
+// Homepage Route
 Route::get('/', [HomeController::class, 'index'])->name('homepage');
 
-//Test Email Routes
+// Test Email Route
 Route::get('test-email', function () {
     try {
         Mail::raw('This is a test email', function ($message) {
@@ -27,40 +25,26 @@ Route::get('test-email', function () {
     }
 });
 
-// Login, Logout and Forgot Password Routes
+// Login, Logout, and Forgot Password Routes
 Route::middleware(['guest', CheckAccountLocked::class])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('password.request');
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetPasswordLink'])->name('password.email');
+
+    // Registration Routes
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
 });
 
-
-// Dashboard Routes
+// Dashboard and Logout Routes (only for authenticated users)
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard'); // Replace with your dashboard view
     })->name('dashboard');
     Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
-});
 
-
-// Register and Email Verification Routes
-Route::group(['middleware' => ['web','auth']], function () {
-    // User Registration Routes
-    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register']);
-
-// Email Verification Routes
+    // Email Verification Routes
     Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
     Route::post('/email/verify/resend', [VerificationController::class, 'resend'])->name('verification.resend');
-
-// Registration Routes
-    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register']);
-
-// Email Verification Routes
-    Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
-    Route::post('/email/verify/resend', [VerificationController::class, 'resend'])->name('verification.resend');
-
 });
