@@ -29,6 +29,7 @@ Route::get('test-email', function () {
 Route::middleware(['web', 'guest', CheckAccountLocked::class])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('password.request');
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetPasswordLink'])->name('password.email');
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
