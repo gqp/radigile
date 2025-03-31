@@ -36,14 +36,13 @@ Route::middleware(['guest', CheckAccountLocked::class])->group(function () {
 });
 
 // Dashboard and Logout Routes (Authenticated Users Only)
-Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard'); // Replace with your dashboard view
-    })->name('dashboard');
-    Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
-
-    Route::post('/email/verify/resend', [VerificationController::class, 'resend'])
-        ->name('verification.resend');
+Route::middleware(['web', 'guest', CheckAccountLocked::class])->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('password.request');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetPasswordLink'])->name('password.email');
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
 });
 
 // Email Verification Routes
