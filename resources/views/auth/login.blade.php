@@ -1,3 +1,5 @@
+@extends('layouts.app')
+
 @if (session('status'))
     <div class="alert alert-success">
         {{ session('status') }}
@@ -20,6 +22,8 @@
     </div>
 @endif
 
+@section('content')
+
 <form method="POST" action="{{ route('login') }}">
     @csrf
     <label for="email">Email:</label>
@@ -37,3 +41,5 @@
 </form>
 
 <a href="{{ route('password.request') }}">Forgot Password?</a>
+
+@endsection

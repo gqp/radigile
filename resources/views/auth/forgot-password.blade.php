@@ -1,6 +1,14 @@
+@extends('layouts.app')
+
 @if (session('status'))
     <div class="alert alert-success">
         {{ session('status') }}
+    </div>
+@endif
+
+@if (session('message'))
+    <div class="alert alert-info">
+        {{ session('message') }}
     </div>
 @endif
 
@@ -14,6 +22,8 @@
     </div>
 @endif
 
+@section('content')
+
 <form method="POST" action="{{ route('password.email') }}">
     @csrf
     <label for="email">Enter your email address:</label>
@@ -23,3 +33,5 @@
 </form>
 
 <a href="{{ route('login') }}">Back to Login</a>
+
+@endsection
