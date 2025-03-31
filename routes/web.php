@@ -26,31 +26,25 @@ Route::get('test-email', function () {
     }
 });
 
-// Login, Registration, and Forgot Password Routes (Guest Only)
+// Routes for Guests Only
 Route::middleware(['web', 'guest', CheckAccountLocked::class])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
-    //I am currently implementing this in the Login Controller, but this is an option too.
-    //Route::post('login', [LoginController::class, 'login'])->middleware('throttle:5,10');
-    Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('password.request');
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetPasswordLink'])->name('password.email');
     Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
     Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
-    Route::get('/dashboard', function () { return view('dashboard');})->name('dashboard');
-
 });
 
-// Dashboard and Logout Routes (Authenticated Users Only)
-Route::middleware(['web', 'guest', CheckAccountLocked::class])->group(function () {
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login']);
-    Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('password.request');
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetPasswordLink'])->name('password.email');
-    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register']);
+// Routes for Authenticated Users Only
+Route::middleware(['auth', 'web', CheckAccountLocked::class])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 });
 
 // Email Verification Routes
