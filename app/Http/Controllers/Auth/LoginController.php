@@ -54,7 +54,7 @@ class LoginController extends Controller
         // Handle invalid login attempt, return with error and preserve the email input
         throw ValidationException::withMessages([
             'email' => __('Invalid email or password. Please try again.'),
-        ])->onlyInput('email');
+        ])->redirectTo(url()->previous())->withInput(['email']);
     }
 
     /**
