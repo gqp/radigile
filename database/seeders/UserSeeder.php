@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
             'lastName' => 'Plaisted-Admin',
             'email' => 'gqplaistedd@gmail.com',
             'password' => Hash::make('password'),
-            'password' => 'admin',
+            'role' => 'admin',
         ]);
 
         User::create([
@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
             'lastName' => 'Plaisted-Member',
             'email' => 'garrick.plaisted@gmail.com',
             'password' => Hash::make('password'),
-            'password' => 'member',
+            'role' => 'member',
         ]);
     }
 }
