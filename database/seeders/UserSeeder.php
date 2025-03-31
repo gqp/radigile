@@ -12,10 +12,18 @@ class UserSeeder extends Seeder
     {
         User::create([
             'firstName' => 'Garrick',
-            'lastName' => 'Plaisted',
+            'lastName' => 'Plaisted-Admin',
             'email' => 'garrick.plaisted@gmail.com',
             'password' => Hash::make('password'),
             'password' => 'admin',
+        ]);
+
+        User::create([
+            'firstName' => 'Garrick',
+            'lastName' => 'Plaisted-Member',
+            'email' => 'garrick.plaisted@gmail.com',
+            'password' => Hash::make('password'),
+            'password' => 'member',
         ]);
     }
 }
