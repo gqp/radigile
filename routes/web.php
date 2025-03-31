@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Middleware\CheckAccountLocked;
@@ -29,9 +30,13 @@ Route::get('test-email', function () {
 Route::middleware(['web', 'guest', CheckAccountLocked::class])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
+    //I am currently implementing this in the Login Controller, but this is an option too.
+    //Route::post('login', [LoginController::class, 'login'])->middleware('throttle:5,10');
     Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('password.request');
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetPasswordLink'])->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
     Route::get('/dashboard', function () { return view('dashboard');})->name('dashboard');

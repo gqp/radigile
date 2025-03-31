@@ -15,14 +15,19 @@ class ForgotPasswordController extends Controller
 
     public function sendResetPasswordLink(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
+        // Validate email
+        $request->validate([
+            'email' => 'required|email|exists:users,email', // Ensure email exists
+        ]);
 
+        // Attempt to send the reset link
         $status = Password::sendResetLink(
             $request->only('email')
         );
 
+        // Handle response
         return $status === Password::RESET_LINK_SENT
-            ? back()->with('status', __($status))
-            : back()->withErrors(['email' => __($status)]);
+            ? back()->with('status', __('A password reset link has been sent to your email.'))
+            : back()->withErrors(['email' => __('Unable to send reset link. Please try again later.')]);
     }
 }
