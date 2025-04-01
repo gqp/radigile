@@ -40,7 +40,7 @@ Route::middleware(['web', 'guest', CheckAccountLocked::class])->group(function (
 });
 
 // Routes for Authenticated Users Only
-Route::middleware(['auth', 'web', CheckAccountLocked::class])->group(function () {
+Route::middleware(['auth', 'web', CheckAccountLocked::class, CheckRole::class . ':admin'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
