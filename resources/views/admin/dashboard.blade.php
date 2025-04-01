@@ -27,7 +27,6 @@
     @endif
 
     <div class="container">
-        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
         <h1 class="my-4">Admin Dashboard</h1>
         <div class="card">
             <div class="card-header">
@@ -46,8 +45,4 @@
         </div>
     </div>
 
-    <!-- Normal User's Logout Button -->
-    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-        @csrf
-    </form>
 @endsection

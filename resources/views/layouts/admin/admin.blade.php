@@ -43,7 +43,7 @@
     </footer>
 
     <!-- Admin Logout Button -->
-    <form id="admin-logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
+    <form id="admin-logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
         @csrf
     </form>
 
