@@ -12,7 +12,6 @@
         <nav>
             <a href="{{ route('homepage') }}">Home</a>
             <a href="{{ route('login') }}">Login</a>
-            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Admin Logout</a>
             <a href="{{ route('register') }}">Register</a>
         </nav>
     </header>
