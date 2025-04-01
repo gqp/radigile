@@ -51,7 +51,7 @@ Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'
     ->middleware('signed')
     ->name('verification.verify');
 
-// Routes for Authenticated General Users
+// Routes for Authenticated Users
 Route::middleware(['auth', 'web', CheckAccountLocked::class])->group(function () {
     // General User Dashboard
     Route::get('/dashboard', function () {
