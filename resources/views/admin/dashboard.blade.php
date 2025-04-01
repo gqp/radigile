@@ -28,6 +28,14 @@
 
     <div class="container">
         <h1 class="my-4">Admin Dashboard</h1>
+        <nav class="dashboard-nav">
+            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
+        </nav>
+        <!-- Normal User's Logout Button -->
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="">
+            @csrf
+            <button type="submit">Logout</button>
+        </form>
         <div class="card">
             <div class="card-header">
                 <h2>Welcome, Admins!</h2>
