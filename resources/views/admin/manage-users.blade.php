@@ -1,13 +1,22 @@
-<table>
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Current Role</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
+@extends('layouts.admin.admin')
+
+@section('title', 'Admin Dashboard')
+
+@section('content')
+
+    @if(auth()->user()->role === 'admin')
+    <div class="container">
+    <table>
+        <h1 class="my-4">Admin Dashboard</h1>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Current Role</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
     @foreach($users as $user)
         <tr>
             <td>{{ $user->name }}</td>
@@ -27,4 +36,5 @@
         </tr>
     @endforeach
     </tbody>
-</table>
+    </table>
+    @endif
