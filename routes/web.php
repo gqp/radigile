@@ -10,6 +10,8 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Admin\RoleManagementController; // For role management
 use App\Http\Middleware\CheckAccountLocked;
+use App\Http\Middleware\CheckRole;
+
 
 // Homepage Route
 Route::get('/', [HomeController::class, 'index'])->name('homepage');
@@ -27,28 +29,15 @@ Route::get('test-email', function () {
     }
 });
 
-// Routes for Guests Only
-Route::middleware(['web', 'guest', CheckAccountLocked::class])->group(function () {
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login']);
-    Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('password.request');
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetPasswordLink'])->name('password.email');
-    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
-    Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
-    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register']);
-});
-
-// Routes for Authenticated Users Only
 Route::middleware(['auth', 'web', CheckAccountLocked::class])->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        if (auth()->user()->role === 'admin') {
+            return redirect()->route('admin.dashboard'); // Redirect admins to their dashboard
+        }
+
+        return view('dashboard'); // Regular users see this view
     })->name('dashboard');
-
-    Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 });
-
-use App\Http\Middleware\CheckRole;
 
 // admin Routes Group for Role-based Access
 Route::middleware(['auth', CheckRole::class . ':admin'])->prefix('admin')->group(function () {
