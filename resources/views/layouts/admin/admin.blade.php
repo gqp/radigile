@@ -38,10 +38,15 @@
         @endif
 
         @yield('content')
+
     </main>
 
     <footer>
         <p>&copy; {{ date('Y') }} My Application. All rights reserved.</p>
     </footer>
+    {{-- Form for logout --}}
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
 </body>
 </html>
