@@ -10,7 +10,7 @@
         @if(auth()->user()->role === 'admin')
             <div class="card">
                 <div class="card-header">
-                    <h2>Welcome, Admin!</h2>
+                    <h2>Welcome, Admins!</h2>
                 </div>
                 <div class="card-body">
                     <p>You have full access to the system. Here are your admin privileges:</p>
