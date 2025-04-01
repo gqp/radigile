@@ -56,6 +56,9 @@ Route::middleware(['auth', CheckRole::class . ':admin'])->prefix('admin')->group
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
+    // Admin-specific logout route
+    Route::post('/logout', [LogoutController::class, 'logout'])->name('admin.logout');
+
     // Role Management route
     Route::put('/update-role/{user}', [RoleManagementController::class, 'updateRole'])->name('admin.updateRole');
 });

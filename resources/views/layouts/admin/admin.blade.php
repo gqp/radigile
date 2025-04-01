@@ -44,9 +44,11 @@
     <footer>
         <p>&copy; {{ date('Y') }} My Application. All rights reserved.</p>
     </footer>
-    {{-- Form for logout --}}
+
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
         @csrf
+        <input type="hidden" name="_token" value="csrf_token_here">
     </form>
+
 </body>
 </html>
