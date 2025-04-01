@@ -37,19 +37,19 @@ class LoginController extends Controller
 
         // Attempt to authenticate the user
         if (Auth::attempt($request->only('email', 'password'), $request->has('remember'))) {
-            // Clear any failed attempts in the rate limiter for this user
+            // Clear failed login attempts
             RateLimiter::clear($throttleKey);
 
-            // Regenerate the session to prevent session fixation attacks
             $request->session()->regenerate();
 
             // Role-based redirection
             $user = Auth::user();
+
             if ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard')->with('status', 'Welcome back, Admin!');
             }
 
-            // Redirect other users to their default dashboard
+            // Redirect other roles to their respective dashboard
             return redirect()->route('dashboard')->with('status', 'Welcome back!');
         }
 

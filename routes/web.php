@@ -48,9 +48,10 @@ Route::middleware(['auth', 'web', CheckAccountLocked::class])->group(function ()
     Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 });
 
+use App\Http\Middleware\CheckRole;
+
 // admin Routes Group for Role-based Access
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
-    // Add more routes for admin functionalities here
+Route::middleware(['auth', CheckRole::class . ':admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
@@ -60,7 +61,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 });
 
 // Routes for admin and Editor (Shared Access)
-Route::middleware(['auth', 'role:admin,editor'])->prefix('admin')->group(function () {
+Route::middleware(['auth', CheckRole::class . ':admin,editor'])->prefix('admin')->group(function () {
     Route::get('/content', function () {
         return view('admin.content');
     })->name('admin.content');
