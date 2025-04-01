@@ -12,7 +12,9 @@
         <nav>
             <a href="{{ route('homepage') }}">Home</a>
             <a href="{{ route('login') }}">Login</a>
-            <a href="{{ route('logout') }}">Login</a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
             <a href="{{ route('register') }}">Register</a>
         </nav>
     </header>
