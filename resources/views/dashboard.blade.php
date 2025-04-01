@@ -30,7 +30,6 @@
         <header class="dashboard-header">
             <h1>Welcome to Your Dashboard</h1>
         </header>
-        @if(auth()->user()->role === 'member')
 
         <nav class="dashboard-nav">
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
@@ -52,6 +51,5 @@
         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
             @csrf
         </form>
-        @endif
     </div>
 @endsection
