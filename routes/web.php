@@ -39,6 +39,8 @@ Route::middleware(['web', 'guest', CheckAccountLocked::class])->group(function (
     Route::post('/register', [RegisterController::class, 'register']);
 });
 
+use App\Http\Middleware\CheckRole;
+
 // Routes for Authenticated Users Only
 Route::middleware(['auth', 'web', CheckAccountLocked::class, CheckRole::class . ':admin'])->group(function () {
     Route::get('/dashboard', function () {
@@ -48,7 +50,7 @@ Route::middleware(['auth', 'web', CheckAccountLocked::class, CheckRole::class . 
     Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 });
 
-use App\Http\Middleware\CheckRole;
+
 
 // admin Routes Group for Role-based Access
 Route::middleware(['auth', CheckRole::class . ':admin'])->prefix('admin')->group(function () {
