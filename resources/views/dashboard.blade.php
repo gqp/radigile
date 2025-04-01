@@ -34,6 +34,11 @@
         <nav class="dashboard-nav">
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
         </nav>
+        <!-- Normal User's Logout Button -->
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+            @csrf
+            <button type="submit">Logout</button>
+        </form>
 
         <main class="dashboard-main">
             <h2>Dashboard Overview</h2>
@@ -46,10 +51,5 @@
         <footer class="dashboard-footer">
             &copy; {{ date('Y') }} Radigile, All rights reserved.
         </footer>
-
-        <!-- Normal User's Logout Button -->
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-            @csrf
-        </form>
     </div>
 @endsection
