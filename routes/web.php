@@ -8,8 +8,9 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\VerificationController;
-use App\Http\Controllers\Admin\RoleManagementController; // For role management
+use App\Http\Controllers\Admin\RoleManagementController;
 use App\Http\Middleware\CheckAccountLocked;
+use App\Http\Middleware\CheckRole;
 
 // Homepage Route
 Route::get('/', [HomeController::class, 'index'])->name('homepage');
@@ -27,46 +28,16 @@ Route::get('test-email', function () {
     }
 });
 
-// Routes for Guests Only
+// Routes for Guests Only (Unauthenticated Users)
 Route::middleware(['web', 'guest', CheckAccountLocked::class])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('password.request');
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetPasswordLink'])->name('password.email');
     Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
     Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
-    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register']);
-});
-
-use App\Http\Middleware\CheckRole;
-
-// Routes for Authenticated Users Only
-Route::middleware(['auth', 'web', CheckAccountLocked::class, CheckRole::class . ':admin'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-
-    Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
-});
-
-
-
-// admin Routes Group for Role-based Access
-Route::middleware(['auth', CheckRole::class . ':admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
-
-    // Role Management route
-    Route::put('/update-role/{user}', [RoleManagementController::class, 'updateRole'])->name('admin.updateRole');
-});
-
-// Routes for admin and Editor (Shared Access)
-Route::middleware(['auth', CheckRole::class . ':admin,editor'])->prefix('admin')->group(function () {
-    Route::get('/content', function () {
-        return view('admin.content');
-    })->name('admin.content');
 });
 
 // Email Verification Routes
@@ -74,21 +45,28 @@ Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'
     ->middleware('signed')
     ->name('verification.verify');
 
-// Authenticated Users Only
+// Routes for Authenticated Users (General Access)
 Route::middleware(['auth', 'web', CheckAccountLocked::class])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
+    // Unified logout route for all users
+    Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 });
 
-// Admin Logout (using role-based middleware)
+// Admin-Specific Routes (Role-Based Access)
 Route::middleware(['auth', CheckRole::class . ':admin'])->prefix('admin')->group(function () {
-    // Admin dashboard and logout route
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
-    Route::post('/logout', [LogoutController::class, 'logout'])->name('admin.logout');
+    Route::put('/update-role/{user}', [RoleManagementController::class, 'updateRole'])->name('admin.updateRole');
 });
 
+// Shared Admin and Editor Routes (Role: admin, editor)
+Route::middleware(['auth', CheckRole::class . ':admin,editor'])->prefix('admin')->group(function () {
+    Route::get('/content', function () {
+        return view('admin.content');
+    })->name('admin.content');
+});
