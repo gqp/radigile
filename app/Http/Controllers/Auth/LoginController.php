@@ -43,11 +43,17 @@ class LoginController extends Controller
             // Regenerate the session to prevent session fixation attacks
             $request->session()->regenerate();
 
-            // Redirect to the intended page with a success message
-            return redirect()->intended(route('dashboard'))->with('status', 'Welcome back!');
+            // Role-based redirection
+            $user = Auth::user();
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.dashboard')->with('status', 'Welcome back, Admin!');
+            }
+
+            // Redirect other users to their default dashboard
+            return redirect()->route('dashboard')->with('status', 'Welcome back!');
         }
 
-        // Increment the failed login attempts for the throttle key
+        // If authentication fails, increment the failed login attempts
         RateLimiter::hit($throttleKey, 60 * 15); // Lockout period of 15 minutes
 
         // Redirect back with error for invalid login attempt, preserve the email input
