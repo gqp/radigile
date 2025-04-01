@@ -56,9 +56,6 @@ Route::middleware(['auth', CheckRole::class . ':admin'])->prefix('admin')->group
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
-    // Admin-specific logout route
-    Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
-
     // Role Management route
     Route::put('/update-role/{user}', [RoleManagementController::class, 'updateRole'])->name('admin.updateRole');
 });
@@ -74,3 +71,22 @@ Route::middleware(['auth', CheckRole::class . ':admin,editor'])->prefix('admin')
 Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
     ->middleware('signed')
     ->name('verification.verify');
+
+// Authenticated Users Only
+Route::middleware(['auth', 'web', CheckAccountLocked::class])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+});
+
+// Admin Logout (using role-based middleware)
+Route::middleware(['auth', CheckRole::class . ':admin'])->prefix('admin')->group(function () {
+    // Admin dashboard and logout route
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
+
+    Route::post('/logout', [LogoutController::class, 'logout'])->name('admin.logout');
+});
+

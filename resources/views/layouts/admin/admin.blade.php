@@ -12,10 +12,7 @@
         <nav>
             <a href="{{ route('homepage') }}">Home</a>
             <a href="{{ route('login') }}">Login</a>
-            <a href="{{ route('logout') }}"
-               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                Logout
-            </a>
+            <a href="#" onclick="event.preventDefault(); document.getElementById('admin-logout-form').submit();">Admin Logout</a>
             <a href="{{ route('register') }}">Register</a>
         </nav>
     </header>
@@ -45,9 +42,9 @@
         <p>&copy; {{ date('Y') }} My Application. All rights reserved.</p>
     </footer>
 
-    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+    <!-- Admin Logout Button -->
+    <form id="admin-logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
         @csrf
-        <input type="hidden" name="_token" value="csrf_token_here">
     </form>
 
 </body>
