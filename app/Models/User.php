@@ -2,45 +2,48 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    // Fields that can be mass-assigned
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
-        'firstName',
-        'lastName',
+        'name',
+        'nId',
         'email',
-        'password',
         'role',
-        'invitation_code',
-        'agreed_to_terms',
-        'email_verified_at',
-        'is_active',
+        'password',
     ];
 
-    // Fields that should be hidden in responses
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    // Field casting for specific data types
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'agreed_to_terms' => 'boolean',
-        'is_active' => 'boolean',
-    ];
-
-    // Check if the user is an admin
-    public function isAdmin()
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
     {
-        return $this->role === 'admin';
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
-
 }

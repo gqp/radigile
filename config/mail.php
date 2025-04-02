@@ -30,29 +30,22 @@ return [
     | your mailers below. You may also add additional mailers if needed.
     |
     | Supported: "smtp", "sendmail", "mailgun", "ses", "ses-v2",
-    |            "postmark", "resend", "log", "array",
-    |            "failover", "roundrobin"
+    |            "postmark", "log", "array", "failover", "roundrobin"
     |
     */
 
     'mailers' => [
 
-//        'mailgun' => [
-//            'transport' => 'mailgun',
-//            'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
-//            'port' => env('MAIL_PORT', 465),
-//            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-//            'username' => env('MAIL_USERNAME'),
-//            'password' => env('MAIL_PASSWORD'),
-//            'timeout' => 120,
-//            'local_domain' => env('MAIL_EHLO_DOMAIN'), // Laravel 11 change
-//        ],
-
-        'mailgun' => [
-            'transport' => 'mailgun',
-            'domain' => env('MAILGUN_DOMAIN'),
-            'secret' => env('MAILGUN_SECRET'),
-            'endpoint' => env('MAILGUN_ENDPOINT', 'https://api.mailgun.net'),
+        'smtp' => [
+            'transport' => 'smtp',
+            'url' => env('MAIL_URL'),
+            'host' => env('MAIL_HOST', '127.0.0.1'),
+            'port' => env('MAIL_PORT', 2525),
+            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+            'username' => env('MAIL_USERNAME'),
+            'password' => env('MAIL_PASSWORD'),
+            'timeout' => null,
+            'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
 
         'ses' => [
@@ -65,10 +58,6 @@ return [
             // 'client' => [
             //     'timeout' => 5,
             // ],
-        ],
-
-        'resend' => [
-            'transport' => 'resend',
         ],
 
         'sendmail' => [

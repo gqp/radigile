@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,17 +12,13 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('firstName', 255);
-            $table->string('lastName', 255);
-            $table->string('email', 255)->unique();
-            $table->string('password');
-            $table->string('role')->default('member'); // Add this line
-            $table->string('invitation_code', 64)->nullable(); // Link to 'invitations' table
-            $table->boolean('agreed_to_terms')->default(false);
+            $table->string('name');
+            $table->bigInteger('nId');
+            $table->string('email')->unique();
+            $table->boolean('role')->null();
             $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
             $table->rememberToken();
-            $table->boolean('is_active')->default(true);
-            $table->softDeletes(); // Optional for soft deletion
             $table->timestamps();
         });
 

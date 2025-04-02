@@ -3,66 +3,67 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
 
+// use Illuminate\Support\Facades\Auth;
 class LoginController extends Controller
 {
-    public function showLoginForm()
+    /*
+    |--------------------------------------------------------------------------
+    | Login Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles authenticating users for the application and
+    | redirecting them to your home screen. The controller uses a trait
+    | to conveniently provide its functionality to your applications.
+    |
+    */
+
+    use AuthenticatesUsers;
+
+    /**
+     * Where to redirect users after login.
+     *
+     * @var string
+     */
+    protected $redirectTo = '/home';
+    public function redirectTo()
     {
-        return view('auth.login');
+        if (Auth()->user()->role == 1) {
+            return route('admin.dashboard');
+        } elseif (Auth()->user()->role == 2) {
+            return route('user.dashboard');
+        }
+    }
+
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('guest')->except('logout');
     }
 
     public function login(Request $request)
     {
-        // Validate the request
-        $request->validate([
+        $input = $request->all();
+        $this->validate($request, [
             'email' => 'required|email',
             'password' => 'required',
         ]);
-
-        // Rate limiting
-        $throttleKey = $this->throttleKey($request);
-        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
-            $seconds = RateLimiter::availableIn($throttleKey);
-
-            return redirect()->back()->withErrors([
-                'email' => __("Too many login attempts. Please try again in :seconds seconds.", ['seconds' => $seconds]),
-            ])->withInput($request->only('email'));
-        }
-
-        // Attempt to authenticate
-        if (Auth::attempt($request->only('email', 'password'), $request->has('remember'))) {
-            RateLimiter::clear($throttleKey);
-            $request->session()->regenerate();
-
-            $user = Auth::user();
-
-            // Role-based redirection
-            if ($user->role === 'admin') {
-                return redirect()->route('admin.dashboard')->with('status', 'Welcome back, Admin!');
+        if (auth()->attempt(array('email' => $input['email'], 'password' => $input['password']))) {
+            if (Auth()->user()->role == 1) {
+                return redirect()->route('admin.dashboard');
+            } elseif (Auth()->user()->role == 2) {
+                return redirect()->route('user.dashboard');
             }
-
-            // Other roles redirection
-            return redirect()->route('dashboard')->with('status', 'Welcome back!');
+        } else {
+            return redirect()->route('login')->with('error', 'Email or Passord not correct');
         }
 
-        // Failed login attempt
-        RateLimiter::hit($throttleKey, 60 * 15);
-        return redirect()->back()->withErrors([
-            'email' => __('Invalid email or password. Please try again.'),
-        ])->withInput($request->only('email'));
     }
 
-    /**
-     * Generate a unique throttle key for the request.
-     *
-     * @param Request $request
-     * @return string
-     */
-    protected function throttleKey(Request $request)
-    {
-        return strtolower($request->input('email')) . '|' . $request->ip();
-    }
 }
