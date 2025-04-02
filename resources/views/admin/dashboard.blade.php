@@ -33,7 +33,7 @@
         </nav>
         <!-- Normal User's Logout Button -->
         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="">
-            @csrf
+            <input type="hidden" name="_token" value="{{ csrf_token() }}">
             <button type="submit">Logout</button>
         </form>
         <div class="card">
