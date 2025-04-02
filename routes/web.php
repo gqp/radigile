@@ -63,7 +63,7 @@ Route::middleware(['auth', 'web', CheckAccountLocked::class])->group(function ()
 });
 
 // Routes for Admin Users (Role-Based Access)
-Route::middleware(['auth', CheckRole::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth','web', CheckRole::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
     // Admin Dashboard
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
