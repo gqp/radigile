@@ -16,6 +16,10 @@ class LogoutController extends Controller
      */
     public function logout(Request $request)
     {
+        // Debugging: Output the request data to verify what's being sent
+        dd(request()->all());
+
+
         // Fire logout event automatically in Laravel (optional: attach custom listeners)
         Auth::logout();
 
