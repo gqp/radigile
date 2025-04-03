@@ -6,35 +6,27 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 
-// use Illuminate\Support\Facades\Auth;
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
     use AuthenticatesUsers;
 
     /**
      * Where to redirect users after login.
      *
-     * @var string
+     * @return string
      */
-    protected $redirectTo = '/home';
-    public function redirectTo()
+    protected function redirectTo()
     {
-        if (Auth()->user()->role == 1) {
+        if (auth()->user()->hasRole('Admin')) {
             return route('admin.dashboard');
-        } elseif (Auth()->user()->role == 2) {
+        }
+
+        if (auth()->user()->hasRole('User')) {
             return route('user.dashboard');
         }
+
+        // Default fallback in case a user role doesn't match Admin/User
+        return '/';
     }
 
     /**
@@ -47,23 +39,36 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
+    /**
+     * Handle a login request to the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function login(Request $request)
     {
-        $input = $request->all();
-        $this->validate($request, [
+        // Validate the incoming request
+        $request->validate([
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required|string|min:6',
         ]);
-        if (auth()->attempt(array('email' => $input['email'], 'password' => $input['password']))) {
-            if (Auth()->user()->role == 1) {
+
+        // Attempt authentication
+        if (auth()->attempt(['email' => $request->email, 'password' => $request->password])) {
+            // Redirect based on the user's role
+            if (auth()->user()->hasRole('Admin')) {
                 return redirect()->route('admin.dashboard');
-            } elseif (Auth()->user()->role == 2) {
+            }
+
+            if (auth()->user()->hasRole('User')) {
                 return redirect()->route('user.dashboard');
             }
-        } else {
-            return redirect()->route('login')->with('error', 'Email or Passord not correct');
+
+            // Default fallback
+            return redirect('/');
         }
 
+        // If authentication fails, redirect back with an error
+        return redirect()->route('login')->with('error', 'Invalid email or password.');
     }
-
 }
