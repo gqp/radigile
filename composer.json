@@ -10,6 +10,7 @@
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.5",
         "mailgun/mailgun-php": "^4.3",
+        "spatie/laravel-permission": "^6.16",
         "symfony/mailgun-mailer": "^7.2"
     },
     "require-dev": {

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
 
 
 Route::get('/', function () {
@@ -15,6 +16,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['isAdmin', 'auth', 'preventB
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
+
+    Route::middleware(['role:Admin'])->resource('roles', RoleController::class);
+
 });
 
 Route::group(['prefix' => 'user', 'middleware' => ['isUser', 'auth', 'preventBackHostory']], function () {
