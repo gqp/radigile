@@ -47,7 +47,7 @@ class UserSeeder extends Seeder
                 'nId' => 1002,
                 'email' => 'garrick.plaisted@gmail.com',
                 'password' => Hash::make('password'),
-                'role' => 'User', // Assign User role
+                'role' => 'User',
             ],
         ];
 
