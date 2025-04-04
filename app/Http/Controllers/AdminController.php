@@ -12,7 +12,8 @@ class AdminController extends Controller
     }
     public function profile()
     {
-        dd('Admin');
+        // Debug the authenticated user
+        dd(Auth::user());
         return view("dashboard.admin.profile");
     }
     public function settings()
