@@ -40,7 +40,7 @@ class UserSeeder extends Seeder
                 'nId' => 1001,
                 'email' => 'gqplaisted@gmail.com',
                 'password' => Hash::make('password'),
-                'role' => 'Admin', // Assign Admin role
+                'role' => 'Admin',
             ],
             [
                 'name' => 'Garrick User',
