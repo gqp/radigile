@@ -14,9 +14,9 @@ class RoleMiddleware
             abort(403, 'Unauthorized'); // Redirect if user is not logged in
         }
 
-        // Check the user's role
-        if (Auth::user()->role !== $role) {
-            abort(403, 'Unauthorized'); // Redirect if role does not match
+        // Check if the user has the required role using Spatie's `hasRole` method
+        if (!Auth::user()->hasRole($role)) {
+            abort(403, 'Unauthorized'); // Abort if role does not match
         }
 
         return $next($request);
