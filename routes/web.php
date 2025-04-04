@@ -12,7 +12,7 @@ Route::get('/', function () {
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 // Admin Routes
-Route::group(['prefix' => 'admin', 'middleware' => ['role:Admin', 'auth']], function () {
+Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
@@ -21,7 +21,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['role:Admin', 'auth']], func
 });
 
 // User Routes
-Route::group(['prefix' => 'user', 'middleware' => ['role:User', 'auth']], function () {
+Route::group(['prefix' => 'user', 'middleware' => ['auth','role:User']], function () {
     Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
 });

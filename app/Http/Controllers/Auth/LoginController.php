@@ -26,7 +26,8 @@ class LoginController extends Controller
         }
 
         // Default fallback in case a user role doesn't match Admin/User
-        return '/';
+        //return '/';
+        return 'This is the fallback route';
     }
 
     /**
