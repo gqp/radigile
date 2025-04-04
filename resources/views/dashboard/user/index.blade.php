@@ -12,7 +12,7 @@
                     </div>
 
                     <div class="card-body">
-                        <Span><strong>Dashboard</strong></Span>
+                        <Span><strong>Member Dashboard</strong></Span>
                     </div>
                 </div>
             </div>

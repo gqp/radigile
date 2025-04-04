@@ -12,6 +12,7 @@ class AdminController extends Controller
     }
     public function profile()
     {
+        dd('Admin');
         return view("dashboard.admin.profile");
     }
     public function settings()

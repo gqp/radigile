@@ -14,50 +14,49 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                {{-- Guest Links --}}
+                {{-- Non-Logged-In (Guest) Links --}}
                 @guest
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('login') }}">Login</a>
+                        <a class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}" href="{{ route('login') }}">Login</a>
                     </li>
                     @if (Route::has('register'))
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('register') }}">Register</a>
+                            <a class="nav-link {{ request()->routeIs('register') ? 'active' : '' }}" href="{{ route('register') }}">Register</a>
                         </li>
                     @endif
                 @endguest
 
-                {{-- Authenticated Links --}}
+                {{-- Logged-In User Links --}}
                 @auth
-                    {{-- Admin Links --}}
+                    {{-- Admin-Specific Links --}}
                     @if (auth()->user()->hasRole('Admin'))
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
+                            <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.profile') }}">Profile</a>
+                            <a class="nav-link {{ request()->routeIs('admin.profile') ? 'active' : '' }}" href="{{ route('admin.profile') }}">Profile</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.settings') }}">Settings</a>
+                            <a class="nav-link {{ request()->routeIs('admin.settings') ? 'active' : '' }}" href="{{ route('admin.settings') }}">Settings</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('roles.index') }}">Manage Roles</a>
+                            <a class="nav-link {{ request()->routeIs('roles.index') ? 'active' : '' }}" href="{{ route('roles.index') }}">Manage Roles</a>
                         </li>
                     @endif
 
-                    {{-- User Links --}}
+                    {{-- Regular User Links --}}
                     @if (auth()->user()->hasRole('User'))
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('user.dashboard') }}">User Dashboard</a>
+                            <a class="nav-link {{ request()->routeIs('user.dashboard') ? 'active' : '' }}" href="{{ route('user.dashboard') }}">User Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('user.profile') }}">Profile</a>
+                            <a class="nav-link {{ request()->routeIs('user.profile') ? 'active' : '' }}" href="{{ route('user.profile') }}">Profile</a>
                         </li>
                     @endif
 
-                    {{-- Common Links for Authenticated Users --}}
+                    {{-- Common Links for All Authenticated Users --}}
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
-
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                             @csrf
                         </form>
