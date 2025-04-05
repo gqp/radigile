@@ -18,8 +18,8 @@
 </head>
 <body>
     <div id="app">
-        {{-- Include Navigation --}}
-        @include('layouts.navigation')
+        <!-- Navigation -->
+        @include('partials.nav')
         <main class="py-4">
             @yield('content')
         </main>
