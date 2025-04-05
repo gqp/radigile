@@ -20,7 +20,7 @@
             position: relative;
             width: 100%;
             height: 60vh; /* Adjust height as needed */
-            background: url('{{ asset('imgs/about.jpeg') }}') no-repeat center center/cover;
+            background: url('{{ asset('imgs/login.jpeg') }}') no-repeat center center/cover;
             display: flex;
             align-items: center;
             justify-content: center;
