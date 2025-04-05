@@ -33,7 +33,7 @@ class RoleController extends Controller
         return redirect()->route('dashboard.admin.roles.roles_index')->with('success', 'Role created successfully!');
     }
 
-    public function edit(Role $role)
+    public function edit(Role $roles)
     {
         $permissions = Permission::all();
         return view('dashboard.admin.roles.edit_roles', compact('role', 'permissions'));

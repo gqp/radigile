@@ -25,9 +25,7 @@ class LoginController extends Controller
             return route('user.dashboard');
         }
 
-        // Default fallback in case a user role doesn't match Admin/User
-        //return '/';
-        return 'This is the fallback route';
+        return '/';
     }
 
     /**
@@ -58,11 +56,13 @@ class LoginController extends Controller
         if (auth()->attempt(['email' => $request->email, 'password' => $request->password])) {
             // Redirect based on the user's role
             if (auth()->user()->hasRole('Admin')) {
-                return redirect()->route('admin.dashboard');
+                return redirect()->route('admin.dashboard')
+                    ->with('success', 'Welcome Admin!');
             }
 
             if (auth()->user()->hasRole('User')) {
-                return redirect()->route('user.dashboard');
+                return redirect()->route('user.dashboard')
+                ->with('success', 'Welcome User!');
             }
 
             // Default fallback
