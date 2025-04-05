@@ -17,6 +17,12 @@
                 {{-- Non-Logged-In (Guest) Links --}}
                 @guest
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('/') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="{{ route('about') }}">About</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}" href="{{ route('login') }}">Login</a>
                     </li>
                     @if (Route::has('register'))

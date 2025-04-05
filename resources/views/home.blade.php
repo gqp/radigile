@@ -1,30 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coming Soon</title>
-    <!-- Link to Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-            text-align: center;
-        }
-        .coming-soon {
-            margin-top: 10%;
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #343a40;
-        }
-        .nav-link {
-            color: #343a40 !important;
-        }
-    </style>
-</head>
-<body>
-<!-- Navigation -->
-@include('partials.nav')
+@extends('layouts.app')
+
+@section('content')
+    <div class="container">
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
+{{-- Include Navigation --}}
+@include('layouts.navigation')
 
 
 <!-- Coming Soon Section -->
@@ -41,5 +32,5 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+@endsection
+

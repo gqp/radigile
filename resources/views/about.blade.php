@@ -1,36 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Radigile</title>
-    <!-- Link to Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .about-heading {
-            text-align: center;
-            margin: 2rem 0;
-            font-size: 2.5rem;
-            font-weight: bold;
-        }
-        .content-section {
-            margin-bottom: 2rem;
-        }
-        .nav-link {
-            color: #343a40 !important;
-        }
-        .content-title {
-            font-weight: bold;
-            color: #007bff;
-        }
-    </style>
-</head>
-<body>
-<!-- Navigation -->
-@include('partials.nav')
+@extends('layouts.app')
+
+@section('content')
+    <div class="container">
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
+{{-- Include Navigation --}}
+@include('layouts.navigation')
 
 <!-- About Section -->
 <div class="container">
@@ -89,5 +74,4 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+@endsection
