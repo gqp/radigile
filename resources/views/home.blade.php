@@ -14,10 +14,6 @@
             </div>
         @endif
 
-{{-- Include Navigation --}}
-@include('layouts.navigation')
-
-
 <!-- Coming Soon Section -->
 <div class="coming-soon">
     <p>Our website is coming soon! Stay tuned.</p>

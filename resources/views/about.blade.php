@@ -14,9 +14,6 @@
             </div>
         @endif
 
-{{-- Include Navigation --}}
-@include('layouts.navigation')
-
 <!-- About Section -->
 <div class="container">
     <h1 class="about-heading">About Radigile</h1>
