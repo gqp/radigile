@@ -53,10 +53,10 @@
                     {{-- Regular User Links --}}
                     @if (auth()->user()->hasRole('User'))
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('user.dashboard') ? 'active' : '' }}" href="{{ route('user.dashboard') }}">User Dashboard</a>
+                            <a class="nav-link {{ request()->is('user.dashboard') ? 'active' : '' }}" href="{{ route('user.dashboard') }}">User Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('user.profile') ? 'active' : '' }}" href="{{ route('user.profile') }}">Profile</a>
+                            <a class="nav-link {{ request()->is('user.profile') ? 'active' : '' }}" href="{{ route('user.profile') }}">Profile</a>
                         </li>
                     @endif
 
