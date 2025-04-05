@@ -4,12 +4,20 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AboutController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+// Home Page
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+//About Page
+Route::get('/about', [AboutController::class, 'index'])->name('about');
 
 // Admin Routes
 Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], function () {
