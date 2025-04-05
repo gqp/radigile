@@ -14,19 +14,71 @@
             </div>
         @endif
 
-<!-- Coming Soon Section -->
-<div class="coming-soon">
-    <p>Our website is coming soon! Stay tuned.</p>
-    <button class="btn btn-primary" onclick="alert('Thank you for your interest!')">Notify Me</button>
-</div>
+    <style>
+        /* Fullscreen Video Background Style */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+        }
 
-<!-- About Section -->
-<div id="about" class="container mt-5">
-    <h3>About Us</h3>
-    <p class="text-muted">We are working hard to launch our new website. Stay connected and check back soon!</p>
-</div>
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Dark overlay for text visibility */
+            z-index: 1;
+        }
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        .coming-soon-container {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            color: #fff;
+        }
+
+        .coming-soon-container h1 {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .coming-soon-container p {
+            font-size: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .coming-soon-container .btn {
+            font-size: 1.25rem;
+            padding: 0.75rem 2rem;
+        }
+    </style>
+
+    <!-- Video Background -->
+    <video class="video-background" autoplay muted loop>
+        <source src="/resources/vids/home.mov" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- Dark overlay for text readability -->
+    <div class="overlay"></div>
+
+    <!-- Coming Soon Content -->
+    <div class="coming-soon-container">
+        <h1>Coming Soon</h1>
+        <p>Something amazing is on its way. Stay tuned!</p>
+        <button class="btn btn-primary" onclick="alert('Thank you for your interest!')">Notify Me</button>
+    </div>
+
 @endsection
 
