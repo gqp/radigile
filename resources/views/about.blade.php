@@ -14,6 +14,55 @@
             </div>
         @endif
 
+            <style>
+                /* Hero Block Styles */
+                .hero-section {
+                    position: relative;
+                    width: 100%;
+                    height: 50vh; /* Adjust height as needed */
+                    background: url('{{ asset('images/about.jpeg') }}') no-repeat center center/cover;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+                    color: #fff;
+                }
+
+                .hero-overlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5); /* Overlay to darken the image */
+                    z-index: 1;
+                }
+
+                .hero-content {
+                    position: relative;
+                    z-index: 2; /* To place it above the overlay */
+                }
+
+                .hero-content h1 {
+                    font-size: 3rem;
+                    font-weight: bold;
+                    margin-bottom: 1rem;
+                }
+
+                .hero-content p {
+                    font-size: 1.25rem;
+                }
+            </style>
+
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-overlay"></div>
+                <div class="hero-content">
+                    <h1>Welcome to Our About Page</h1>
+                    <p>Learn more about us and our mission.</p>
+                </div>
+            </section>
+
 <!-- About Section -->
 <div class="container">
     <h1 class="about-heading">About Radigile</h1>
