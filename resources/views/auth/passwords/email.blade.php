@@ -106,7 +106,7 @@
     <section class="hero-section full-width-container">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1>Email</h1>
+            <h1>Forgot Password</h1>
         </div>
     </section>
 
