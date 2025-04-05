@@ -32,7 +32,7 @@
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    background: rgba(0, 0, 0, 0.5); /* Dark overlay for text visibility */
+                    /*background: rgba(0, 0, 0, 0.5); /* Dark overlay for text visibility */
                     z-index: 1;
                     pointer-events: none; /* Prevent overlay from intercepting clicks */
                 }
