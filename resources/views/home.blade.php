@@ -66,7 +66,7 @@
 
     <!-- Video Background -->
     <video class="video-background" autoplay muted loop>
-        <source src="/resources/vids/home.mov" type="video/mp4">
+        <source src="/resources/vids/home.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 
