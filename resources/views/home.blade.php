@@ -62,6 +62,7 @@
                 .coming-soon-container .btn {
                     font-size: 1.25rem;
                     padding: 0.75rem 2rem;
+                    color: #000;
                 }
             </style>
 
