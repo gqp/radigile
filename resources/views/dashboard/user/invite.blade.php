@@ -37,21 +37,37 @@
                 </div>
             @else
                 @for ($i = 0; $i < $numberOfForms; $i++)
-                    <form action="{{ route('user.invites.send') }}" method="POST" class="mb-3">
-                        @csrf
+                    @php
+                        // Generate a unique invite code for each form
+                        $inviteCode = \Illuminate\Support\Str::random(10);
+                    @endphp
 
-                        <div class="mb-3">
-                            <label for="emails[{{ $i }}]" class="form-label">Recipient Email (Form {{ $i + 1 }})</label>
-                            <input
-                                type="email"
-                                name="emails[{{ $i }}]"
-                                id="emails[{{ $i }}]"
-                                class="form-control"
-                                required>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Invite Code for Form {{ $i + 1 }}</h5>
+                            <p class="card-text">
+                                <strong>Invite Code:</strong> {{ $inviteCode }}
+                            </p>
+
+                            <form action="{{ route('user.invites.send') }}" method="POST">
+                                @csrf
+
+                                <input type="hidden" name="invite_code" value="{{ $inviteCode }}">
+
+                                <div class="mb-3">
+                                    <label for="emails[{{ $i }}]" class="form-label">Recipient Email (Form {{ $i + 1 }})</label>
+                                    <input
+                                        type="email"
+                                        name="emails[{{ $i }}]"
+                                        id="emails[{{ $i }}]"
+                                        class="form-control"
+                                        required>
+                                </div>
+
+                                <button type="submit" class="btn btn-success">Send Invite</button>
+                            </form>
                         </div>
-
-                        <button type="submit" class="btn btn-success">Send Invite</button>
-                    </form>
+                    </div>
                 @endfor
             @endif
         @endif
