@@ -30,6 +30,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     Route::get('/invites', [InviteController::class, 'index'])->name('admin.invites.index');
     Route::post('/invites/create', [InviteController::class, 'store'])->name('admin.invites.create');
     Route::post('/invites/toggle', [InviteController::class, 'toggleInviteOnly'])->name('admin.invites.toggle');
+    Route::put('/invites/disable/{id}', [InviteController::class, 'disable'])->name('admin.invites.disable');
 
     //Roles Routes
     Route::resource('roles', RoleController::class);

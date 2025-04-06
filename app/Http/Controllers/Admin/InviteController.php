@@ -3,55 +3,75 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\InviteNotification;
 use App\Models\Invite;
+use App\Models\User;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class InviteController extends Controller
 {
     /**
-     * Display invite management page.
+     * Display the Invite Management Page.
      */
     public function index()
     {
-        $invites = Invite::all(); // Fetch all invites
-        $inviteOnly = Setting::where('name', 'invite_only')->value('value');
-        return view('dashboard.admin.invites.index', compact('invites', 'inviteOnly'));
+        $invites = Invite::all();
+        $inviteOnly = Setting::get('invite_only'); // Get current invite-only toggle status
+        $users = User::all(); // Get all registered users for dropdown
+
+        return view('admin.invites.index', compact('invites', 'inviteOnly', 'users'));
     }
 
     /**
-     * Generate a new invite code.
+     * Generate invite and send invitation.
      */
     public function store(Request $request)
     {
         $request->validate([
+            'email' => 'nullable|email', // For non-registered users
+            'user_id' => 'nullable|exists:users,id', // For registered users
             'max_uses' => 'required|integer|min:1',
             'expires_at' => 'nullable|date',
         ]);
 
-        $code = Str::random(10); // Generate random code
+        // Generate a unique invite code
+        $code = Str::random(10);
 
-        Invite::create([
+        // Create the invite
+        $invite = Invite::create([
             'code' => $code,
             'created_by' => Auth::id(),
             'max_uses' => $request->max_uses,
             'expires_at' => $request->expires_at,
         ]);
 
-        return redirect()->route('admin.invites.index')->with('success', 'Invite created successfully!');
+        // Notify the user via email
+        if ($request->email) {
+            // Send invite link to non-registered user's email
+            Mail::to($request->email)->send(new InviteNotification($invite->code));
+        }
+
+        if ($request->user_id) {
+            // Get the registered user and send them the invite notification
+            $user = User::find($request->user_id);
+            Mail::to($user->email)->send(new InviteNotification($invite->code));
+        }
+
+        return redirect()->route('admin.invites.index')->with('success', 'Invite generated and email notifications sent successfully!');
     }
 
     /**
-     * Toggle invite-only mode.
+     * Disable an active invite.
      */
-    public function toggleInviteOnly()
+    public function disable($id)
     {
-        // Use the Setting model to toggle the "invite_only" feature
-        Setting::toggle('invite_only');
+        $invite = Invite::findOrFail($id);
+        $invite->update(['is_active' => false]);
 
-        return redirect()->route('admin.invites.index')->with('success', 'Invite-only mode toggled successfully!');
+        return redirect()->route('admin.invites.index')->with('success', 'Invite disabled successfully!');
     }
-
 }
