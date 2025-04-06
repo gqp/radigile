@@ -11,24 +11,8 @@ class UserController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
+        return view('dashboard.user.index');
 
-        // Avoid redirection loop for Admin
-        if ($user->hasRole('Admin')) {
-            if (request()->route()->getName() !== 'admin.dashboard') {
-                return redirect()->route('admin.dashboard');
-            }
-        }
-
-        // Avoid redirection loop for User
-        if ($user->hasRole('User')) {
-            if (request()->route()->getName() !== 'user.dashboard') {
-                return redirect()->route('user.dashboard');
-            }
-        }
-        dd(auth()->user()->roles->pluck('name')); // Verify roles attached to the authenticated user
-        // Default fallback if no role is assigned
-        return redirect('/')->with('error', 'Unauthorized access.');
     }
 
     public function profile()
