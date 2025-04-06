@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
-        <a class="navbar-brand" href="{{ route('home') }}">Radigile</a>
+        <a class="navbar-brand" href="{{ route('home') }}">Radigile.com  - A New Era of Team Growth</a>
         <button
             class="navbar-toggler"
             type="button"
