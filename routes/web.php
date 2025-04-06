@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\Admin\InviteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,13 +26,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
 
-    Route::resource('roles', RoleController::class);
-});
+    // Invite Routes
+    Route::get('/invites', [InviteController::class, 'index'])->name('admin.invites.index');
+    Route::post('/invites/create', [InviteController::class, 'store'])->name('admin.invites.create');
+    Route::post('/invites/toggle', [InviteController::class, 'toggleInviteOnly'])->name('admin.invites.toggle');
 
-Route::group(['prefix' => 'admin/invites', 'middleware' => ['auth', 'role:Admin']], function () {
-    Route::get('/', [InviteController::class, 'index'])->name('admin.invites.index');
-    Route::post('/create', [InviteController::class, 'store'])->name('admin.invites.create');
-    Route::post('/toggle', [InviteController::class, 'toggleInviteOnly'])->name('admin.invites.toggle');
+    //Roles Routes
+    Route::resource('roles', RoleController::class);
 });
 
 // User Routes
