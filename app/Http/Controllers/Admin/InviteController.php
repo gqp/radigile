@@ -48,9 +48,10 @@ class InviteController extends Controller
      */
     public function toggleInviteOnly()
     {
-        $setting = Setting::where('name', 'invite_only')->first();
-        $setting->update(['value' => !$setting->value]); // Toggle setting
+        // Use the Setting model to toggle the "invite_only" feature
+        Setting::toggle('invite_only');
 
-        return redirect()->route('dashboard.admin.invites.index')->with('success', 'Invite-only mode toggled!');
+        return redirect()->route('admin.invites.index')->with('success', 'Invite-only mode toggled successfully!');
     }
+
 }
