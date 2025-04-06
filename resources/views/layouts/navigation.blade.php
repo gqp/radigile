@@ -14,7 +14,7 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                {{-- Non-Logged-In (Guest) Links --}}
+                {{-- Guest Links --}}
                 @guest
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
@@ -32,7 +32,7 @@
                     @endif
                 @endguest
 
-                {{-- Logged-In User Links --}}
+                {{-- Authenticated User Links --}}
                 @auth
                     {{-- Admin-Specific Links --}}
                     @if (auth()->user()->hasRole('Admin'))
@@ -48,13 +48,11 @@
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('roles.index') ? 'active' : '' }}" href="{{ route('roles.index') }}">Manage Roles</a>
                         </li>
-                        {{-- Invite Links --}}
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('admin.invites.index') ? 'active' : '' }}" href="{{ route('admin.invites.index') }}">Manage Invites</a>
                         </li>
-                        {{-- **User Management for Admins** --}}
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">User Management</a>
+                            <a class="nav-link {{ request()->routeIs('admin.users.manage') ? 'active' : '' }}" href="{{ route('admin.users.manage') }}">Manage Users</a>
                         </li>
                     @endif
 
@@ -66,24 +64,5 @@
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('user.profile') ? 'active' : '' }}" href="{{ route('user.profile') }}">Profile</a>
                         </li>
-
-                        {{-- Invite Links for Users (if applicable) --}}
-                        @if (auth()->user()->allowed_invites > 0)
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('user.invites') ? 'active' : '' }}" href="{{ route('user.invites') }}">Manage Invites</a>
-                            </li>
-                        @endif
-                    @endif
-
-                    {{-- Logout Link --}}
-                    <li class="nav-item">
-                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="nav-link btn btn-link">Logout</button>
-                        </form>
-                    </li>
-                @endauth
-            </ul>
-        </div>
-    </div>
-</nav>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('user.invites') ? 'active' : '' }}" href="{{ route('user.invites') }}">

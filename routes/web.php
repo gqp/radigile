@@ -35,10 +35,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     //Roles Recource Routes
     Route::resource('roles', RoleController::class);
 
-    //Users Resource Route
-    Route::resource('users', UserController::class, [
-        'as' => 'admin' // Adds 'admin.' prefix to route names
-    ]);
+    //Manage Users Route
+    Route::get('/admin/manage-users', [UserController::class, 'manage'])->name('admin.users.index');
 
 });
 

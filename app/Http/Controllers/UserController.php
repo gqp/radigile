@@ -84,6 +84,16 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
 
+    public function manage()
+    {
+        // Ensure only admins can access this
+        $this->authorize('viewAny', User::class);
+
+        $users = User::all(); // Pull all users
+        return view('dashboard.admin.users.manage', compact('users')); // Send users to admin manage view
+    }
+
+
     public function destroy($id)
     {
         $user = User::findOrFail($id);
