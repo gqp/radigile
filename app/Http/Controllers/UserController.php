@@ -90,7 +90,7 @@ class UserController extends Controller
         $this->authorize('viewAny', User::class);
 
         $users = User::all(); // Pull all users
-        return view('dashboard.admin.users.manage', compact('users')); // Send users to admin manage view
+        return view('dashboard.admin.users.index', compact('users')); // Send users to admin manage view
     }
 
 
