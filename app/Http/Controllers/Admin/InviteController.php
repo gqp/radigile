@@ -18,7 +18,7 @@ class InviteController extends Controller
     {
         $invites = Invite::all(); // Fetch all invites
         $inviteOnly = Setting::where('name', 'invite_only')->value('value');
-        return view('dashboard.admin.invites.index', compact('invites', 'inviteOnly'));
+        return view('admin.invites.index', compact('invites', 'inviteOnly'));
     }
 
     /**
@@ -40,7 +40,7 @@ class InviteController extends Controller
             'expires_at' => $request->expires_at,
         ]);
 
-        return redirect()->route('dashboard.admin.invites.index')->with('success', 'Invite created successfully!');
+        return redirect()->route('admin.invites.index')->with('success', 'Invite created successfully!');
     }
 
     /**
