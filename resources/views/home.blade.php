@@ -58,6 +58,7 @@
                 .coming-soon-container p {
                     font-size: 1.5rem;
                     margin: 1rem 0;
+                    color: #000;
                 }
 
                 .coming-soon-container .btn {
