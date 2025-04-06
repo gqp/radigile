@@ -1,71 +1,88 @@
-@extends('layouts.app')
-
-@section('content')
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
-        <h3>Share Your Invites</h3>
+        <a class="navbar-brand" href="{{ route('home') }}">Radigile.com - A New Era of Team Growth</a>
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-        <p>You have <strong>{{ $remainingInvites }}</strong> invites remaining.</p>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                {{-- Guest Links --}}
+                @guest
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('about') ? 'active' : '' }}" href="{{ route('about') }}">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}" href="{{ route('login') }}">Login</a>
+                    </li>
+                    @if (Route::has('register'))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('register') ? 'active' : '' }}" href="{{ route('register') }}">Register</a>
+                        </li>
+                    @endif
+                @endguest
 
-        {{-- Form to specify the number of email forms --}}
-        <form id="generator-form" method="GET">
-            <div class="mb-3">
-                <label for="number_of_forms" class="form-label">Number of Email Forms to Display</label>
-                <input
-                    type="number"
-                    id="number_of_forms"
-                    name="number_of_forms"
-                    class="form-control"
-                    min="1"
-                    max="{{ $remainingInvites }}"
-                    required
-                    value="{{ old('number_of_forms') }}">
-            </div>
-            <button type="submit" class="btn btn-primary">Generate Forms</button>
-        </form>
+                {{-- Authenticated User Links --}}
+                @auth
+                    {{-- Admin-Specific Links --}}
+                    @if (auth()->user()->hasRole('Admin'))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.profile') ? 'active' : '' }}" href="{{ route('admin.profile') }}">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.settings') ? 'active' : '' }}" href="{{ route('admin.settings') }}">Settings</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('roles.index') ? 'active' : '' }}" href="{{ route('roles.index') }}">Manage Roles</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.invites.index') ? 'active' : '' }}" href="{{ route('admin.invites.index') }}">Manage Invites</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.users.manage') ? 'active' : '' }}" href="{{ route('admin.users.manage') }}">Manage Users</a>
+                        </li>
+                    @endif
 
-        <hr>
+                    {{-- Regular User Links --}}
+                    @if (auth()->user()->hasRole('User'))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('user.dashboard') ? 'active' : '' }}" href="{{ route('user.dashboard') }}">User Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('user.profile') ? 'active' : '' }}" href="{{ route('user.profile') }}">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('user.invites.index') ? 'active' : '' }}" href="{{ route('user.invites.index') }}">Share Invites</a>
+                        </li>
+                    @endif
 
-        {{-- Display the email forms dynamically --}}
-        @if (request()->has('number_of_forms'))
-            @php
-                $numberOfForms = (int) request('number_of_forms');
-            @endphp
-
-            @if ($numberOfForms > $remainingInvites)
-                <div class="alert alert-danger">
-                    You cannot generate more forms than your remaining invites ({{ $remainingInvites }}).
-                </div>
-            @else
-                @for ($i = 0; $i < $numberOfForms; $i++)
-                    <form action="{{ route('user.invites.send') }}" method="POST" class="mb-4">
-                        @csrf
-
-                        <div class="mb-3">
-                            <label for="emails[{{ $i }}]" class="form-label">Recipient Email (Form {{ $i + 1 }})</label>
-                            <input
-                                type="email"
-                                name="emails[{{ $i }}]"
-                                id="emails[{{ $i }}]"
-                                class="form-control"
-                                required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="amounts[{{ $i }}]" class="form-label">Number of Invites</label>
-                            <input
-                                type="number"
-                                name="amounts[{{ $i }}]"
-                                id="amounts[{{ $i }}]"
-                                class="form-control"
-                                min="1"
-                                max="{{ $remainingInvites }}"
-                                required>
-                        </div>
-
-                        <button type="submit" class="btn btn-success">Send Invite</button>
-                    </form>
-                @endfor
-            @endif
-        @endif
+                    {{-- Logout Link --}}
+                    <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            href="{{ route('logout') }}"
+                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            Logout
+                        </a>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
+                    </li>
+                @endauth
+            </ul>
+        </div>
     </div>
-@endsection
+</nav>

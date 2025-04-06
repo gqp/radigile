@@ -6,47 +6,66 @@
 
         <p>You have <strong>{{ $remainingInvites }}</strong> invites remaining.</p>
 
-        <form action="{{ route('user.invites.send') }}" method="POST">
-            @csrf
-
-            <div id="invite-fields">
-                <!-- Email and amount input fields will be appended here -->
-
-                <div class="mb-3 invite-group">
-                    <label for="emails[]" class="form-label">Recipient Email</label>
-                    <input type="email" name="emails[]" class="form-control" required>
-
-                    <label for="amounts[]" class="form-label mt-2">Number of Invites</label>
-                    <input type="number" name="amounts[]" class="form-control" min="1" required>
-
-                    <button type="button" class="btn btn-danger mt-2 remove-field">Remove</button>
-                </div>
+        {{-- Form to specify the number of email forms --}}
+        <form id="generator-form" method="GET">
+            <div class="mb-3">
+                <label for="number_of_forms" class="form-label">Number of Email Forms to Display</label>
+                <input
+                    type="number"
+                    id="number_of_forms"
+                    name="number_of_forms"
+                    class="form-control"
+                    min="1"
+                    max="{{ $remainingInvites }}"
+                    required
+                    value="{{ old('number_of_forms') }}">
             </div>
-
-            <button type="button" id="add-field" class="btn btn-primary my-3">Add Another Recipient</button>
-            <button type="submit" class="btn btn-success">Send Invites</button>
+            <button type="submit" class="btn btn-primary">Generate Forms</button>
         </form>
+
+        <hr>
+
+        {{-- Display the email forms dynamically --}}
+        @if (request()->has('number_of_forms'))
+            @php
+                $numberOfForms = (int) request('number_of_forms');
+            @endphp
+
+            @if ($numberOfForms > $remainingInvites)
+                <div class="alert alert-danger">
+                    You cannot generate more forms than your remaining invites ({{ $remainingInvites }}).
+                </div>
+            @else
+                @for ($i = 0; $i < $numberOfForms; $i++)
+                    <form action="{{ route('user.invites.send') }}" method="POST" class="mb-4">
+                        @csrf
+
+                        <div class="mb-3">
+                            <label for="emails[{{ $i }}]" class="form-label">Recipient Email (Form {{ $i + 1 }})</label>
+                            <input
+                                type="email"
+                                name="emails[{{ $i }}]"
+                                id="emails[{{ $i }}]"
+                                class="form-control"
+                                required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="amounts[{{ $i }}]" class="form-label">Number of Invites</label>
+                            <input
+                                type="number"
+                                name="amounts[{{ $i }}]"
+                                id="amounts[{{ $i }}]"
+                                class="form-control"
+                                min="1"
+                                max="{{ $remainingInvites }}"
+                                required>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">Send Invite</button>
+                    </form>
+                @endfor
+            @endif
+        @endif
     </div>
-
-    <script>
-        document.getElementById('add-field').addEventListener('click', function () {
-            const newFieldGroup = document.querySelector('.invite-group').cloneNode(true);
-            document.getElementById('invite-fields').appendChild(newFieldGroup);
-
-            newFieldGroup.querySelector('input[name="emails[]"]').value = '';
-            newFieldGroup.querySelector('input[name="amounts[]"]').value = '';
-
-            // Add event listener for newly cloned "Remove" button
-            newFieldGroup.querySelector('.remove-field').addEventListener('click', function () {
-                this.parentElement.remove();
-            });
-        });
-
-        // Remove field functionality
-        document.querySelectorAll('.remove-field').forEach(button => {
-            button.addEventListener('click', function () {
-                this.parentElement.remove();
-            });
-        });
-    </script>
 @endsection
