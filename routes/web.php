@@ -32,8 +32,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     Route::post('/invites/toggle', [InviteController::class, 'toggleInviteOnly'])->name('admin.invites.toggle');
     Route::put('/invites/disable/{id}', [InviteController::class, 'disable'])->name('admin.invites.disable');
 
-    //Roles Routes
+    //Roles Recource Routes
     Route::resource('roles', RoleController::class);
+
+    //Users Resource Route
+    Route::resource('users', UserController::class, [
+        'as' => 'admin' // Adds 'admin.' prefix to route names
+    ]);
+
 });
 
 // User Routes
