@@ -13,6 +13,7 @@
                 <th>#</th>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Role</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -22,6 +23,14 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
+                    <td>
+                        {{-- Display the role(s) of the user --}}
+                        @if($user->roles->isNotEmpty())
+                            {{ $user->roles->pluck('name')->join(', ') }}
+                        @else
+                            <span class="text-muted">No role assigned</span>
+                        @endif
+                    </td>
                     <td>
                         <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-warning">Edit</a>
                         <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline;">
