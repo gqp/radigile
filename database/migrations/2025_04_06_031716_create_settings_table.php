@@ -1,21 +1,22 @@
 <?php
 
-namespace Database\Seeders;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-
-class SettingsSeeder extends Seeder
-{
-    public function run(): void
+return new class extends Migration {
+    public function up(): void
     {
-        DB::table('settings')->insert([
-            [
-                'name' => 'invite_only',
-                'value' => false, // Default: invite-only mode is disabled
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+        Schema::create('settings', function (Blueprint $table) {
+            $table->id();
+            $table->string('key');
+            $table->string('value')->nullable();
+            $table->timestamps();
+        });
     }
-}
+
+    public function down(): void
+    {
+        Schema::dropIfExists('settings');
+    }
+};
