@@ -28,6 +28,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     Route::resource('roles', RoleController::class);
 });
 
+Route::group(['prefix' => 'admin/invites', 'middleware' => ['auth', 'role:Admin']], function () {
+    Route::get('/', [InviteController::class, 'index'])->name('admin.invites.index');
+    Route::post('/create', [InviteController::class, 'store'])->name('admin.invites.create');
+    Route::post('/toggle', [InviteController::class, 'toggleInviteOnly'])->name('admin.invites.toggle');
+});
+
 // User Routes
 Route::group(['prefix' => 'user', 'middleware' => ['auth','role:User']], function () {
     Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');

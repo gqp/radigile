@@ -53,8 +53,8 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'nId' => ['required', 'integer', 'digits:14', 'unique:users,nid'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            // 'role' => "1",
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'invite_code' => ['required', 'exists:invites,code'], // Validate code exists
         ]);
     }
 
@@ -66,12 +66,25 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        // Find invite
+        $invite = Invite::where('code', $data['invite_code'])->first();
+
+        if (!$invite || !$invite->isValid()) {
+            abort(403, 'Invalid invite code');
+        }
+
+        // Register user
+        $user = User::create([
             'name' => $data['name'],
             'nId' => $data['nId'],
             'email' => $data['email'],
-            'role' => 2,
             'password' => Hash::make($data['password']),
         ]);
+
+        // Mark invite as used
+        $invite->update(['times_used' => $invite->times_used + 1, 'invited_user_id' => $user->id]);
+
+        return $user;
+
     }
 }

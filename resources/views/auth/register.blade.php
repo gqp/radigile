@@ -132,6 +132,16 @@
                     </div>
                 </div>
                 <div class="row mb-3">
+                    <label for="invite_code" class="col-md-4 col-form-label text-md-end">{{ __('Invite Code') }}</label>
+                    <div class="col-md-6">
+                        <input id="invite_code" type="text" class="form-control @error('invite_code') is-invalid @enderror"
+                               name="invite_code" value="{{ old('invite_code') }}" required>
+                        @error('invite_code')
+                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
+                </div>
+                <div class="row mb-3">
                     <label for="nId"
                            class="col-md-4 col-form-label text-md-end">{{ __('National Id') }}</label>
 
