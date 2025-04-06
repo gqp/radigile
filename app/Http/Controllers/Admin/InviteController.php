@@ -23,7 +23,7 @@ class InviteController extends Controller
         $inviteOnly = Setting::get('invite_only'); // Get current invite-only toggle status
         $users = User::all(); // Get all registered users for dropdown
 
-        return view('admin.invites.index', compact('invites', 'inviteOnly', 'users'));
+        return view('dashboard.admin.invites.index', compact('invites', 'inviteOnly', 'users'));
     }
 
     /**
