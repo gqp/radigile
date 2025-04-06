@@ -12,13 +12,18 @@ class UserController extends Controller
     {
         $user = auth()->user();
 
-        // Check the role and redirect accordingly
+        // Avoid redirection loop for Admin
         if ($user->hasRole('Admin')) {
-            return redirect()->route('admin.dashboard');
+            if (request()->route()->getName() !== 'admin.dashboard') {
+                return redirect()->route('admin.dashboard');
+            }
         }
 
+        // Avoid redirection loop for User
         if ($user->hasRole('User')) {
-            return redirect()->route('user.dashboard');
+            if (request()->route()->getName() !== 'user.dashboard') {
+                return redirect()->route('user.dashboard');
+            }
         }
 
         // Default fallback if no role is assigned
