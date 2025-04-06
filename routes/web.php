@@ -38,6 +38,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     //Manage Users Route
     Route::get('/manage-users', [UserController::class, 'manage'])->name('admin.users.manage');
 
+    // Create User
+    Route::get('/manage-users/create', [UserController::class, 'create'])->name('admin.users.create');
+    Route::post('/manage-users', [UserController::class, 'store'])->name('admin.users.store');
+
+    // Edit User
+    Route::get('/manage-users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/manage-users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+
 });
 
 // User Routes
