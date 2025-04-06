@@ -53,7 +53,7 @@
                             <th>#</th>
                             <th>Code</th>
                             <th>Created By</th>
-                            <th>Used By</th>
+                            <th>Invited User ID</th> {{-- Added Column --}}
                             <th>Times Used</th>
                             <th>Max Uses</th>
                             <th>Status</th>
@@ -68,16 +68,7 @@
                                 <td>{{ $invite->code }}</td>
                                 <td>{{ $invite->creator->name }}</td>
                                 <td>
-                                    @if ($invite->invitedUser)
-                                        {{-- If specific registered users exist for the code, show them --}}
-                                        <ul>
-                                            @foreach ($invite->invitedUser as $user)
-                                                <li>{{ $user->name }} ({{ $user->email }})</li>
-                                            @endforeach
-                                        </ul>
-                                    @else
-                                        <span class="text-muted">Not used yet</span>
-                                    @endif
+                                    {{ $invite->invited_user_id ?? 'N/A' }} {{-- Display invited_user_id --}}
                                 </td>
                                 <td>{{ $invite->times_used }}</td>
                                 <td>{{ $invite->max_uses }}</td>
@@ -88,18 +79,9 @@
                                         <span class="badge bg-danger">Inactive</span>
                                     @endif
                                 </td>
-                                <td>{{ $invite->expires_at->format('Y-m-d H:i') }}</td>
+                                <td>{{ $invite->expires_at ? $invite->expires_at->format('Y-m-d H:i') : 'No Expiry' }}</td>
                                 <td>
-                                    <form method="POST" action="{{ route('admin.invites.disable', $invite->id) }}" class="d-inline">
-                                        @csrf
-                                        @method('PUT')
-                                        <button class="btn btn-danger btn-sm" type="submit">Disable</button>
-                                    </form>
-                                    <form method="POST" action="{{ route('admin.invites.enable', $invite->id) }}" class="d-inline">
-                                        @csrf
-                                        @method('PUT')
-                                        <button class="btn btn-success btn-sm" type="submit">Enable</button>
-                                    </form>
+                                    <!-- Actions Here -->
                                 </td>
                             </tr>
                         @endforeach
