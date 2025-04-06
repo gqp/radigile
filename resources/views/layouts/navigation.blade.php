@@ -52,7 +52,7 @@
                             <a class="nav-link {{ request()->routeIs('admin.invites.index') ? 'active' : '' }}" href="{{ route('admin.invites.index') }}">Manage Invites</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.manage-users') ? 'active' : '' }}" href="{{ route('admin.manage-users') }}">Manage Users</a>
+                            <a class="nav-link {{ request()->routeIs('admin.users.manage') ? 'active' : '' }}" href="{{ route('admin.users.manage') }}">Manage Users</a>
                         </li>
                     @endif
 
@@ -65,4 +65,24 @@
                             <a class="nav-link {{ request()->routeIs('user.profile') ? 'active' : '' }}" href="{{ route('user.profile') }}">Profile</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('user.invites') ? 'active' : '' }}" href="{{ route('user.invites') }}">
+                            <a class="nav-link {{ request()->routeIs('user.invites') ? 'active' : '' }}" href="{{ route('user.invites') }}">Invites</a>
+                        </li>
+                    @endif
+
+                    {{-- Logout Link --}}
+                    <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            href="{{ route('logout') }}"
+                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            Logout
+                        </a>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
+                    </li>
+                @endauth
+            </ul>
+        </div>
+    </div>
+</nav>
