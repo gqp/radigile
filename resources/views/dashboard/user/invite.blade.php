@@ -33,11 +33,11 @@
 
             @if ($numberOfForms > $remainingInvites)
                 <div class="alert alert-danger">
-                    You cannot generate more forms than your remaining invites ({{ $remainingInvites }}).
+                    You cannot generate more forms than your remaining invites (<strong>{{ $remainingInvites }}</strong>).
                 </div>
             @else
                 @for ($i = 0; $i < $numberOfForms; $i++)
-                    <form action="{{ route('user.invites.send') }}" method="POST" class="mb-4">
+                    <form action="{{ route('user.invites.send') }}" method="POST" class="mb-3">
                         @csrf
 
                         <div class="mb-3">
@@ -47,18 +47,6 @@
                                 name="emails[{{ $i }}]"
                                 id="emails[{{ $i }}]"
                                 class="form-control"
-                                required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="amounts[{{ $i }}]" class="form-label">Number of Invites</label>
-                            <input
-                                type="number"
-                                name="amounts[{{ $i }}]"
-                                id="amounts[{{ $i }}]"
-                                class="form-control"
-                                min="1"
-                                max="{{ $remainingInvites }}"
                                 required>
                         </div>
 
