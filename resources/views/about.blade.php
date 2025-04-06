@@ -19,7 +19,7 @@
         .hero-section {
             position: relative;
             width: 100%;
-            height: 60vh; /* Adjust height as needed */
+            height: 30vh; /* Adjust height as needed */
             background: url('{{ asset('imgs/about.jpeg') }}') no-repeat center center/cover;
             display: flex;
             align-items: center;
