@@ -11,17 +11,6 @@ use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
-
     use RegistersUsers;
 
     /**
@@ -49,7 +38,6 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        // dd($data);
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'nId' => ['required', 'integer', 'digits:14', 'unique:users,nid'],
@@ -82,10 +70,12 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
+        // Assign default role (User)
+        $user->assignRole('User');
+
         // Mark invite as used
         $invite->update(['times_used' => $invite->times_used + 1, 'invited_user_id' => $user->id]);
 
         return $user;
-
     }
 }
