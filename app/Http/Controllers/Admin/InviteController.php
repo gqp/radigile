@@ -72,6 +72,12 @@ class InviteController extends Controller
         $invite = Invite::findOrFail($id);
         $invite->update(['is_active' => false]);
 
-        return redirect()->route('dashboard.admin.invites.index')->with('success', 'Invite disabled successfully!');
+        return redirect()->route('admin.invites.index')->with('success', 'Invite disabled successfully!');
+    }
+
+    public function userIndex()
+    {
+        $invites = Invite::where('created_by', Auth::id())->get();
+        return view('user.invites.index', compact('invites'));
     }
 }

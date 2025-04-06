@@ -64,14 +64,14 @@
                         </li>
 
                         {{-- Invite Links for Users (if applicable) --}}
-                        @if (auth()->user()->allowed_invites > 0) <!-- Custom Check for Invites -->
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('user.invites') ? 'active' : '' }}" href="{{ route('user.invites') }}">My Invites</a>
-                        </li>
+                        @if (auth()->user()->allowed_invites > 0)
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('user.invites') ? 'active' : '' }}" href="{{ route('user.invites') }}">Manage Invites</a>
+                            </li>
                         @endif
                     @endif
 
-                    {{-- Common Links for All Authenticated Users --}}
+                    {{-- Logout --}}
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
