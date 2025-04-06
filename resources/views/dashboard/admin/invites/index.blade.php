@@ -102,35 +102,39 @@
                                         </form>
                                     @endif
 
-                                    <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#editInviteModal{{ $invite->id }}">Edit</button>
+                                        <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#editInviteModal{{ $invite->id }}">
+                                            Edit
+                                        </button>
                                 </td>
                             </tr>
 
-                            {{-- Edit Invite Modal --}}
-                            <div class="modal fade" id="editInviteModal{{ $invite->id }}" tabindex="-1" aria-labelledby="editInviteModalLabel" aria-hidden="true">
+                            <!-- Edit Invite Modal -->
+                            <div class="modal fade" id="editInviteModal{{ $invite->id }}" tabindex="-1" aria-labelledby="editInviteModalLabel{{ $invite->id }}" aria-hidden="true">
                                 <div class="modal-dialog">
-                                    <form method="POST" action="{{ route('admin.invites.update', $invite->id) }}" class="modal-content">
-                                        @csrf
-                                        @method('PUT')
+                                    <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="editInviteModalLabel">Edit Invite ({{ $invite->code }})</h5>
+                                            <h5 class="modal-title" id="editInviteModalLabel{{ $invite->id }}">Edit Invite ({{ $invite->code }})</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                        <div class="modal-body">
-                                            <div class="mb-3">
-                                                <label for="max_uses_{{ $invite->id }}" class="form-label">Max Uses</label>
-                                                <input type="number" name="max_uses" id="max_uses_{{ $invite->id }}" class="form-control" value="{{ $invite->max_uses }}" required>
+                                        <form method="POST" action="{{ route('admin.invites.update', $invite->id) }}">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="max_uses_{{ $invite->id }}" class="form-label">Max Uses</label>
+                                                    <input type="number" name="max_uses" id="max_uses_{{ $invite->id }}" class="form-control" value="{{ $invite->max_uses }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="expires_at_{{ $invite->id }}" class="form-label">Expiration Date</label>
+                                                    <input type="date" name="expires_at" id="expires_at_{{ $invite->id }}" class="form-control" value="{{ $invite->expires_at ? $invite->expires_at->format('Y-m-d') : '' }}">
+                                                </div>
                                             </div>
-                                            <div class="mb-3">
-                                                <label for="expires_at_{{ $invite->id }}" class="form-label">Expiration Date</label>
-                                                <input type="date" name="expires_at" id="expires_at_{{ $invite->id }}" class="form-control" value="{{ $invite->expires_at ? $invite->expires_at->format('Y-m-d') : '' }}">
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Save Changes</button>
                                             </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="submit" class="btn btn-primary">Update Invite</button>
-                                        </div>
-                                    </form>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach
