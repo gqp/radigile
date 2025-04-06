@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
-        <a class="navbar-brand" href="{{ route('home') }}">Radigile.com  - A New Era of Team Growth</a>
+        <a class="navbar-brand" href="{{ route('home') }}">Radigile.com - A New Era of Team Growth</a>
         <button
             class="navbar-toggler"
             type="button"
@@ -48,6 +48,10 @@
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('roles.index') ? 'active' : '' }}" href="{{ route('roles.index') }}">Manage Roles</a>
                         </li>
+                        {{-- Invite Links --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.invites.index') ? 'active' : '' }}" href="{{ route('admin.invites.index') }}">Manage Invites</a>
+                        </li>
                     @endif
 
                     {{-- Regular User Links --}}
@@ -58,6 +62,13 @@
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('user.profile') ? 'active' : '' }}" href="{{ route('user.profile') }}">Profile</a>
                         </li>
+
+                        {{-- Invite Links for Users (if applicable) --}}
+                        @if (auth()->user()->allowed_invites > 0) <!-- Custom Check for Invites -->
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('user.invites') ? 'active' : '' }}" href="{{ route('user.invites') }}">My Invites</a>
+                        </li>
+                        @endif
                     @endif
 
                     {{-- Common Links for All Authenticated Users --}}
