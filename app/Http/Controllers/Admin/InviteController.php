@@ -18,7 +18,7 @@ class InviteController extends Controller
     {
         $invites = Invite::all(); // Fetch all invites
         $inviteOnly = Setting::where('name', 'invite_only')->value('value');
-        return view('admin.invites.index', compact('invites', 'inviteOnly'));
+        return view('dashboard.admin.invites.index', compact('invites', 'inviteOnly'));
     }
 
     /**
