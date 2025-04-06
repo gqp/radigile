@@ -64,9 +64,6 @@
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('user.profile') ? 'active' : '' }}" href="{{ route('user.profile') }}">Profile</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('user.invites.index') ? 'active' : '' }}" href="{{ route('user.invites.index') }}">My Invites</a>
-                        </li>
                     @endif
 
                     {{-- Logout Link --}}
