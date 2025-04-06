@@ -16,11 +16,11 @@ class UserInviteController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
+        $user = Auth::user(); // Get the currently authenticated user
+        $remainingInvites = $user->remaining_invites; // Get the user's remaining invites
 
-        return view('dashboard.user.invite', [
-            'remainingInvites' => $user->remaining_invites, // User's remaining invites
-        ]);
+        // Pass the remainingInvites variable to the view
+        return view('dashboard.user.invite', compact('remainingInvites'));
     }
 
     /**
