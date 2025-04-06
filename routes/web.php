@@ -46,6 +46,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     Route::get('/manage-users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
     Route::put('/manage-users/{user}', [UserController::class, 'update'])->name('admin.users.update');
 
+    // Delete User
+    Route::delete('/manage-users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+
 });
 
 // User Routes
