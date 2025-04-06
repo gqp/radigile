@@ -65,7 +65,7 @@
                             <a class="nav-link {{ request()->routeIs('user.profile') ? 'active' : '' }}" href="{{ route('user.profile') }}">Profile</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('user.invites.index') ? 'active' : '' }}" href="{{ route('user.invites.index') }}">Share Invites</a>
+                            <a class="nav-link {{ request()->routeIs('user.invites') ? 'active' : '' }}" href="{{ route('user.invites') }}">Share Invites</a>
                         </li>
                     @endif
 
