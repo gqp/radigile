@@ -7,7 +7,6 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\InviteController;
-use App\Http\Controllers\User\UserInviteController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -58,9 +57,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
 Route::group(['prefix' => 'user', 'middleware' => ['auth','role:User']], function () {
     Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
-    Route::get('/invites', [UserInviteController::class, 'index'])->name('user.invites');
-    Route::post('/invites/send', [UserInviteController::class, 'sendInvites'])->name('user.invites.send');
-
 });
 
 Auth::routes();
