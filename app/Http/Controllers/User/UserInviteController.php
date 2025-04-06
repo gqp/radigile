@@ -16,51 +16,60 @@ class UserInviteController extends Controller
      */
     public function index()
     {
-        $user = Auth::user(); // Get the currently authenticated user
-        $remainingInvites = $user->remaining_invites; // Get the user's remaining invites
+        $user = Auth::user(); // Get authenticated user
 
-        // Pass the remainingInvites variable to the view
-        return view('dashboard.user.invite', compact('remainingInvites'));
+        // Fetch the active invite for the user, if exists
+        $invite = Invite::where('created_by', $user->id)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$invite) {
+            return redirect()->back()->withErrors(['No active invite found.']);
+        }
+
+        return view('dashboard.user.invite', [
+            'remainingInvites' => $user->remaining_invites, // Pass remaining invites
+            'inviteCode' => $invite->code, // Pass user's invite code
+        ]);
     }
-
     /**
      * Handle invite sending.
      */
     public function sendInvites(Request $request)
     {
+        $user = Auth::user();
+
+        // Validate the input email(s)
         $request->validate([
-            'emails' => 'required|array',
             'emails.*' => 'required|email',
-            'amounts' => 'required|array',
-            'amounts.*' => 'required|integer|min:1',
+            'invite_code' => 'required|exists:invites,code',
         ]);
 
-        $user = Auth::user();
-        $totalToSend = array_sum($request->amounts);
-
-        // Check if user has enough remaining invites
-        if ($user->remaining_invites < $totalToSend) {
-            return redirect()->back()->withErrors(['error' => 'Not enough remaining invites.']);
+        // Check remaining invites
+        if ($user->remaining_invites <= 0) {
+            return redirect()->back()->withErrors(['You do not have any remaining invites.']);
         }
 
-        foreach ($request->emails as $index => $email) {
-            $amount = $request->amounts[$index];
-            $code = Str::random(10); // Generate a unique invite code
+        $invite = Invite::where('code', $request->invite_code)
+            ->where('created_by', $user->id)
+            ->where('is_active', true)
+            ->first();
 
-            // Create the invite
-            Invite::create([
-                'code' => $code,
-                'created_by' => $user->id,
-                'max_uses' => $amount,
-            ]);
-
-            // Send the invite via email
-            Mail::to($email)->send(new \App\Mail\InviteNotification($code));
-
-            // Deduct the invite count
-            $user->decrement('remaining_invites', $amount);
+        if (!$invite || !$invite->isValid()) {
+            return redirect()->back()->withErrors(['Your invite is no longer valid.']);
         }
 
-        return redirect()->back()->with('success', 'Invites sent successfully.');
+        foreach ($request->emails as $email) {
+            // Send the email
+            Mail::to($email)->send(new InviteNotification($invite->code));
+
+            // Increment the invite usage
+            $invite->increment('times_used');
+        }
+
+        // Update user's remaining invites
+        $user->decrement('remaining_invites', count($request->emails));
+
+        return redirect()->route('user.invites.index')->with('success', 'Invites sent successfully!');
     }
 }
