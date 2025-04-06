@@ -52,6 +52,10 @@
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('admin.invites.index') ? 'active' : '' }}" href="{{ route('admin.invites.index') }}">Manage Invites</a>
                         </li>
+                        {{-- **User Management for Admins** --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">User Management</a>
+                        </li>
                     @endif
 
                     {{-- Regular User Links --}}
@@ -71,11 +75,11 @@
                         @endif
                     @endif
 
-                    {{-- Logout --}}
+                    {{-- Logout Link --}}
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
                             @csrf
+                            <button type="submit" class="nav-link btn btn-link">Logout</button>
                         </form>
                     </li>
                 @endauth
