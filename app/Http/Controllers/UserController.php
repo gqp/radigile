@@ -86,11 +86,14 @@ class UserController extends Controller
 
     public function manage()
     {
-        // Ensure only admins can access this
-        $this->authorize('viewAny', User::class);
+        // Check if the authenticated user has the 'Admin' role
+        if (!auth()->user()->hasRole('Admin')) {
+            abort(403, 'Access denied');
+        }
+
 
         $users = User::all(); // Pull all users
-        return view('dashboard.admin.users.index', compact('users')); // Send users to admin manage view
+        return view('dashboard.admin.users.manage', compact('users')); // Send users to admin manage view
     }
 
 
