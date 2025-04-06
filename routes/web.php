@@ -58,8 +58,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
 Route::group(['prefix' => 'user', 'middleware' => ['auth','role:User']], function () {
     Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
-    Route::get('/invites', [InviteController::class, 'userIndex'])->name('user.invites');
-    Route::post('/invites/send', [InviteController::class, 'store'])->name('user.invites.send');
+    // User Invite Routes
+    Route::get('/invites', [UserInviteController::class, 'index'])->name('user.invites.index');
+    Route::post('/invites/{id}/share', [UserInviteController::class, 'share'])->name('user.invites.share');
 
 });
 
