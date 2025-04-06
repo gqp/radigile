@@ -35,4 +35,9 @@ class Invite extends Model
     {
         return $this->is_active && $this->expires_at > now() && $this->times_used < $this->max_uses;
     }
+
+    // Ensure `expires_at` is casted to a DateTime object
+    protected $casts = [
+        'expires_at' => 'datetime',
+    ];
 }
