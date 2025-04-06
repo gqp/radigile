@@ -10,8 +10,8 @@
                    onclick="event.preventDefault(); document.getElementById('toggle-form').submit();">
                     Toggle Invite Only:
                     <span class="badge {{ $inviteOnly ? 'bg-success' : 'bg-secondary' }}">
-                        {{ $inviteOnly ? 'ON' : 'OFF' }}
-                    </span>
+                    {{ $inviteOnly ? 'ON' : 'OFF' }}
+                </span>
                 </a>
                 <form id="toggle-form" action="{{ route('admin.invites.toggle') }}" method="POST" style="display: none;">
                     @csrf
@@ -19,7 +19,7 @@
             </div>
         </div>
 
-        {{-- Invite Form --}}
+        {{-- Generate Invite Form --}}
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">Generate and Send Invite</h5>
@@ -31,28 +31,17 @@
                     {{-- Email Input --}}
                     <div class="mb-3">
                         <label for="email" class="form-label">Email (for non-registered users)</label>
-                        <input type="email" name="email" id="email" class="form-control" placeholder="Enter email for new user">
+                        <input type="email" name="email" id="email" class="form-control" placeholder="Enter email for new user" required>
                     </div>
 
-                    {{-- User Selection --}}
-                    <div class="mb-3">
-                        <label for="user_id" class="form-label">Registered User</label>
-                        <select name="user_id" id="user_id" class="form-select">
-                            <option value="">Select a registered user (optional)</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    {{-- Invite Details --}}
+                    {{-- Max Uses --}}
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="max_uses" class="form-label">Max Uses</label>
                             <input type="number" name="max_uses" id="max_uses" class="form-control" value="1" min="1" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="expires_at" class="form-label">Expires At</label>
+                            <label for="expires_at" class="form-label">Expiration Date</label>
                             <input type="date" name="expires_at" id="expires_at" class="form-control">
                         </div>
                     </div>
@@ -78,8 +67,9 @@
                         <tr>
                             <th>Code</th>
                             <th>Creator</th>
-                            <th>Times Used</th>
                             <th>Max Uses</th>
+                            <th>Expiration Date</th>
+                            <th>Times Used</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -88,32 +78,61 @@
                         @foreach($invites as $invite)
                             <tr>
                                 <td>{{ $invite->code }}</td>
-                                <td>{{ $invite->creator->name }}</td>
-                                <td>{{ $invite->times_used }}/{{ $invite->max_uses }}</td>
+                                <td>{{ $invite->creator->name ?? 'Unknown' }}</td>
+                                <td>{{ $invite->max_uses }}</td>
+                                <td>{{ $invite->expires_at ? $invite->expires_at->format('Y-m-d') : 'No expiry' }}</td>
+                                <td>{{ $invite->times_used }}</td>
                                 <td>
-                                        <span class="badge {{ $invite->max_uses > $invite->times_used ? 'bg-success' : 'bg-danger' }}">
-                                            {{ $invite->times_used < $invite->max_uses ? 'Available' : 'Used Up' }}
-                                        </span>
-                                </td>
-                                <td>
-                                        <span class="badge {{ $invite->is_active ? 'bg-success' : 'bg-secondary' }}">
-                                            {{ $invite->is_active ? 'Active' : 'Inactive' }}
-                                        </span>
+                                    <span class="badge {{ $invite->is_active ? 'bg-success' : 'bg-danger' }}">
+                                        {{ $invite->is_active ? 'Active' : 'Disabled' }}
+                                    </span>
                                 </td>
                                 <td>
                                     @if($invite->is_active)
-                                        <form method="POST" action="{{ route('admin.invites.disable', $invite->id) }}" class="d-inline">
+                                        <form action="{{ route('admin.invites.disable', $invite->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PUT')
-                                            <button type="submit" class="btn btn-sm btn-danger">
-                                                Disable
-                                            </button>
+                                            <button type="submit" class="btn btn-sm btn-warning">Disable</button>
                                         </form>
                                     @else
-                                        <button class="btn btn-sm btn-secondary" disabled>Disabled</button>
+                                        <form action="{{ route('admin.invites.enable', $invite->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="btn btn-sm btn-success">Enable</button>
+                                        </form>
                                     @endif
+
+                                    <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#editInviteModal{{ $invite->id }}">Edit</button>
                                 </td>
                             </tr>
+
+                            {{-- Edit Invite Modal --}}
+                            <div class="modal fade" id="editInviteModal{{ $invite->id }}" tabindex="-1" aria-labelledby="editInviteModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <form method="POST" action="{{ route('admin.invites.update', $invite->id) }}" class="modal-content">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editInviteModalLabel">Edit Invite ({{ $invite->code }})</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="max_uses_{{ $invite->id }}" class="form-label">Max Uses</label>
+                                                <input type="number" name="max_uses" id="max_uses_{{ $invite->id }}" class="form-control" value="{{ $invite->max_uses }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="expires_at_{{ $invite->id }}" class="form-label">Expiration Date</label>
+                                                <input type="date" name="expires_at" id="expires_at_{{ $invite->id }}" class="form-control" value="{{ $invite->expires_at ? $invite->expires_at->format('Y-m-d') : '' }}">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-primary">Update Invite</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         @endforeach
                         </tbody>
                     </table>

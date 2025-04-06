@@ -31,6 +31,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     Route::post('/invites/create', [InviteController::class, 'store'])->name('admin.invites.create');
     Route::post('/invites/toggle', [InviteController::class, 'toggleInviteOnly'])->name('admin.invites.toggle');
     Route::put('/invites/disable/{id}', [InviteController::class, 'disable'])->name('admin.invites.disable');
+    Route::put('/invites/enable/{id}', [InviteController::class, 'enable'])->name('admin.invites.enable');
+    Route::put('/invites/update/{id}', [InviteController::class, 'update'])->name('admin.invites.update');
+
 
     //Roles Recource Routes
     Route::resource('roles', RoleController::class);

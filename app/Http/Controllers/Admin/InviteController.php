@@ -62,7 +62,18 @@ class InviteController extends Controller
         // Send email to the provided address
         Mail::to($request->email)->send(new InviteNotification($invite->code));
 
-        return redirect()->route('user.invites')->with('success', 'Invite sent successfully.');
+        return redirect()->route('admin.invites.index')->with('success', 'Invite sent successfully.');
+    }
+
+    /**
+     * Enable an in-active invite.
+     */
+    public function enable($id)
+    {
+        $invite = Invite::findOrFail($id);
+        $invite->update(['is_active' => true]);
+
+        return redirect()->route('admin.invites.index')->with('success', 'Invite enabled successfully!');
     }
 
     /**
@@ -74,6 +85,25 @@ class InviteController extends Controller
         $invite->update(['is_active' => false]);
 
         return redirect()->route('admin.invites.index')->with('success', 'Invite disabled successfully!');
+    }
+
+    /**
+     * Update an invite's details (e.g., max uses, expiration date).
+     */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'max_uses' => 'required|integer|min:1',
+            'expires_at' => 'nullable|date',
+        ]);
+
+        $invite = Invite::findOrFail($id);
+        $invite->update([
+            'max_uses' => $request->max_uses,
+            'expires_at' => $request->expires_at,
+        ]);
+
+        return redirect()->route('admin.invites.index')->with('success', 'Invite updated successfully.');
     }
 
     public function userIndex()
