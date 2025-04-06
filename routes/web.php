@@ -56,6 +56,8 @@ Route::group(['prefix' => 'user', 'middleware' => ['auth','role:User']], functio
     Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
     Route::get('/invites', [InviteController::class, 'userIndex'])->name('user.invites');
+    Route::post('/invites/send', [InviteController::class, 'store'])->name('user.invites.send');
+
 });
 
 Auth::routes();

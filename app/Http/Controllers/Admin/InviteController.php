@@ -32,11 +32,17 @@ class InviteController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'email' => 'nullable|email', // For non-registered users
-            'user_id' => 'nullable|exists:users,id', // For registered users
+            'email' => 'required|email', // Ensure email is always required for now
             'max_uses' => 'required|integer|min:1',
             'expires_at' => 'nullable|date',
         ]);
+
+        $user = Auth::user(); // Get the authenticated user
+
+        // Check if user has remaining invites
+        if ($user->remaining_invites <= 0) {
+            return redirect()->back()->withErrors(['You have no remaining invites.']);
+        }
 
         // Generate a unique invite code
         $code = Str::random(10);
@@ -44,24 +50,19 @@ class InviteController extends Controller
         // Create the invite
         $invite = Invite::create([
             'code' => $code,
-            'created_by' => Auth::id(),
+            'created_by' => $user->id,
             'max_uses' => $request->max_uses,
             'expires_at' => $request->expires_at,
         ]);
 
-        // Notify the user via email
-        if ($request->email) {
-            // Send invite link to non-registered user's email
-            Mail::to($request->email)->send(new InviteNotification($invite->code));
-        }
+        // Decrease the user's remaining invites
+        $user->remaining_invites -= 1;
+        $user->save();
 
-        if ($request->user_id) {
-            // Get the registered user and send them the invite notification
-            $user = User::find($request->user_id);
-            Mail::to($user->email)->send(new InviteNotification($invite->code));
-        }
+        // Send email to the provided address
+        Mail::to($request->email)->send(new InviteNotification($invite->code));
 
-        return redirect()->route('admin.invites.index')->with('success', 'Invite generated and email notifications sent successfully!');
+        return redirect()->route('user.invites')->with('success', 'Invite sent successfully.');
     }
 
     /**
@@ -78,6 +79,6 @@ class InviteController extends Controller
     public function userIndex()
     {
         $invites = Invite::where('created_by', Auth::id())->get();
-        return view('user.invites.index', compact('invites'));
+        return view('dashboard.user.invites.index', compact('invites'));
     }
 }

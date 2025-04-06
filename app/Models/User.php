@@ -22,6 +22,7 @@ class User extends Authenticatable
         'nId',
         'email',
         'password',
+        'remaining_invites',
     ];
 
     /**
