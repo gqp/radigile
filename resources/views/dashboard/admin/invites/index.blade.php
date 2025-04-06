@@ -30,91 +30,27 @@
 
                     {{-- Email Input --}}
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email (for non-registered users)</label>
-                        <input type="email" name="email" id="email" class="form-control" placeholder="Enter email for new user">
+                        <label for="email" class="form-label">Recipient Email(s)</label>
+                        <input type="email" id="email" name="emails[]" class="form-control" multiple required>
                     </div>
-
-                    {{-- Registered User Dropdown --}}
-                    <div class="mb-3">
-                        <label for="user_id" class="form-label">Registered User</label>
-                        <select name="user_id" id="user_id" class="form-control">
-                            <option value="">-- Select a Registered User --</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    {{-- Max Uses --}}
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="max_uses" class="form-label">Max Uses</label>
-                            <input type="number" name="max_uses" id="max_uses" class="form-control" value="1" min="1" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="expires_at" class="form-label">Expiration Date</label>
-                            <input type="date" name="expires_at" id="expires_at" class="form-control">
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100">Generate and Send Invite</button>
+                    <button type="submit" class="btn btn-primary">Generate Invite</button>
                 </form>
             </div>
         </div>
 
-        {{-- Existing Invites --}}
+        {{-- Invite List --}}
         <div class="card shadow-sm">
             <div class="card-header bg-secondary text-white">
-                <h5 class="mb-0">Existing Invites</h5>
+                <h5 class="mb-0">All Invites</h5>
             </div>
             <div class="card-body">
-                @if($invites->isEmpty())
-                    <div class="text-center">
-                        <p class="text-muted">No invites have been created yet.</p>
-                    </div>
+                @if ($invites->isEmpty())
+                    <p class="text-muted">No invites available.</p>
                 @else
-                    <table class="table table-hover table-bordered">
+                    <table class="table table-striped">
                         <thead>
                         <tr>
+                            <th>#</th>
                             <th>Code</th>
-                            <th>Creator</th>
-                            <th>Max Uses</th>
-                            <th>Expiration Date</th>
-                            <th>Times Used</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($invites as $invite)
-                            <tr>
-                                <td>{{ $invite->code }}</td>
-                                <td>{{ $invite->creator->name ?? 'Unknown' }}</td>
-                                <td>{{ $invite->max_uses }}</td>
-                                <td>{{ $invite->expires_at ? $invite->expires_at->format('Y-m-d') : 'No expiry' }}</td>
-                                <td>{{ $invite->times_used }}</td>
-                                <td>
-                                        <span class="badge {{ $invite->is_active ? 'bg-success' : 'bg-danger' }}">
-                                            {{ $invite->is_active ? 'Active' : 'Disabled' }}
-                                        </span>
-                                </td>
-                                <td>
-                                    @if($invite->is_active)
-                                        <form action="{{ route('admin.invites.disable', $invite->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('PUT')
-                                            <button type="submit" class="btn btn-sm btn-warning">Disable</button>
-                                        </form>
-                                    @else
-                                        <span class="text-muted">Disabled</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                @endif
-            </div>
-        </div>
-    </div>
-@endsection
+                            <th>Created By</th>
+                            <th>Used By</

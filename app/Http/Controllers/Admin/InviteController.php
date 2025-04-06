@@ -19,11 +19,13 @@ class InviteController extends Controller
      */
     public function index()
     {
-        $invites = Invite::all();
+        $invites = Invite::with(['creator', 'invitedUser'])->get(); // Eager load relationships
         $inviteOnly = Setting::get('invite_only'); // Get current invite-only toggle status
-        $users = User::all(); // Get all registered users for dropdown
 
-        return view('dashboard.admin.invites.index', compact('invites', 'inviteOnly', 'users'));
+        return view('dashboard.admin.invites.index', [
+            'invites' => $invites,
+            'inviteOnly' => $inviteOnly,
+        ]);
     }
 
     /**
