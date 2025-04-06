@@ -10,9 +10,27 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::all();
-        return view("dashboard.admin.users.index", compact('users'));
+        $user = auth()->user();
+
+        // Check the role and redirect accordingly
+        if ($user->hasRole('Admin')) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        if ($user->hasRole('User')) {
+            return redirect()->route('user.dashboard');
+        }
+
+        // Default fallback if no role is assigned
+        return redirect('/')->with('error', 'Unauthorized access.');
     }
+
+    public function profile()
+    {
+        $user = Auth::user(); // Get the currently authenticated user
+        return view('dashboard.user.profile', compact('user')); // Pass user data to the profile view
+    }
+
 
     public function create()
     {
