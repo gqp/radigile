@@ -105,10 +105,4 @@ class InviteController extends Controller
 
         return redirect()->route('admin.invites.index')->with('success', 'Invite updated successfully.');
     }
-
-    public function userIndex()
-    {
-        $invites = Invite::where('created_by', Auth::id())->get();
-        return view('dashboard.user.invites.index', compact('invites'));
-    }
 }
