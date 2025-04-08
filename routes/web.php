@@ -7,17 +7,22 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\InviteController;
+use App\Http\Controllers\NotifyController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 */
 
-// Home Page
+// Home Page Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-//About Page
+//About Page Routes
 Route::get('/about', [AboutController::class, 'index'])->name('about');
+
+// Notify Me Route
+Route::post('/notify-me', [NotifyController::class, 'store'])->name('notify.store');
 
 // Admin Routes
 Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], function () {
