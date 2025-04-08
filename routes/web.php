@@ -7,6 +7,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\InviteController;
+use App\Http\Controllers\NotifyController;
 use App\Http\Controllers\Admin\AdminNotifyController;
 
 /*
