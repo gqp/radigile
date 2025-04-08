@@ -14,10 +14,15 @@ class DatabaseSeeder extends Seeder
         // Call all required seeders in one method
         $this->call([
             UserSeeder::class,
-            //RolePermissionSeeder::class,
+        ]);
+        $this->call([
             SettingsSeeder::class,
-            SubscriptionSeeder::class,
+        ]);
+        $this->call([
             PlanSeeder::class,
+        ]);
+        $this->call([
+            SubscriptionSeeder::class,
         ]);
     }
 }
