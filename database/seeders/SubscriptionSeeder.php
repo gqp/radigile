@@ -39,4 +39,15 @@ class SubscriptionSeeder extends Seeder
             ]);
         }
     }
+
+    public function down()
+    {
+        Schema::table('subscriptions', function (Blueprint $table) {
+            $table->dropForeign(['user_id']); // Remove foreign key
+            $table->dropForeign(['plan_id']); // Remove related foreign key if any
+        });
+
+        Schema::dropIfExists('subscriptions');
+    }
+
 }

@@ -26,4 +26,15 @@ class Plan extends Model
     {
         return $this->hasMany(Subscription::class);
     }
+
+    public function down()
+    {
+        Schema::table('subscriptions', function (Blueprint $table) {
+            $table->dropForeign(['user_id']); // Remove the foreign key constraint
+        });
+
+        Schema::dropIfExists('subscriptions');
+    }
+
+
 }
