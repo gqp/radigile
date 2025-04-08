@@ -66,15 +66,41 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
+            'subscription' => 'nullable|integer|exists:plans,id', // Validate plan ID
         ]);
 
+        // Update user details
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
             'password' => $request->password ? Hash::make($request->password) : $user->password,
         ]);
 
-        return redirect()->route('admin.users.manage')->with('success', 'User updated successfully.');
+        // Check if a subscription was submitted
+        if ($request->filled('subscription')) {
+            $subscription = $user->subscription;
+
+            if ($subscription) {
+                // Update the existing subscription
+                $subscription->update([
+                    'plan_id' => $request->subscription,
+                    'is_active' => true, // Ensure subscription is active
+                    'starts_at' => $subscription->starts_at ?? now(), // Set starts_at if it’s not already set
+                    'ends_at' => null, // Set ends_at to null for ongoing subscriptions
+                ]);
+            } else {
+                // Create a new subscription if none exists
+                Subscription::create([
+                    'user_id' => $user->id,
+                    'plan_id' => $request->subscription,
+                    'is_active' => true,
+                    'starts_at' => now(),
+                    'ends_at' => null,
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
 
     public function manage()
