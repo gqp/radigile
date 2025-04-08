@@ -37,7 +37,6 @@ class UserSeeder extends Seeder
         $users = [
             [
                 'name' => 'Garrick Admin',
-                'nId' => 1001,
                 'email' => 'gqplaisted@gmail.com',
                 'password' => Hash::make('password'),
                 'role' => 'Admin', // Add role key
