@@ -77,7 +77,7 @@
             <h1>Coming Soon</h1>
             <p>Something amazing is on its way. Stay tuned!</p>
 
-            <!-- Check if "Notify Me" is enabled -->
+            {{-- Check if "Notify Me" is enabled --}}
             @if (\App\Models\Setting::get('notify_me'))
                 <!-- Button to Open Modal -->
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#notifyMeModal">Notify Me</button>

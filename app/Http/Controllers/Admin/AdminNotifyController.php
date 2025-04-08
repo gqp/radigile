@@ -21,11 +21,14 @@ class AdminNotifyController extends Controller
     /**
      * Toggle the global "Notify Me" feature on/off.
      */
-    public function toggleGlobal()
+    public function toggleGlobal(Request $request)
     {
-        Setting::toggle('notify_me'); // Toggle the "Notify Me" setting
-        $newStatus = Setting::get('notify_me') ? 'enabled' : 'disabled';
+        // Make sure the request has the 'notify_me' value
+        $newStatus = (int) $request->input('notify_me', 0);
 
-        return redirect()->back()->with('success', "The 'Notify Me' feature has been {$newStatus}.");
+        // Update the setting in the database
+        Setting::where('name', 'notify_me')->update(['value' => $newStatus]);
+
+        return redirect()->back()->with('success', "The 'Notify Me' feature has been " . ($newStatus ? 'enabled' : 'disabled') . ".");
     }
 }

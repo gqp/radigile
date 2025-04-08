@@ -20,12 +20,16 @@
                         type="checkbox"
                         id="notifyMeToggle"
                         name="notify_me"
-                        onchange="document.getElementById('notifyMeToggleForm').submit();"
-                        {{ \App\Models\Setting::get('notify_me') ? 'checked' : '' }}>
+                        value="1"
+                        {{ \App\Models\Setting::get('notify_me') ? 'checked' : '' }}
+                        onchange="document.getElementById('notifyMeHiddenInput').value = this.checked ? 1 : 0; document.getElementById('notifyMeToggleForm').submit();">
                     <label class="form-check-label" for="notifyMeToggle">
                         {{ \App\Models\Setting::get('notify_me') ? 'Enabled' : 'Disabled' }}
                     </label>
                 </div>
+
+                <!-- Hidden input to track toggle state -->
+                <input type="hidden" id="notifyMeHiddenInput" name="notify_me" value="{{ \App\Models\Setting::get('notify_me') ? 1 : 0 }}">
             </form>
         </div>
 
