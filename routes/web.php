@@ -7,7 +7,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\InviteController;
-use App\Http\Controllers\NotifyController;
+use App\Http\Controllers\Admin\NotifyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +56,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
 
     // Delete User
     Route::delete('/manage-users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+
+    // Notify Me - Admin Page Route
+    Route::get('/admin/notify-me', [AdminNotifyController::class, 'index'])->name('admin.notify-me');
+
+    // Notify Me - Toggle On & Off
+    Route::post('/admin/notify-me/toggle/{id}', [AdminNotifyController::class, 'toggle'])->name('admin.notify-me.toggle');
 
 });
 
