@@ -45,14 +45,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     Route::resource('roles', RoleController::class);
 
     // Manage Users Route
-    Route::get('/manage-users', [UserController::class, 'manage'])->name('users.index');
+    Route::get('/manage-users', [UserController::class, 'manage'])->name('admin.users.manage');
+
     // Create User
     Route::get('/manage-users/create', [UserController::class, 'create'])->name('admin.users.create');
     Route::post('/manage-users', [UserController::class, 'store'])->name('admin.users.store');
 
     // Edit User
-    Route::get('/manage-users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
-    Route::put('/manage-users/{id}', [UserController::class, 'update'])->name('users.update');
+    Route::get('/manage-users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/manage-users/{user}', [UserController::class, 'update'])->name('admin.users.update');
 
     // Delete User
     Route::delete('/manage-users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
