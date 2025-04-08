@@ -14,7 +14,7 @@ class SubscriptionController extends Controller
     public function indexPlans(): \Illuminate\View\View
     {
         $plans = Plan::all();
-        return view('admin.subscriptions.plans.index', compact('plans'));
+        return view('dashboard.admin.subscriptions.plans.index', compact('plans'));
     }
 
     /**
@@ -23,7 +23,7 @@ class SubscriptionController extends Controller
     public function indexSubscriptions(): \Illuminate\View\View
     {
         $subscriptions = Subscription::with(['user', 'plan'])->get();
-        return view('admin.subscriptions.index', compact('subscriptions'));
+        return view('dashboard.admin.subscriptions.index', compact('subscriptions'));
     }
 
     /**
@@ -31,7 +31,7 @@ class SubscriptionController extends Controller
      */
     public function createPlan(): \Illuminate\View\View
     {
-        return view('admin.subscriptions.plans.create');
+        return view('dashboard.admin.subscriptions.plans.create');
     }
 
     /**
