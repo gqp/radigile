@@ -33,4 +33,11 @@ class Subscription extends Model
     {
         return $this->belongsTo(Plan::class);
     }
+
+    // Ensure date fields are cast as Carbon instances
+    protected $casts = [
+        'starts_at' => 'datetime',
+        'ends_at' => 'datetime',
+    ];
+
 }
