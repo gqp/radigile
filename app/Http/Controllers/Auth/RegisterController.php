@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Invite;
 use App\Models\Setting;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -29,6 +30,21 @@ class RegisterController extends Controller
     public function __construct()
     {
         $this->middleware('guest');
+    }
+
+    /**
+     * Show the registration form.
+     * Passes the invite-only setting to the view.
+     *
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
+     */
+    public function showRegistrationForm()
+    {
+        // Fetch the invite-only setting from the database
+        $inviteOnly = Setting::get('invite_only');
+
+        // Pass invite-only status to the registration view
+        return view('auth.register', compact('inviteOnly'));
     }
 
     /**
@@ -94,5 +110,21 @@ class RegisterController extends Controller
         }
 
         return $user;
+    }
+
+    /**
+     * Index method to handle any additional logic for the registration controller.
+     * (Restored to retain functionality.)
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
+     */
+    public function index(Request $request)
+    {
+        // Example implementation; adjust as per your requirements
+        return view('auth.register', [
+            'users' => User::all(),
+            'inviteOnly' => Setting::get('invite_only'), // Include invite-only status
+        ]);
     }
 }
