@@ -54,7 +54,6 @@ class UserSeeder extends Seeder
                 'email' => $userData['email'],
             ], [
                 'name' => $userData['name'],
-                'nId' => $userData['nId'],
                 'password' => $userData['password'],
             ]);
 
