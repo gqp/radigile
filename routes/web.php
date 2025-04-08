@@ -61,8 +61,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     // Notify Me - Admin Page Route
     Route::get('/admin/notify-me', [AdminNotifyController::class, 'index'])->name('admin.notify-me');
 
-    // Notify Me - Toggle On & Off
-    Route::post('/admin/notify-me/toggle/{id}', [AdminNotifyController::class, 'toggle'])->name('admin.notify-me.toggle');
+    //Notify Me - Admin Toggle On & Fff
+    Route::post('/notify-me/toggle-global', [AdminNotifyController::class, 'toggleGlobal'])->name('admin.notify-me.toggle-global');
 
 });
 

@@ -3,12 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\NotifyMe;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 
 class NotifyController extends Controller
 {
     public function store(Request $request)
     {
+        // Check if "Notify Me" is globally enabled
+        if (!Setting::get('notify_me')) {
+            return redirect()->back()->with('error', 'The "Notify Me" feature is currently disabled. Please try again later.');
+        }
+
         // Validate the incoming request data
         $request->validate([
             'name' => 'required|string|max:255',
