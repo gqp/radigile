@@ -51,6 +51,13 @@ class User extends Authenticatable
         return $this->hasOne(Subscription::class);
     }
 
+    // Define the `subscriptions` relationship
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+
     /**
      * Return the user's active subscription, if any.
      */
