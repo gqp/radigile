@@ -22,6 +22,8 @@
                     <td>${{ number_format($plan->price, 2) }}</td>
                     <td>{{ ucfirst($plan->interval) }}</td>
                     <td>{{ $plan->is_active ? 'Active' : 'Inactive' }}</td>
+                    <td><a href="{{ route('admin.plans.edit', $plan->id) }}" class="btn btn-warning">Edit</a></td>
+
                 </tr>
             @endforeach
             </tbody>

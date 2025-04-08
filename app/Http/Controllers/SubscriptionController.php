@@ -34,6 +34,12 @@ class SubscriptionController extends Controller
         return view('dashboard.admin.subscriptions.plans.create');
     }
 
+    public function editPlan(Plan $plan): \Illuminate\View\View
+    {
+        return view('dashboard.admin.subscriptions.plans.edit', compact('plan'));
+    }
+
+
     /**
      * Store a new plan in the database.
      */
@@ -51,4 +57,20 @@ class SubscriptionController extends Controller
 
         return redirect()->route('admin.plans.index')->with('message', 'Plan created successfully!');
     }
+
+    public function updatePlan(Request $request, Plan $plan): \Illuminate\Http\RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'interval' => 'required|string|max:20', // Examples: free, monthly, yearly
+            'is_active' => 'required|boolean',
+        ]);
+
+        $plan->update($validated);
+
+        return redirect()->route('admin.plans.index')->with('message', 'Plan updated successfully!');
+    }
+
 }
