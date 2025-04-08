@@ -46,8 +46,15 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        $user = User::findOrFail($id);
-        return view("dashboard.admin.users.edit", compact('user'));
+        // Retrieve the user by ID
+        $user = User::with('subscription.plan')->findOrFail($id);
+
+        // Retrieve all available plans
+        $plans = Plan::all();
+
+        // Pass user and plans to the view
+        return view('dashboard.admin.users.edit', compact('user', 'plans'));
+
     }
 
     public function update(Request $request, $id)
