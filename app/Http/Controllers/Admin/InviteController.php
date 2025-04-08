@@ -21,7 +21,7 @@ class InviteController extends Controller
 
         // Assuming `Setting` is the model used for application settings
         Setting::updateOrCreate(
-            ['key' => 'invite_only'], // Find the 'invite_only' setting
+            ['name' => 'invite_only'], // Find the 'invite_only' setting
             ['value' => $status]      // Update its value
         );
 
