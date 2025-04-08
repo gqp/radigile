@@ -43,7 +43,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Garrick User',
-                'nId' => 1002,
                 'email' => 'garrick.plaisted@gmail.com',
                 'password' => Hash::make('password'),
                 'role' => 'User', // Add role key
