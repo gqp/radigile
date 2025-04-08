@@ -42,7 +42,7 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
+        return redirect()->route('admin.users.manage')->with('success', 'User created successfully.');
     }
 
     public function edit($id)
