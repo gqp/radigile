@@ -22,6 +22,17 @@
                 <label for="password_confirmation" class="form-label">Confirm Password</label>
                 <input type="password" name="password_confirmation" id="password_confirmation" class="form-control">
             </div>
+            <div class="mb-3">
+                <label for="subscription" class="form-label">Subscription Level</label>
+                <select name="subscription" id="subscription" class="form-control">
+                    <option value="">No Subscription</option>
+                    @foreach ($plans as $plan)
+                        <option value="{{ $plan->id }}" {{ $user->subscription && $user->subscription->plan_id == $plan->id ? 'selected' : '' }}>
+                            {{ $plan->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
             <button type="submit" class="btn btn-success">Update User</button>
         </form>
     </div>

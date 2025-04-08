@@ -14,6 +14,7 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Role</th>
+                <th>Subscription</th> {{-- Add subscription column --}}
                 <th>Actions</th>
             </tr>
             </thead>
@@ -29,6 +30,14 @@
                             {{ $user->roles->pluck('name')->join(', ') }}
                         @else
                             <span class="text-muted">No role assigned</span>
+                        @endif
+                    </td>
+                    <td>
+                        {{-- Display the subscription plan --}}
+                        @if($user->subscription)
+                            {{ $user->subscription->plan->name }} {{-- Show plan name --}}
+                        @else
+                            <span class="text-muted">No subscription</span>
                         @endif
                     </td>
                     <td>

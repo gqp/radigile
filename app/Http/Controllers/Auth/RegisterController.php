@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Invite;
 use App\Models\Setting;
+use App\Models\Subscription;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -103,6 +104,16 @@ class RegisterController extends Controller
 
         // Assign default role (User)
         $user->assignRole('User');
+
+        if ($freePlan) {
+            Subscription::create([
+                'user_id' => $user->id,
+                'plan_id' => $freePlan->id,
+                'starts_at' => now(),
+                'ends_at' => null, // Free plan has no end date
+                'is_active' => true,
+            ]);
+        }
 
         // Mark the invite as used if applicable
         if ($invite) {

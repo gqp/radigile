@@ -6,8 +6,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AboutController;
-use App\Http\Controllers\Admin\InviteController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\NotifyController;
+use App\Http\Controllers\Admin\InviteController;
 use App\Http\Controllers\Admin\AdminNotifyController;
 
 /*
@@ -19,7 +20,7 @@ use App\Http\Controllers\Admin\AdminNotifyController;
 // Home Page Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-//About Page Routes
+// About Page Routes
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 
 // Notify Me Route
@@ -40,11 +41,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     Route::put('/invites/enable/{id}', [InviteController::class, 'enable'])->name('admin.invites.enable');
     Route::put('/invites/update/{id}', [InviteController::class, 'update'])->name('admin.invites.update');
 
-
-    //Roles Recource Routes
+    // Roles Resource Routes
     Route::resource('roles', RoleController::class);
 
-    //Manage Users Route
+    // Manage Users Route
     Route::get('/manage-users', [UserController::class, 'manage'])->name('admin.users.manage');
 
     // Create User
@@ -61,8 +61,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     // Notify Me - Admin Page Route
     Route::get('/admin/notify-me', [AdminNotifyController::class, 'index'])->name('admin.notify-me');
 
-    //Notify Me - Admin Toggle On & Fff
+    // Notify Me - Admin Toggle On & Off
     Route::post('/notify-me/toggle-global', [AdminNotifyController::class, 'toggleGlobal'])->name('admin.notify-me.toggle-global');
+
+    Route::get('/subscriptions/plans', [SubscriptionController::class, 'indexPlans'])->name('admin.plans.index');
+    Route::get('/subscriptions/plans/create', [SubscriptionController::class, 'createPlan'])->name('admin.plans.create');
+    Route::post('/subscriptions/plans', [SubscriptionController::class, 'storePlan'])->name('admin.plans.store');
+    Route::get('/subscriptions/', [SubscriptionController::class, 'indexSubscriptions'])->name('admin.subscriptions.index');
 
 });
 
@@ -70,6 +75,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
 Route::group(['prefix' => 'user', 'middleware' => ['auth','role:User']], function () {
     Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
+
+    // Subscription Routes
+    Route::post('/subscribe/free', [SubscriptionController::class, 'subscribeToFreePlan'])->name('subscribe.free');
+});
+
+// Subscription Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/access-feature', [SubscriptionController::class, 'accessFeature'])->name('subscription.access-feature');
+    Route::get('/check-free-tier', [SubscriptionController::class, 'checkFreeTier'])->name('subscription.check-free-tier');
 });
 
 Auth::routes();

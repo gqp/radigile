@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -35,15 +34,52 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast to native types.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    /**
+     * A user has one subscription.
+     */
+    public function subscription(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasOne(Subscription::class);
+    }
+
+    /**
+     * Return the user's active subscription, if any.
+     */
+    public function activeSubscription(): ?Subscription
+    {
+        return $this->subscription()->where('is_active', true)->first();
+    }
+
+    /**
+     * Check if the user is subscribed to a given plan.
+     *
+     * @param  Plan  $plan
+     * @return bool
+     */
+    public function subscribedTo(Plan $plan): bool
+    {
+        $activeSubscription = $this->activeSubscription();
+        return $activeSubscription && $activeSubscription->plan_id === $plan->id;
+    }
+
+    /**
+     * Determine if the user is on the free tier.
+     * (Checks if they are subscribed to a free plan)
+     *
+     * @return bool
+     */
+    public function onFreeTier(): bool
+    {
+        $freePlan = Plan::where('price', 0)->first();
+        return $freePlan && $this->subscribedTo($freePlan);
     }
 }
