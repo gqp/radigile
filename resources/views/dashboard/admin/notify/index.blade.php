@@ -10,17 +10,22 @@
 
         {{-- Global Toggle for Notify Me --}}
         <div class="mb-4">
-            <h5>
-                Notify Me Status:
-                <span class="badge {{ $notifyMeStatus ? 'bg-success' : 'bg-danger' }}">
-                {{ $notifyMeStatus ? 'Enabled' : 'Disabled' }}
-            </span>
-            </h5>
-            <form method="POST" action="{{ route('admin.notify-me.toggle-global') }}">
+            <h5>Notify Me Feature</h5>
+
+            <form method="POST" action="{{ route('admin.notify-me.toggle-global') }}" id="notifyMeToggleForm">
                 @csrf
-                <button type="submit" class="btn btn-primary">
-                    {{ $notifyMeStatus ? 'Disable' : 'Enable' }} Notify Me
-                </button>
+                <div class="form-check form-switch">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="notifyMeToggle"
+                        name="notify_me"
+                        onchange="document.getElementById('notifyMeToggleForm').submit();"
+                        {{ \App\Models\Setting::get('notify_me') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="notifyMeToggle">
+                        {{ \App\Models\Setting::get('notify_me') ? 'Enabled' : 'Disabled' }}
+                    </label>
+                </div>
             </form>
         </div>
 
