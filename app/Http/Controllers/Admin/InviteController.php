@@ -14,8 +14,23 @@ use Illuminate\Support\Str;
 
 class InviteController extends Controller
 {
+
+    public function toggleInviteOnly(Request $request)
+    {
+        $status = $request->input('status', false);
+
+        // Assuming `Setting` is the model used for application settings
+        Setting::updateOrCreate(
+            ['key' => 'invite_only'], // Find the 'invite_only' setting
+            ['value' => $status]      // Update its value
+        );
+
+        return redirect()->route('admin.invites.index')->with('success', 'Invite-only status updated successfully.');
+    }
+
+
     /**
-     * Display the Invite Management Page.
+     * Invite Management Page.
      */
     public function index()
     {
@@ -29,7 +44,7 @@ class InviteController extends Controller
     }
 
     /**
-     * Generate invite and send invitation.
+     * Generate and send invitation.
      */
     public function store(Request $request)
     {
@@ -68,7 +83,7 @@ class InviteController extends Controller
     }
 
     /**
-     * Enable an in-active invite.
+     * Enable ae disabled invite.
      */
     public function enable($id)
     {
@@ -79,7 +94,7 @@ class InviteController extends Controller
     }
 
     /**
-     * Disable an active invite.
+     * Disable an enabled invite.
      */
     public function disable($id)
     {

@@ -1,20 +1,93 @@
 @extends('layouts.app')
 
 @section('content')
+    <style>
+        /* Main container for the toggle */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        /* Hide the checkbox */
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* Create the slider */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 26px; /* Rounded slider */
+        }
+
+        /* Position the circle inside */
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        /* Change background to highlight when checked */
+        input:checked + .slider {
+            background-color: #4caf50;
+        }
+
+        /* Move the circle when checked */
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Custom styling for the Update button */
+        .btn-update {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-update:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
     <div class="container mt-5">
         {{-- Page Header --}}
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h3">Manage Invites</h1>
             <div>
-                <a href="#" class="btn btn-sm btn-outline-secondary"
-                   onclick="event.preventDefault(); document.getElementById('toggle-form').submit();">
-                    Toggle Invite Only:
-                    <span class="badge {{ $inviteOnly ? 'bg-success' : 'bg-secondary' }}">
-                        {{ $inviteOnly ? 'ON' : 'OFF' }}
-                    </span>
-                </a>
-                <form id="toggle-form" action="{{ route('admin.invites.toggle') }}" method="POST" style="display: none;">
+                <form action="{{ route('admin.invites.toggle') }}" method="POST" id="toggleInviteForm">
                     @csrf
+                    <div>
+                        <label class="form-switch">
+                            <input type="checkbox" name="status" value="1" id="inviteOnlyToggle"
+                                   onchange="document.getElementById('toggleInviteForm').submit()"
+                                {{ $inviteOnly ? 'checked' : '' }}> <!-- Check the toggle if invite-only is enabled -->
+                            <i></i>
+                            Invite Only Mode
+                        </label>
+                    </div>
                 </form>
             </div>
         </div>
