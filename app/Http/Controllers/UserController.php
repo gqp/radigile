@@ -25,8 +25,13 @@ class UserController extends Controller
 
     public function create()
     {
-        return view("dashboard.admin.users.create");
+        // Retrieve all available plans from the database
+        $plans = Plan::all();
+
+        // Pass the $plans variable to the view
+        return view('dashboard.admin.users.create', compact('plans'));
     }
+
 
     public function store(Request $request)
     {
