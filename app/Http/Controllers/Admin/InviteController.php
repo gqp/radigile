@@ -49,7 +49,7 @@ class InviteController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'email' => 'required|email', // Ensure email is always required for now
+            'email' => 'required|email',
             'max_uses' => 'required|integer|min:1',
             'expires_at' => 'nullable|date',
         ]);
@@ -71,6 +71,10 @@ class InviteController extends Controller
             'max_uses' => $request->max_uses,
             'expires_at' => $request->expires_at,
         ]);
+
+        if (!$invite) {
+            return redirect()->back()->withErrors(['Unable to create invite. Please try again.']);
+        }
 
         // Decrease the user's remaining invites
         $user->remaining_invites -= 1;
