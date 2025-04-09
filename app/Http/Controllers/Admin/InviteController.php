@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Mail\InviteNotification;
 use App\Models\Invite;
 use App\Models\User;
-use App\Models\NotifyMe;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,17 +31,14 @@ class InviteController extends Controller
     /**
      * Invite Management Page.
      */
-    // InviteController.php
     public function index()
     {
         $invites = Invite::with(['creator', 'invitedUser'])->get(); // Eager load relationships
         $inviteOnly = Setting::get('invite_only'); // Get current invite-only toggle status
-        $notifyMeEmails = NotifyMe::pluck('email'); // Fetch email addresses from NotifyMe
 
         return view('dashboard.admin.invites.index', [
             'invites' => $invites,
             'inviteOnly' => $inviteOnly,
-            'notifyMeEmails' => $notifyMeEmails, // Pass emails to the view
         ]);
     }
 
@@ -52,15 +48,15 @@ class InviteController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'email' => 'required|array|min:1', // Email must be an array
-            'email.*' => 'required|email|distinct', // Each item in the array must be a valid email
+            'email' => 'required|array', // Email must be an array
+            'email.*' => 'required|email', // Each item in the array must be a valid email
             'max_uses' => 'required|integer|min:1',
             'expires_at' => 'nullable|date',
         ]);
 
         $user = Auth::user(); // Get the authenticated user
 
-        // Check if user has enough remaining invites
+        // Check if user has remaining invites
         if ($user->remaining_invites < count($request->email)) {
             return redirect()->back()->withErrors(['You do not have enough remaining invites.']);
         }
@@ -87,6 +83,7 @@ class InviteController extends Controller
 
         return redirect()->route('admin.invites.index')->with('success', 'Invites sent successfully.');
     }
+
 
     /**
      * Enable ae disabled invite.
