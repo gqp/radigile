@@ -31,6 +31,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
+    Route::put('/user/update-password', [UserController::class, 'updatePassword'])->name('user.updatePassword');
 
     // Invite Routes
     Route::get('/invites', [InviteController::class, 'index'])->name('admin.invites.index');
@@ -87,6 +88,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
 Route::group(['prefix' => 'user', 'middleware' => ['auth','role:User']], function () {
     Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
+    Route::put('/user/update-password', [UserController::class, 'updatePassword'])->name('user.updatePassword');
 
     // Subscription Routes
     Route::post('/subscribe/free', [SubscriptionController::class, 'subscribeToFreePlan'])->name('subscribe.free');

@@ -15,7 +15,6 @@
                             <ul>
                                 <li><strong>Name:</strong> {{ $user->name }}</li>
                                 <li><strong>Email:</strong> {{ $user->email }}</li>
-                                <li><strong>Invite Code:</strong> {{ $user->invite_code }}</li>
                                 <li><strong>Remaining Invites:</strong> {{ $user->remaining_invites }}</li>
                                 <li><strong>Email Verified At:</strong> {{ $user->email_verified_at ?? 'Not Verified' }}</li>
                                 <li><strong>Created At:</strong> {{ $user->created_at->format('Y-m-d H:i:s') }}</li>
@@ -39,7 +38,6 @@
                                         id="current_password"
                                         class="form-control"
                                         required
-                                        autocomplete="current-password"
                                     >
                                 </div>
 
@@ -51,7 +49,6 @@
                                         id="new_password"
                                         class="form-control"
                                         required
-                                        autocomplete="new-password"
                                     >
                                 </div>
 
@@ -63,9 +60,27 @@
                                         id="new_password_confirmation"
                                         class="form-control"
                                         required
-                                        autocomplete="new-password"
                                     >
                                 </div>
 
                                 <button type="submit" class="btn btn-primary">Update Password</button>
                             </form>
+                        </div>
+
+                        @if(session('success'))
+                            <div class="alert alert-success mt-3">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if(session('error'))
+                            <div class="alert alert-danger mt-3">
+                                {{ session('error') }}
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
