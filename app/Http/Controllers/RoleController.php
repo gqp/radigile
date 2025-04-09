@@ -46,6 +46,10 @@ class RoleController extends Controller
             'permissions' => 'required|array',
         ]);
 
+        // Convert permission IDs to names
+        $permissionIds = $request->permissions;
+        $permissions = Permission::whereIn('id', $permissionIds)->pluck('name')->toArray();
+
         $role->update(['name' => $request->name]);
         $role->syncPermissions($request->permissions);
 
