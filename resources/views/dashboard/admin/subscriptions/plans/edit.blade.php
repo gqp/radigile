@@ -50,7 +50,14 @@
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-primary">Update Plan</button>
+            <div class="d-flex justify-content-between mt-3">
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+
+                <!-- Cancel Button -->
+                <a href="{{ route('admin.plans.index') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+
         </form>
     </div>
 @endsection

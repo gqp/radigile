@@ -30,8 +30,14 @@
                 @endforeach
             </div>
 
-            <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary mt-4">Update Role</button>
+            <div class="d-flex justify-content-between mt-3">
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+
+                <!-- Cancel Button -->
+                <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+
         </form>
     </div>
 @endsection
