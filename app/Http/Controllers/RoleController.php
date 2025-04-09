@@ -31,11 +31,10 @@ class RoleController extends Controller
         $role = Role::create(['name' => $request->name]);
 
         // Convert permission IDs to names
-        $permissionIds = $request->permissions;
-        $permissions = Permission::whereIn('id', $permissionIds)->pluck('name')->toArray();
+        $permissions = Permission::whereIn('id', $request->permissions)->pluck('name')->toArray();
 
-
-        $role->syncPermissions($request->permissions);
+        // Sync permissions using names to avoid "no permission named" issues
+        $role->syncPermissions($permissions);
 
         return redirect()->route('roles.index')->with('success', 'Role created successfully!');
     }
@@ -54,9 +53,6 @@ class RoleController extends Controller
         ]);
 
         // Convert permission IDs to names
-        $permissionIds = $request->permissions;
-        $permissions = Permission::whereIn('id', $permissionIds)->pluck('name')->toArray();
-
         $permissionIds = $request->permissions;
         $permissions = Permission::whereIn('id', $permissionIds)->pluck('name')->toArray();
 
