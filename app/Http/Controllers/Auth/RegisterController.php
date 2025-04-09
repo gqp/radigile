@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Plan;
 use App\Models\Invite;
 use App\Models\Setting;
 use App\Models\Subscription;
@@ -95,6 +96,9 @@ class RegisterController extends Controller
             }
         }
 
+        // Fetch the free plan
+        $freePlan = Plan::where('name', 'Free')->first();
+
         // Create the user
         $user = User::create([
             'name' => $data['name'],
@@ -105,6 +109,7 @@ class RegisterController extends Controller
         // Assign default role (User)
         $user->assignRole('User');
 
+        // Assign the user a free subscription if the freePlan exists
         if ($freePlan) {
             Subscription::create([
                 'user_id' => $user->id,
