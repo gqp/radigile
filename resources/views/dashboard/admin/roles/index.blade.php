@@ -3,7 +3,7 @@
 @section('content')
     <div class="container">
         <h1>Roles</h1>
-        <a href="{{ route('roles.create') }}" class="btn btn-primary">Create Role</a>
+        <a href="{{ route('admin.roles.create') }}" class="btn btn-primary">Create Role</a>
         <table class="table mt-3">
             <thead>
             <tr>
@@ -20,8 +20,8 @@
                         {{ $role->permissions->pluck('name')->join(', ') }}
                     </td>
                     <td>
-                        <a href="{{ route('roles.edit', $role->id) }}" class="btn btn-warning">Edit</a>
-                        <form method="POST" action="{{ route('roles.destroy', $role->id) }}" class="d-inline">
+                        <a href="{{ route('admin.roles.edit', $role->id) }}" class="btn btn-warning">Edit</a>
+                        <form method="POST" action="{{ route('admin.roles.destroy', $role->id) }}" class="d-inline">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger">Delete</button>

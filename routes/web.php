@@ -42,7 +42,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     Route::put('/invites/update/{id}', [InviteController::class, 'update'])->name('admin.invites.update');
 
     // Roles Resource Routes
-    Route::resource('roles', RoleController::class);
+    Route::resource('roles', RoleController::class)->names([
+        'index' => 'admin.roles.index',
+        'create' => 'admin.roles.create',
+        'store' => 'admin.roles.store',
+        'edit' => 'admin.roles.edit',
+        'update' => 'admin.roles.update',
+        'destroy' => 'admin.roles.destroy',
+    ]);
 
     // Manage Users Route
     Route::get('/manage-users', [UserController::class, 'manage'])->name('admin.users.manage');
