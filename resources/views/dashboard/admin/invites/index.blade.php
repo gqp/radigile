@@ -101,11 +101,24 @@
                 <form method="POST" action="{{ route('admin.invites.create') }}">
                     @csrf
 
+                    {{-- Max Uses--}}
+                    <div class="mb-3">
+                        <label for="max_uses" class="form-label">Maximum Uses</label>
+                        <input type="number" id="max_uses" name="max_uses" class="form-control" required>
+                    </div>
+
                     {{-- Email Input --}}
                     <div class="mb-3">
                         <label for="email" class="form-label">Recipient Email(s)</label>
                         <input type="email" id="email" name="emails[]" class="form-control" multiple required>
                     </div>
+
+                    {{-- Expiration Date --}}
+                    <div class="mb-3">
+                        <label for="expires_at" class="form-label">Expiration Date</label>
+                        <input type="datetime-local" id="expires_at" name="expires_at" class="form-control">
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Generate Invite</button>
                 </form>
             </div>
