@@ -43,12 +43,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
 
     // Roles Resource Routes
     Route::resource('roles', RoleController::class)->names([
-        'index' => 'roles.index',
-        'create' => 'roles.create',
-        'store' => 'roles.store',
-        'edit' => 'roles.edit',
-        'update' => 'roles.update',
-        'destroy' => 'roles.destroy',
+        'index' => 'admin.roles.index',
+        'create' => 'admin.roles.create',
+        'store' => 'admin.roles.store',
+        'edit' => 'admin.roles.edit',
+        'update' => 'admin.roles.update',
+        'destroy' => 'admin.roles.destroy',
     ]);
 
     // Manage Users Route
