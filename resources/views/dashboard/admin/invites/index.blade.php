@@ -72,6 +72,17 @@
         }
     </style>
 
+    {{-- JS for Multi-select --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enable multi-select functionality (if necessary)
+            const emailSelect = document.getElementById('emails');
+            emailSelect.addEventListener('change', function() {
+                console.log(Array.from(emailSelect.selectedOptions).map(option => option.value)); // Debug
+            });
+        });
+    </script>
+
     <div class="container mt-5">
         {{-- Page Header --}}
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -107,10 +118,20 @@
                         <input type="number" id="max_uses" name="max_uses" class="form-control" required>
                     </div>
 
-                    {{-- Email Input --}}
+                    {{-- Manual Email Input --}}
                     <div class="mb-3">
-                        <label for="email" class="form-label">Recipient Email(s)</label>
-                        <input type="email" id="email" name="email[]" class="form-control" multiple required>
+                        <label for="email" class="form-label">Enter Recipient Email(s)</label>
+                        <input type="email" id="email" name="email[]" class="form-control" placeholder="Enter email" multiple>
+                    </div>
+
+                    {{-- NotifyMe Email Selection --}}
+                    <div class="mb-3">
+                        <label for="emails" class="form-label">Select Emails from NotifyMe</label>
+                        <select id="emails" name="email[]" class="form-control" multiple>
+                            @foreach($notifyMeEmails as $email)
+                                <option value="{{ $email }}">{{ $email }}</option>
+                            @endforeach
+                        </select>
                     </div>
 
                     {{-- Expiration Date --}}
@@ -118,6 +139,17 @@
                         <label for="expires_at" class="form-label">Expiration Date</label>
                         <input type="datetime-local" id="expires_at" name="expires_at" class="form-control">
                     </div>
+
+                    {{-- NotifyMe Email Selection --}}
+                    <div class="mb-3">
+                        <label for="emails" class="form-label">Select Emails</label>
+                        <select id="emails" name="email[]" class="form-control" multiple required>
+                            @foreach ($notifyMeEmails as $email)
+                                <option value="{{ $email }}">{{ $email }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
 
                     <button type="submit" class="btn btn-primary">Generate Invite</button>
                 </form>
