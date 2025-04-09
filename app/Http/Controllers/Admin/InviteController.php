@@ -19,8 +19,7 @@ class InviteController extends Controller
     {
         $status = $request->input('status', false);
 
-        // Assuming `Setting` is the model used for application settings
-        Setting::updateOrCreate(
+       ßSetting::updateOrCreate(
             ['name' => 'invite_only'], // Find the 'invite_only' setting
             ['value' => $status]      // Update its value
         );
@@ -49,7 +48,8 @@ class InviteController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|array', // Email must be an array
+            'email.*' => 'required|email', // Each item in the array must be a valid email
             'max_uses' => 'required|integer|min:1',
             'expires_at' => 'nullable|date',
         ]);
@@ -57,33 +57,31 @@ class InviteController extends Controller
         $user = Auth::user(); // Get the authenticated user
 
         // Check if user has remaining invites
-        if ($user->remaining_invites <= 0) {
-            return redirect()->back()->withErrors(['You have no remaining invites.']);
+        if ($user->remaining_invites < count($request->email)) {
+            return redirect()->back()->withErrors(['You do not have enough remaining invites.']);
         }
 
-        // Generate a unique invite code
-        $code = Str::random(10);
+        foreach ($request->email as $email) {
+            // Generate a unique invite code
+            $code = Str::random(10);
 
-        // Create the invite
-        $invite = Invite::create([
-            'code' => $code,
-            'created_by' => $user->id,
-            'max_uses' => $request->max_uses,
-            'expires_at' => $request->expires_at,
-        ]);
+            // Create the invite
+            $invite = Invite::create([
+                'code' => $code,
+                'created_by' => $user->id,
+                'max_uses' => $request->max_uses,
+                'expires_at' => $request->expires_at,
+            ]);
 
-        if (!$invite) {
-            return redirect()->back()->withErrors(['Unable to create invite. Please try again.']);
+            // Send email to the provided address
+            Mail::to($email)->send(new InviteNotification($invite->code));
+
+            // Decrease the user's remaining invites
+            $user->remaining_invites -= 1;
+            $user->save();
         }
 
-        // Decrease the user's remaining invites
-        $user->remaining_invites -= 1;
-        $user->save();
-
-        // Send email to the provided address
-        Mail::to($request->email)->send(new InviteNotification($invite->code));
-
-        return redirect()->route('admin.invites.index')->with('success', 'Invite sent successfully.');
+        return redirect()->route('admin.invites.index')->with('success', 'Invites sent successfully.');
     }
 
     /**
