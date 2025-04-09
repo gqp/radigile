@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\InviteNotification;
 use App\Models\Invite;
 use App\Models\User;
+use App\Models\NotifyMe;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
