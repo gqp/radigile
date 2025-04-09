@@ -168,11 +168,13 @@
                                     @if ($invite->is_active)
                                         <form action="{{ route('admin.invites.disable', $invite->id) }}" method="POST" style="display:inline;">
                                             @csrf
+                                            @method('PUT')
                                             <button type="submit" class="btn btn-warning btn-sm">Disable</button>
                                         </form>
                                     @else
                                         <form action="{{ route('admin.invites.enable', $invite->id) }}" method="POST" style="display:inline;">
                                             @csrf
+                                            @method('PUT')
                                             <button type="submit" class="btn btn-success btn-sm">Enable</button>
                                         </form>
                                     @endif
