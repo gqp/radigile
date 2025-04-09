@@ -50,8 +50,10 @@ class RoleController extends Controller
         $permissionIds = $request->permissions;
         $permissions = Permission::whereIn('id', $permissionIds)->pluck('name')->toArray();
 
-        $role->update(['name' => $request->name]);
-        $role->syncPermissions($request->permissions);
+        $permissionIds = $request->permissions;
+        $permissions = Permission::whereIn('id', $permissionIds)->pluck('name')->toArray();
+
+        $role->syncPermissions($permissions);
 
         return redirect()->route('dashboard.roles.index')->with('success', 'Role updated successfully!');
     }
