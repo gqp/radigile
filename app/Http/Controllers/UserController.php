@@ -49,7 +49,7 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('admin.users.manage')->with('success', 'User created successfully.');
+        return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
 
     public function edit($id)
@@ -113,7 +113,7 @@ class UserController extends Controller
             $user->syncRoles([$request->role]);
         }
 
-        return redirect()->route('admin.users.manage')->with('success', 'User updated successfully.');
+        return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
 
     public function manage()
@@ -125,7 +125,7 @@ class UserController extends Controller
 
 
         $users = User::all(); // Pull all users
-        return view('dashboard.admin.users.manage', compact('users')); // Send users to admin manage view
+        return view('dashboard.admin.users.index', compact('users')); // Send users to admin manage view
     }
 
 
@@ -134,6 +134,6 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
 
-        return redirect()->route('admin.users.manage')->with('success', 'User deleted successfully.');
+        return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
 }
