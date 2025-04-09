@@ -101,7 +101,7 @@
                 <form method="POST" action="{{ route('admin.invites.create') }}">
                     @csrf
 
-                    {{-- Max Uses--}}
+                    {{-- Max Uses --}}
                     <div class="mb-3">
                         <label for="max_uses" class="form-label">Maximum Uses</label>
                         <input type="number" id="max_uses" name="max_uses" class="form-control" required>
@@ -139,7 +139,7 @@
                             <th>#</th>
                             <th>Code</th>
                             <th>Created By</th>
-                            <th>Invited User ID</th> {{-- Added Column --}}
+                            <th>Invited User ID</th>
                             <th>Times Used</th>
                             <th>Max Uses</th>
                             <th>Status</th>
@@ -153,9 +153,7 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $invite->code }}</td>
                                 <td>{{ $invite->creator->name }}</td>
-                                <td>
-                                    {{ $invite->invited_user_id ?? 'N/A' }} {{-- Display invited_user_id --}}
-                                </td>
+                                <td>{{ $invite->invited_user_id ?? 'N/A' }}</td>
                                 <td>{{ $invite->times_used }}</td>
                                 <td>{{ $invite->max_uses }}</td>
                                 <td>
@@ -167,7 +165,17 @@
                                 </td>
                                 <td>{{ $invite->expires_at ? $invite->expires_at->format('Y-m-d H:i') : 'No Expiry' }}</td>
                                 <td>
-                                    <!-- Actions Here -->
+                                    @if ($invite->is_active)
+                                        <form action="{{ route('admin.invites.disable', $invite->id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-warning btn-sm">Disable</button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('admin.invites.enable', $invite->id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-success btn-sm">Enable</button>
+                                        </form>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
