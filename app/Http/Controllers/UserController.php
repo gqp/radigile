@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Subscription;
 use App\Models\Plan;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
@@ -53,14 +54,15 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        // Retrieve the user by ID
-        $user = User::with('subscription.plan')->findOrFail($id);
+        // Retrieve the user by ID with subscription and roles
+        $user = User::with('subscription.plan', 'roles')->findOrFail($id);
 
         // Retrieve all available plans
         $plans = Plan::all();
+        $roles = Role::all();
 
         // Pass user and plans to the view
-        return view('dashboard.admin.users.edit', compact('user', 'plans'));
+        return view('dashboard.admin.users.edit', compact('user','plans', 'roles'));
 
     }
 
@@ -72,7 +74,8 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
-            'subscription' => 'nullable|integer|exists:plans,id', // Validate plan ID
+            'subscription' => 'nullable|integer|exists:plans,id',
+            'role' => 'nullable|string|exists:roles,name',
         ]);
 
         // Update user details
@@ -104,6 +107,10 @@ class UserController extends Controller
                     'ends_at' => null,
                 ]);
             }
+        }
+
+       if ($request->filled('role')) {
+            $user->syncRoles([$request->role]);
         }
 
         return redirect()->route('admin.users.manage')->with('success', 'User updated successfully.');

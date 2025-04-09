@@ -33,6 +33,16 @@
                     @endforeach
                 </select>
             </div>
+            <div class="mb-3">
+                <label for="role" class="form-label">Role</label>
+                <select name="role" id="role" class="form-control">
+                    @foreach ($roles as $role)
+                        <option value="{{ $role->name }}" {{ $user->roles->contains('name', $role->name) ? 'selected' : '' }}>
+                            {{ $role->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
             <button type="submit" class="btn btn-success">Update User</button>
         </form>
     </div>
