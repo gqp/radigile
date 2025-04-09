@@ -5,7 +5,7 @@
         <h1>Create New Role</h1>
 
         <!-- Form to create a new role -->
-        <form method="POST" action="{{ route('roles.store') }}">
+        <form method="POST" action="{{ route('admin.roles.store') }}">
             @csrf
 
             <!-- Role Name -->
