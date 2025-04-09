@@ -49,7 +49,7 @@
                             <a class="nav-link {{ request()->routeIs('admin.roles.index') ? 'active' : '' }}" href="{{ route('admin.roles.index') }}">Manage Roles</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.users.manage') ? 'active' : '' }}" href="{{ route('admin.users.manage') }}">Manage Users</a>
+                            <a class="nav-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">Manage Users</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('admin.invites.index') ? 'active' : '' }}" href="{{ route('admin.invites.index') }}">Manage Invites</a>
