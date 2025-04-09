@@ -139,18 +139,6 @@
                         <label for="expires_at" class="form-label">Expiration Date</label>
                         <input type="datetime-local" id="expires_at" name="expires_at" class="form-control">
                     </div>
-
-                    {{-- NotifyMe Email Selection --}}
-                    <div class="mb-3">
-                        <label for="emails" class="form-label">Select Emails</label>
-                        <select id="emails" name="email[]" class="form-control" multiple required>
-                            @foreach ($notifyMeEmails as $email)
-                                <option value="{{ $email }}">{{ $email }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-
                     <button type="submit" class="btn btn-primary">Generate Invite</button>
                 </form>
             </div>
