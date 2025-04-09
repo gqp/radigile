@@ -21,6 +21,11 @@
                     <td>{{ $subscription->starts_at->format('Y-m-d') }}</td>
                     <td>{{ $subscription->ends_at ? $subscription->ends_at->format('Y-m-d') : 'N/A' }}</td>
                     <td>{{ $subscription->is_active ? 'Active' : 'Inactive' }}</td>
+                    <td>
+                        <a href="{{ route('admin.subscriptions.edit', $subscription->id) }}" class="btn btn-sm btn-warning">
+                            Edit
+                        </a>
+                    </td>
                 </tr>
             @endforeach
             </tbody>

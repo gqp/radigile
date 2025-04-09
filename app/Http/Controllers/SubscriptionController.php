@@ -73,4 +73,24 @@ class SubscriptionController extends Controller
         return redirect()->route('admin.plans.index')->with('message', 'Plan updated successfully!');
     }
 
+    public function editSubscription(Subscription $subscription): \Illuminate\View\View
+    {
+        $plans = Plan::all(); // Load all plans for dropdown options
+        return view('dashboard.admin.subscriptions.edit', compact('subscription', 'plans'));
+    }
+
+    public function updateSubscription(Request $request, Subscription $subscription): \Illuminate\Http\RedirectResponse
+    {
+        $validated = $request->validate([
+            'plan_id'   => 'required|exists:plans,id',
+            'starts_at' => 'required|date',
+            'ends_at'   => 'nullable|date|after_or_equal:starts_at',
+            'is_active' => 'required|boolean',
+        ]);
+
+        $subscription->update($validated);
+
+        return redirect()->route('admin.subscriptions.index')->with('message', 'Subscription updated successfully!');
+    }
+
 }
