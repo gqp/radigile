@@ -24,7 +24,7 @@
                                name="permissions[]"
                                id="permission-{{ $permission->id }}"
                                value="{{ $permission->id }}"
-                            {{ $role->permissions->contains($permission) ? 'checked' : '' }}>
+                            {{ $role->permissions->contains('name', $permission->name) ? 'checked' : '' }}>
                         <label class="form-check-label" for="permission-{{ $permission->id }}">{{ $permission->name }}</label>
                     </div>
                 @endforeach
