@@ -6,16 +6,66 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        <h1>Hi User : {{ Auth::user()->name }}</h1>
-                        <hr>
-
+                        <h1>Profile: {{ $user->name }}</h1>
                     </div>
 
                     <div class="card-body">
-                        <Span><strong>Profile</strong></Span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
+                        <div>
+                            <h4>Personal Information</h4>
+                            <ul>
+                                <li><strong>Name:</strong> {{ $user->name }}</li>
+                                <li><strong>Email:</strong> {{ $user->email }}</li>
+                                <li><strong>Invite Code:</strong> {{ $user->invite_code }}</li>
+                                <li><strong>Remaining Invites:</strong> {{ $user->remaining_invites }}</li>
+                                <li><strong>Email Verified At:</strong> {{ $user->email_verified_at ?? 'Not Verified' }}</li>
+                                <li><strong>Created At:</strong> {{ $user->created_at->format('Y-m-d H:i:s') }}</li>
+                                <li><strong>Updated At:</strong> {{ $user->updated_at->format('Y-m-d H:i:s') }}</li>
+                            </ul>
+                        </div>
+
+                        <hr>
+
+                        <div>
+                            <h4>Change Password</h4>
+                            <form action="{{ route('user.updatePassword') }}" method="POST">
+                                @csrf
+                                @method('PUT')
+
+                                <div class="mb-3">
+                                    <label for="current_password" class="form-label">Current Password</label>
+                                    <input
+                                        type="password"
+                                        name="current_password"
+                                        id="current_password"
+                                        class="form-control"
+                                        required
+                                        autocomplete="current-password"
+                                    >
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="new_password" class="form-label">New Password</label>
+                                    <input
+                                        type="password"
+                                        name="new_password"
+                                        id="new_password"
+                                        class="form-control"
+                                        required
+                                        autocomplete="new-password"
+                                    >
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="new_password_confirmation" class="form-label">Confirm New Password</label>
+                                    <input
+                                        type="password"
+                                        name="new_password_confirmation"
+                                        id="new_password_confirmation"
+                                        class="form-control"
+                                        required
+                                        autocomplete="new-password"
+                                    >
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Update Password</button>
+                            </form>
