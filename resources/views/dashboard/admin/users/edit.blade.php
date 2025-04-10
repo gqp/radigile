@@ -4,95 +4,53 @@
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-10">
-                {{-- Edit User Card --}}
+                {{-- Edit Role Card --}}
                 <div class="card shadow-sm">
                     {{-- Card Header --}}
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <h4 class="mb-0">
-                            <i class="bi bi-person-lines-fill"></i> Edit User
+                            <i class="bi bi-pencil-square"></i> Edit Role: {{ $role->name }}
                         </h4>
-                        <a href="{{ route('admin.users.index') }}" class="btn btn-outline-light btn-sm">
-                            <i class="bi bi-arrow-left"></i> Back to Users
+                        <a href="{{ route('admin.roles.index') }}" class="btn btn-outline-light btn-sm">
+                            <i class="bi bi-arrow-left"></i> Back to Roles
                         </a>
                     </div>
 
                     {{-- Card Body --}}
                     <div class="card-body">
-                        <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
+                        <form method="POST" action="{{ route('admin.roles.update', $role->id) }}">
                             @csrf
                             @method('PUT')
 
-                            {{-- Name --}}
+                            {{-- Role Name --}}
                             <div class="mb-3">
-                                <label for="name" class="form-label">Name</label>
+                                <label for="name" class="form-label">Role Name</label>
                                 <input
                                     type="text"
-                                    name="name"
+                                    class="form-control"
                                     id="name"
-                                    class="form-control"
-                                    value="{{ $user->name }}"
+                                    name="name"
+                                    value="{{ $role->name }}"
                                     required
                                 >
                             </div>
 
-                            {{-- Email --}}
+                            {{-- Permissions --}}
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    id="email"
-                                    class="form-control"
-                                    value="{{ $user->email }}"
-                                    required
-                                >
-                            </div>
-
-                            {{-- Password --}}
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password <small>(Leave blank to keep current password)</small></label>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    id="password"
-                                    class="form-control"
-                                >
-                            </div>
-
-                            {{-- Confirm Password --}}
-                            <div class="mb-3">
-                                <label for="password_confirmation" class="form-label">Confirm Password</label>
-                                <input
-                                    type="password"
-                                    name="password_confirmation"
-                                    id="password_confirmation"
-                                    class="form-control"
-                                >
-                            </div>
-
-                            {{-- Subscription Level --}}
-                            <div class="mb-3">
-                                <label for="subscription" class="form-label">Subscription Level</label>
-                                <select name="subscription" id="subscription" class="form-control">
-                                    <option value="">No Subscription</option>
-                                    @foreach ($plans as $plan)
-                                        <option value="{{ $plan->id }}" {{ $user->subscription && $user->subscription->plan_id == $plan->id ? 'selected' : '' }}>
-                                            {{ $plan->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            {{-- Role --}}
-                            <div class="mb-3">
-                                <label for="role" class="form-label">Role</label>
-                                <select name="role" id="role" class="form-control">
-                                    @foreach ($roles as $role)
-                                        <option value="{{ $role->name }}" {{ $user->roles->contains('name', $role->name) ? 'selected' : '' }}>
-                                            {{ $role->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <h5>Assign Permissions</h5>
+                                @foreach ($permissions as $permission)
+                                    <div class="form-check">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            name="permissions[]"
+                                            id="permission-{{ $permission->id }}"
+                                            value="{{ $permission->id }}"
+                                            {{ $role->permissions->contains('name', $permission->name) ? 'checked' : '' }}
+                                        >
+                                        <label class="form-check-label" for="permission-{{ $permission->id }}">{{ $permission->name }}</label>
+                                    </div>
+                                @endforeach
                             </div>
 
                             {{-- Actions --}}
@@ -100,7 +58,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-save"></i> Save Changes
                                 </button>
-                                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
+                                <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary">
                                     <i class="bi bi-x-circle"></i> Cancel
                                 </a>
                             </div>

@@ -4,88 +4,59 @@
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-10">
-                {{-- Create User Card --}}
+                {{-- Create Role Card --}}
                 <div class="card shadow-sm">
                     {{-- Card Header --}}
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <h4 class="mb-0">
-                            <i class="bi bi-person-plus-fill"></i> Create New User
+                            <i class="bi bi-shield-plus"></i> Create New Role
                         </h4>
-                        <a href="{{ route('admin.users.index') }}" class="btn btn-outline-light btn-sm">
-                            <i class="bi bi-arrow-left"></i> Back to Users
+                        <a href="{{ route('admin.roles.index') }}" class="btn btn-outline-light btn-sm">
+                            <i class="bi bi-arrow-left"></i> Back to Roles
                         </a>
                     </div>
 
                     {{-- Card Body --}}
                     <div class="card-body">
-                        <form action="{{ route('admin.users.store') }}" method="POST">
+                        <form method="POST" action="{{ route('admin.roles.store') }}">
                             @csrf
 
-                            {{-- Name --}}
+                            {{-- Role Name --}}
                             <div class="mb-3">
-                                <label for="name" class="form-label">Name</label>
+                                <label for="name" class="form-label">Role Name</label>
                                 <input
                                     type="text"
-                                    name="name"
+                                    class="form-control"
                                     id="name"
-                                    class="form-control"
+                                    name="name"
+                                    placeholder="Enter role name"
                                     required
                                 >
                             </div>
 
-                            {{-- Email --}}
+                            {{-- Permissions --}}
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    id="email"
-                                    class="form-control"
-                                    required
-                                >
-                            </div>
-
-                            {{-- Password --}}
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    id="password"
-                                    class="form-control"
-                                    required
-                                >
-                            </div>
-
-                            {{-- Confirm Password --}}
-                            <div class="mb-3">
-                                <label for="password_confirmation" class="form-label">Confirm Password</label>
-                                <input
-                                    type="password"
-                                    name="password_confirmation"
-                                    id="password_confirmation"
-                                    class="form-control"
-                                    required
-                                >
-                            </div>
-
-                            {{-- Subscription Level --}}
-                            <div class="mb-3">
-                                <label for="subscription" class="form-label">Subscription Level</label>
-                                <select name="subscription" id="subscription" class="form-control">
-                                    <option value="">No Subscription</option>
-                                    @foreach ($plans as $plan)
-                                        <option value="{{ $plan->id }}">{{ $plan->name }}</option>
-                                    @endforeach
-                                </select>
+                                <h5>Assign Permissions</h5>
+                                @foreach ($permissions as $permission)
+                                    <div class="form-check">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            name="permissions[]"
+                                            id="permission-{{ $permission->id }}"
+                                            value="{{ $permission->id }}"
+                                        >
+                                        <label class="form-check-label" for="permission-{{ $permission->id }}">{{ $permission->name }}</label>
+                                    </div>
+                                @endforeach
                             </div>
 
                             {{-- Actions --}}
                             <div class="d-flex justify-content-between mt-4">
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-save"></i> Save Changes
+                                    <i class="bi bi-save"></i> Save Role
                                 </button>
-                                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
+                                <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary">
                                     <i class="bi bi-x-circle"></i> Cancel
                                 </a>
                             </div>
