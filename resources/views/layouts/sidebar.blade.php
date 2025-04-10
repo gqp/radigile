@@ -1,7 +1,9 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="{{ route('admin.dashboard') }}" class="brand-link">
-        <span class="brand-text font-weight-light">{{ config('app.name') }}</span>
+        <span class="brand-text font-weight-light">
+        <img src="{{ asset('imgs/logo-grayscale-inverted.png') }}" alt="Logo" class="img-fluid" style="max-height: 80px;">
+        </span>
     </a>
 
     <!-- Sidebar -->
