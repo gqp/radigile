@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="app-container">
-    <div class="container">
+    <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-10">
                 {{-- Settings Card --}}
