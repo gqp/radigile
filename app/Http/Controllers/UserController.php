@@ -29,9 +29,10 @@ class UserController extends Controller
     {
         // Retrieve all available plans from the database
         $plans = Plan::all();
+        $permissions = Permission::all();
 
         // Pass the $plans variable to the view
-        return view('dashboard.admin.users.create', compact('plans'));
+        return view('dashboard.admin.users.create', compact('plans','permissions'));
     }
 
 
@@ -60,9 +61,10 @@ class UserController extends Controller
         // Retrieve all available plans
         $plans = Plan::all();
         $roles = Role::all();
+        $permissions = Permission::all();
 
         // Pass user and plans to the view
-        return view('dashboard.admin.users.edit', compact('user','plans', 'roles'));
+        return view('dashboard.admin.users.edit', compact('user','plans', 'roles', 'permissions'));
 
     }
 
