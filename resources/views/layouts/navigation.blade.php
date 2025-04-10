@@ -58,10 +58,10 @@
                             <a class="nav-link {{ request()->routeIs('admin.notify-me') ? 'active' : '' }}" href="{{ route('admin.notify-me') }}">Notify-Me</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.subscriptions.index') ? 'active' : '' }}" href="{{ route('admin.subscriptions.index') }}">Subscriptions</a>
+                            <a class="nav-link {{ request()->routeIs('admin.plans.index') ? 'active' : '' }}" href="{{ route('admin.plans.index') }}">Plans</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.plans.index') ? 'active' : '' }}" href="{{ route('admin.plans.index') }}">Plans</a>
+                            <a class="nav-link {{ request()->routeIs('admin.subscriptions.index') ? 'active' : '' }}" href="{{ route('admin.subscriptions.index') }}">Subscriptions</a>
                         </li>
                     @endif
 
