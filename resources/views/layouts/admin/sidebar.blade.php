@@ -18,15 +18,15 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('admin.profile') }}" class="nav-link">
+                    <a href="{{ route('admin.subscriptions.plans') }}" class="nav-link">
                         <i class="nav-icon fas fa-user"></i>
-                        <p>Profile</p>
+                        <p>Plans</p>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('admin.settings') }}" class="nav-link">
-                        <i class="nav-icon fas fa-cog"></i>
-                        <p>Settings</p>
+                    <a href="{{ route('admin.subscriptions') }}" class="nav-link">
+                        <i class="nav-icon fas fa-user"></i>
+                        <p>Subscriptions</p>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -39,6 +39,30 @@
                     <a href="{{ route('admin.users.index') }}" class="nav-link">
                         <i class="nav-icon fas fa-users"></i>
                         <p>Users</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.notify-me') }}" class="nav-link">
+                        <i class="nav-icon fas fa-users"></i>
+                        <p>Notify-me</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.invites') }}" class="nav-link">
+                        <i class="nav-icon fas fa-users"></i>
+                        <p>Invites</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.profile') }}" class="nav-link">
+                        <i class="nav-icon fas fa-user"></i>
+                        <p>Profile</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.settings') }}" class="nav-link">
+                        <i class="nav-icon fas fa-cog"></i>
+                        <p>Settings</p>
                     </a>
                 </li>
                 <!-- Add more links as needed -->

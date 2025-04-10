@@ -32,29 +32,29 @@
 
 <body class="hold-transition sidebar-mini">
 
-    <!-- Include Sidebar -->
-    @include('layouts.sidebar')
-    <!-- Content Wrapper -->
-    <div class="content-wrapper">
-        <div class="content-header">
-            <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h1 class="m-0">@yield('header-title', 'Dashboard')</h1>
-                    </div>
+<!-- Include Sidebar -->
+@include('layouts.admin.sidebar')
+<!-- Content Wrapper -->
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">@yield('header-title', 'Dashboard')</h1>
                 </div>
             </div>
         </div>
-        <!-- Main Content -->
-        <div class="content">
-            <div class="container-fluid">
-                @yield('content')
-            </div>
+    </div>
+    <!-- Main Content -->
+    <div class="content">
+        <div class="container-fluid">
+            @yield('content')
         </div>
     </div>
+</div>
 
-    <!-- Include Footer -->
-    @include('layouts.footer')
+<!-- Include Footer -->
+@include('layouts.footer')
 </div>
 <!-- Yield Scripts Section -->
 @yield('scripts')
