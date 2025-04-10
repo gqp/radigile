@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light" style="background-color: rgb(79,127,175);">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
         <a class="navbar-brand" href="{{ route('home') }}">
             <img src="{{ asset('imgs/logo-purple.png') }}" alt="Logo" class="img-fluid" style="max-height: 80px;">
@@ -74,18 +74,23 @@
 
 <style>
     /* Custom styles for the navigation links */
-    .custom-nav .nav-link {
-        color: #f0e3fa; /* Normal state color */
-        cursor: pointer; /* Cursor changes to a "pointy finger" */
-        transition: color 0.3s ease-in-out; /* Smooth color transition */
+    .navbar{
+        background-color: #4F7FAFFF !important;
     }
 
-    .custom-nav .nav-link:hover {
-        color: #bb84e8; /* Hover state color */
+    .custom-nav .nav-link{
+        color:  #f0e3fa !important; /* Normal state color */
+        cursor: pointer !important; /* Cursor changes to a "pointy finger" */
+        transition: color 0.3s ease-in-out !important; /* Smooth color transition */
+    }
+
+    .custom-nav .nav-link:hover{
+        color: #bb84e8 !important; /* Hover state color */
     }
 
     /* Optional: Active state customization */
-    .custom-nav .nav-link.active {
-        font-weight: bold; /* Make active link bold (optional) */
+    .custom-nav .nav-link{
+        font-weight: bold !important; /* Make active link bold (optional) */
     }
+
 </style>
