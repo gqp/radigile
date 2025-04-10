@@ -52,25 +52,22 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
         'destroy' => 'admin.roles.destroy',
     ]);
 
-    // Manage Users Route
+    // Manage Users Routes
     Route::get('/manage-users', [UserController::class, 'manage'])->name('admin.users.index');
-
-    // Create User
     Route::get('/manage-users/create', [UserController::class, 'create'])->name('admin.users.create');
     Route::post('/manage-users', [UserController::class, 'store'])->name('admin.users.store');
 
-    // Edit User
+    // Edit User Routes
     Route::get('/manage-users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
     Route::put('/manage-users/{user}', [UserController::class, 'update'])->name('admin.users.update');
 
     // Delete User
     Route::delete('/manage-users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 
-    // Notify Me - Admin Page Route
+    // Notify Me Routes
     Route::get('/admin/notify-me', [AdminNotifyController::class, 'index'])->name('admin.notify-me');
-
-    // Notify Me - Admin Toggle On & Off
     Route::post('/notify-me/toggle-global', [AdminNotifyController::class, 'toggleGlobal'])->name('admin.notify-me.toggle-global');
+    Route::post('notify-me/{id}/send-invite', [AdminNotifyController::class, 'sendInvite'])->name('admin.notify.send-invite');
 
     // Subscriptions and Plan Routes
     Route::get('/subscriptions/plans', [SubscriptionController::class, 'indexPlans'])->name('admin.plans.index');
