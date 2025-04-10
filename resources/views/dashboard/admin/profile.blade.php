@@ -24,6 +24,8 @@
                             {{ Auth::user()->created_at->isoFormat('MMMM D, YYYY [at] h:mm A') }}
                         </div>
 
+                        <hr>
+
                         <form action="{{ route('admin.updatePassword') }}" method="POST">
                             @csrf
                             @method('PUT')
