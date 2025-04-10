@@ -17,16 +17,17 @@ class InviteController extends Controller
 
     public function toggleInviteOnly(Request $request)
     {
-        $status = $request->input('status', false);
+        // Retrieve the 'status' from the request and cast it to an integer
+        $status = (int) $request->input('status', 0);
 
-       Setting::updateOrCreate(
-            ['name' => 'invite_only'], // Find the 'invite_only' setting
+        // Update or create the 'invite_only' setting
+        Setting::updateOrCreate(
+            ['name' => 'invite_only'], // Find or create the setting by name
             ['value' => $status]      // Update its value
         );
 
         return redirect()->route('admin.invites.index')->with('success', 'Invite-only status updated successfully.');
     }
-
 
     /**
      * Invite Management Page.

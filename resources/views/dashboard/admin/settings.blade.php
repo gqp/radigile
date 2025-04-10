@@ -23,6 +23,7 @@
                                         class="form-check-input"
                                         id="invitationSystemToggle"
                                         name="invite_only"
+                                        value="1"
                                         {{ \App\Models\Setting::get('invite_only') ? 'checked' : '' }}
                                         onchange="document.getElementById('invitationSystemToggleForm').submit();">
                                 </div>
@@ -40,6 +41,7 @@
                                         class="form-check-input"
                                         id="notifyMeToggle"
                                         name="notify_me"
+                                        value="1"
                                         {{ \App\Models\Setting::get('notify_me') ? 'checked' : '' }}
                                         onchange="document.getElementById('notifyMeToggleForm').submit();">
                                 </div>
