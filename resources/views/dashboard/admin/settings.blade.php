@@ -22,10 +22,10 @@
                                         type="checkbox"
                                         class="form-check-input"
                                         id="invitationSystemToggle"
-                                        name="status" <!-- Match the request key in your controller -->
+                                        name="invite_only"
                                     value="1"
-                                    @if (\App\Models\Setting::get('invite_only')) checked @endif <!-- Proper Blade syntax for 'checked' -->
-                                    onchange="document.getElementById('invitationSystemToggleForm').submit();">
+                                    {{ \App\Models\Setting::get('invite_only') ? 'checked' : '' }}
+                                    onchange="document.getElementById('notifyMeToggleForm').submit();">
                                 </div>
                             </form>
                         </div>
