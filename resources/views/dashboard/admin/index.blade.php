@@ -3,6 +3,13 @@
 @section('header-title', 'Admin Dashboard')
 
 @section('content')
+    <style>
+        #radarChart {
+            width: 100%;
+            height: 300px; /* Height of the canvas */
+        }
+    </style>
+
     <div class="row">
         <!-- Small Widget -->
         <div class="col-lg-3 col-sm-6">
