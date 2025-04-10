@@ -12,25 +12,11 @@
         <div class="mb-4">
             <h5>Notify Me Feature</h5>
 
-            <form method="POST" action="{{ route('admin.notify-me.toggle-global') }}" id="notifyMeToggleForm">
-                @csrf
-                <div class="form-check form-switch">
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="notifyMeToggle"
-                        name="notify_me"
-                        value="1"
-                        {{ \App\Models\Setting::get('notify_me') ? 'checked' : '' }}
-                        onchange="document.getElementById('notifyMeHiddenInput').value = this.checked ? 1 : 0; document.getElementById('notifyMeToggleForm').submit();">
-                    <label class="form-check-label" for="notifyMeToggle">
-                        {{ \App\Models\Setting::get('notify_me') ? 'Enabled' : 'Disabled' }}
-                    </label>
-                </div>
-
-                <!-- Hidden input to track toggle state -->
-                <input type="hidden" id="notifyMeHiddenInput" name="notify_me" value="{{ \App\Models\Setting::get('notify_me') ? 1 : 0 }}">
-            </form>
+            {{-- Notification System Status --}}
+            <div class="alert alert-{{ \App\Models\Setting::get('notify_me') ? 'success' : 'danger' }}">
+                <strong>Notify Me System is currently {{ \App\Models\Setting::get('notify_me') ? 'Enabled' : 'Disabled' }}.</strong>
+                You can toggle it from the <a href="{{ route('admin.settings') }}">Settings Page</a>.
+            </div>
         </div>
 
         {{-- Submissions Table --}}

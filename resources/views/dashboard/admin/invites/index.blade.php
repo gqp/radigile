@@ -76,19 +76,10 @@
         {{-- Page Header --}}
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h3">Manage Invites</h1>
-            <div>
-                <form action="{{ route('admin.invites.toggle') }}" method="POST" id="toggleInviteForm">
-                    @csrf
-                    <div>
-                        <label class="form-switch">
-                            <input type="checkbox" name="status" value="1" id="inviteOnlyToggle"
-                                   onchange="document.getElementById('toggleInviteForm').submit()"
-                                {{ $inviteOnly ? 'checked' : '' }}> <!-- Check the toggle if invite-only is enabled -->
-                            <i></i>
-                            Invite Only Mode
-                        </label>
-                    </div>
-                </form>
+            {{-- Current Status --}}
+            <div class="alert alert-{{ \App\Models\Setting::get('invite_only') ? 'success' : 'danger' }}">
+                <strong>Invitation System is currently {{ \App\Models\Setting::get('invite_only') ? 'Enabled' : 'Disabled' }}.</strong>
+                You can toggle it from the <a href="{{ route('admin.settings') }}">Settings Page</a>.
             </div>
         </div>
 
