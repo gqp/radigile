@@ -10,42 +10,43 @@
     <title>{{ config('app.name', 'Radigile.com - A New Era of Team Growth') }}</title>
 
     <!-- Fonts -->
-    <link rel="dns-prefetch" href="//fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Bootstrap JS and Popper.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
-
-    <style>
-        body {
-            background-color: #f8f9fa;
-            text-align: center;
-        }
-        .coming-soon {
-            margin-top: 10%;
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #343a40;
-        }
-        .nav-link {
-            color: #343a40 !important;
-        }
-    </style>
+    <!-- AdminLTE Styles and Scripts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <!-- Scripts -->
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/js/adminlte.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-    <div id="app">
-        {{-- Include Navigation --}}
-        @include('layouts.navigation')
-        <main class="py-4">
-            @yield('content')
-        </main>
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+    <!-- Include Sidebar -->
+    @include('layouts.sidebar')
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">@yield('header-title', 'Dashboard')</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="content">
+            <div class="container-fluid">
+                @yield('content')
+            </div>
+        </div>
     </div>
+
+    <!-- Include Footer -->
+    @include('layouts.footer')
+</div>
 </body>
 </html>
