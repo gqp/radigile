@@ -71,7 +71,7 @@
             background-color: #0056b3;
         }
     </style>
-
+<div class="app-container">
     <div class="container mt-5">
         {{-- Page Header --}}
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -178,4 +178,5 @@
             </div>
         </div>
     </div>
+</div>
 @endsection
