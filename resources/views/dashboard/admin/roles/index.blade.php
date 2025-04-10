@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<div class="app-container">
     <div class="container">
         <h1>Roles</h1>
         <a href="{{ route('admin.roles.create') }}" class="btn btn-primary">Create Role</a>
@@ -32,4 +33,5 @@
             </tbody>
         </table>
     </div>
+</div>
 @endsection

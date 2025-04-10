@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<div class="app-container-fluid">
     <div class="container">
         <h1>Manage Subscriptions</h1>
         <table class="table">
@@ -31,4 +32,5 @@
             </tbody>
         </table>
     </div>
+</div>
 @endsection

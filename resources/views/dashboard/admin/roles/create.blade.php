@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<div class="app-container">
     <div class="container">
         <h1>Create New Role</h1>
 
@@ -39,4 +40,5 @@
 
         </form>
     </div>
+</div>
 @endsection

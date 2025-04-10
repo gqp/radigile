@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<div class="app-container">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-10">
@@ -85,6 +86,7 @@
             </div>
         </div>
     </div>
+</div>
 @endsection
 
 @push('styles')
