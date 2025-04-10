@@ -30,18 +30,17 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @foreach ($roles as $role)
+                                    @foreach ($users as $user)
                                         <tr>
-                                            <td>{{ $role->name }}</td>
-                                            <td>{{ $role->permissions->pluck('name')->join(', ') }}</td>
+                                            <td>{{ $user->name }}</td>
+                                            <td>
+                                                {{ $user->roles->pluck('name')->join(', ') }} <!-- Assuming $user->roles is eager-loaded -->
+                                            </td>
                                             <td class="text-center">
-                                                {{-- Edit Button --}}
-                                                <a href="{{ route('admin.roles.edit', $role->id) }}" class="btn btn-sm btn-warning">
+                                                <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-warning">
                                                     <i class="bi bi-pencil-square"></i> Edit
                                                 </a>
-
-                                                {{-- Delete Button --}}
-                                                <form method="POST" action="{{ route('admin.roles.destroy', $role->id) }}" class="d-inline">
+                                                <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-sm btn-danger">

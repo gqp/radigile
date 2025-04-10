@@ -123,11 +123,11 @@ class UserController extends Controller
             abort(403, 'Access denied');
         }
 
+        $users = User::with('roles')->get(); // Pull all users with their roles
+        $roles = Role::all(); // Fetch all available roles
 
-        $users = User::all(); // Pull all users
-        return view('dashboard.admin.users.index', compact('users')); // Send users to admin manage view
+        return view('dashboard.admin.users.index', compact('users', 'roles')); // Pass both users and roles
     }
-
 
     public function destroy($id)
     {
