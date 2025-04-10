@@ -19,7 +19,7 @@ class InviteController extends Controller
     {
         $status = $request->input('status', false);
 
-       ßSetting::updateOrCreate(
+       Setting::updateOrCreate(
             ['name' => 'invite_only'], // Find the 'invite_only' setting
             ['value' => $status]      // Update its value
         );
