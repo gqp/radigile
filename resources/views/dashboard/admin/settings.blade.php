@@ -31,16 +31,15 @@
                                             Allow only invited users to register.
                                         </small>
                                     </label>
-                                    <div class="form-check form-switch ms-auto">
-                                        <input
-                                            type="checkbox"
-                                            class="form-check-input"
-                                            id="invitationSystemToggle"
-                                            name="invite_only"
-                                            value="1"
-                                            {{ \App\Models\Setting::get('invite_only') ? 'checked' : '' }}
-                                            onchange="document.getElementById('invitationSystemToggleForm').submit();">
-                                    </div>
+                                    {{-- Toggle Button --}}
+                                    <button
+                                        type="button"
+                                        class="btn btn-toggle {{ \App\Models\Setting::get('invite_only') ? 'active' : '' }}"
+                                        data-bs-toggle="button"
+                                        aria-pressed="{{ \App\Models\Setting::get('invite_only') ? 'true' : 'false' }}"
+                                        onclick="toggleSetting('invitationSystemToggleForm')">
+                                        <span class="handle"></span>
+                                    </button>
                                 </div>
                             </form>
                         </div>
@@ -57,16 +56,15 @@
                                             Enable or disable global notifications.
                                         </small>
                                     </label>
-                                    <div class="form-check form-switch ms-auto">
-                                        <input
-                                            type="checkbox"
-                                            class="form-check-input"
-                                            id="notifyMeToggle"
-                                            name="notify_me"
-                                            value="1"
-                                            {{ \App\Models\Setting::get('notify_me') ? 'checked' : '' }}
-                                            onchange="document.getElementById('notifyMeToggleForm').submit();">
-                                    </div>
+                                    {{-- Toggle Button --}}
+                                    <button
+                                        type="button"
+                                        class="btn btn-toggle {{ \App\Models\Setting::get('notify_me') ? 'active' : '' }}"
+                                        data-bs-toggle="button"
+                                        aria-pressed="{{ \App\Models\Setting::get('notify_me') ? 'true' : 'false' }}"
+                                        onclick="toggleSetting('notifyMeToggleForm')">
+                                        <span class="handle"></span>
+                                    </button>
                                 </div>
                             </form>
                         </div>
@@ -88,48 +86,62 @@
 @endsection
 
 @push('styles')
-    <!-- Custom Styles for Admin Settings -->
+    <!-- Custom Styles for Toggle Buttons -->
     <style>
-        .form-check-input:checked {
-            background-color: #bb84e8; /* Custom toggle color for "on" state */
-            border-color: #bb84e8; /* Matches toggle thumb color */
-        }
-
-        .form-check-input {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
+        .btn-toggle {
             position: relative;
-            width: 2.75rem;
+            display: inline-flex;
+            align-items: center;
+            width: 3rem;
             height: 1.5rem;
             background-color: #eaeaea;
-            border-radius: 1.25rem;
-            transition: all 0.3s;
+            border: none;
+            border-radius: 1.5rem;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
-        .form-check-input::before {
+        .btn-toggle.active {
+            background-color: #bb84e8;
+        }
+
+        .btn-toggle .handle {
             content: "";
             position: absolute;
-            top: 0.25rem;
-            left: 0.25rem;
-            width: 1rem;
-            height: 1rem;
-            background-color: #fff;
+            width: 1.25rem;
+            height: 1.25rem;
+            background-color: white;
             border-radius: 50%;
+            top: 0.125rem;
+            left: 0.125rem;
             transition: all 0.3s;
         }
 
-        .form-check-input:checked::before {
-            left: 1.5rem; /* Move knob to the right */
-        }
-
-        .form-check-input:focus {
-            outline: none;
-            box-shadow: 0 0 0 0.2rem rgba(187, 132, 232, 0.25); /* Purple glow when focused */
-        }
-
-        .form-check-input:active::before {
-            width: 1.15rem; /* Slightly enlarge thumb on click */
+        .btn-toggle.active .handle {
+            left: calc(100% - 1.375rem);
         }
     </style>
+@endpush
+
+@push('scripts')
+    <script>
+        function toggleSetting(formId) {
+            const form = document.getElementById(formId);
+            const button = form.querySelector('.btn-toggle');
+            const isActive = button.classList.contains('active');
+
+            // Toggle the button's active state
+            button.classList.toggle('active');
+            button.setAttribute('aria-pressed', !isActive);
+
+            // Update the hidden input value
+            const input = form.querySelector('input[type="checkbox"]');
+            input.checked = !isActive;
+
+            // Submit the form
+            form.submit();
+        }
+    </script>
 @endpush
