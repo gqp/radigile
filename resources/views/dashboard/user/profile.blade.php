@@ -68,7 +68,7 @@
                                 <strong>Email Verified At:</strong> {{ $user->email_verified_at ?? 'Not Verified' }}
                             </div>
                             <div>
-                                <strong>Created At:</strong> {{ $user->created_at->format('Y-m-d H:i:s') }}
+                                <strong>Member Since:</strong> {{ $user->created_at->isoFormat('MMMM D, YYYY [at] h:mm A') }}
                             </div>
                         </div>
 
