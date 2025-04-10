@@ -18,7 +18,7 @@ class InviteController extends Controller
     public function toggleInviteOnly(Request $request)
     {
         // Retrieve the 'status' from the request and cast it to an integer
-        $status = (int) $request->input('status', 0);
+        $status = (int) $request->input('invite_only', 0);
 
         // Update or create the 'invite_only' setting
         Setting::updateOrCreate(
