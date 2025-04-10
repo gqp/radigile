@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-light" style="background-color: rgb(79,127,175);">
     <div class="container">
         <a class="navbar-brand" href="{{ route('home') }}">
             <img src="{{ asset('imgs/logo-purple.png') }}" alt="Logo" class="img-fluid" style="max-height: 80px;">
@@ -15,7 +15,7 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-auto custom-nav">
                 {{-- Guest Links --}}
                 @guest
                     <li class="nav-item">
@@ -66,31 +66,26 @@
                             <a class="nav-link {{ request()->routeIs('admin.subscriptions.index') ? 'active' : '' }}" href="{{ route('admin.subscriptions.index') }}">Subscriptions</a>
                         </li>
                     @endif
-
-                    {{-- Regular User Links --}}
-                    @if (auth()->user()->hasRole('User'))
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('user.dashboard') ? 'active' : '' }}" href="{{ route('user.dashboard') }}">Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('user.profile') ? 'active' : '' }}" href="{{ route('user.profile') }}">Profile</a>
-                        </li>
-                    @endif
-
-                    {{-- Logout Link --}}
-                    <li class="nav-item">
-                        <a
-                            class="nav-link"
-                            href="{{ route('logout') }}"
-                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            Logout
-                        </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                            @csrf
-                        </form>
-                    </li>
                 @endauth
             </ul>
         </div>
     </div>
 </nav>
+
+<style>
+    /* Custom styles for the navigation links */
+    .custom-nav .nav-link {
+        color: #f0e3fa; /* Normal state color */
+        cursor: pointer; /* Cursor changes to a "pointy finger" */
+        transition: color 0.3s ease-in-out; /* Smooth color transition */
+    }
+
+    .custom-nav .nav-link:hover {
+        color: #bb84e8; /* Hover state color */
+    }
+
+    /* Optional: Active state customization */
+    .custom-nav .nav-link.active {
+        font-weight: bold; /* Make active link bold (optional) */
+    }
+</style>
