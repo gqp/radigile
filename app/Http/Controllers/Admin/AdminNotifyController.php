@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\NotifyMe;
 use App\Models\Setting;
 use App\Models\Invite;
+use App\Mail\InviteNotification;
 
 class AdminNotifyController extends Controller
 {
