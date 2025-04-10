@@ -18,6 +18,7 @@
                                 @csrf
                                 <div class="form-check form-switch">
                                     <label class="form-check-label" for="invitationSystemToggle">Invitation System</label>
+                                    <br>
                                     <input
                                         type="checkbox"
                                         class="form-check-input"
@@ -36,6 +37,7 @@
                                 @csrf
                                 <div class="form-check form-switch">
                                     <label class="form-check-label" for="notifyMeToggle">Notify Me System</label>
+                                    <br>
                                     <input
                                         type="checkbox"
                                         class="form-check-input"

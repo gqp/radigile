@@ -54,7 +54,7 @@
 </div>
 
 <!-- Include Footer -->
-@include('layouts.footer')
+@include('layouts.admin.footer')
 </div>
 <!-- Yield Scripts Section -->
 @yield('scripts')
