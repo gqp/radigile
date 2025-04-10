@@ -4,19 +4,19 @@
 
 @section('content')
     <style>
-        /* Example for custom canvas sizing */
+        /* Styling for charts and widgets */
         .chart-container {
             width: 100%;
             height: 300px;
         }
+
         .small-box h3 {
             font-size: 2rem;
         }
     </style>
 
     <div class="row">
-
-        <!-- Example Widgets -->
+        <!-- Widgets Section -->
         <div class="col-lg-3 col-sm-6">
             <div class="small-box bg-primary">
                 <div class="inner">
@@ -74,7 +74,31 @@
             </div>
         </div>
 
-        <!-- Chart Examples -->
+        <!-- Additional Widgets -->
+        <div class="col-lg-6 col-sm-12">
+            <div class="card bg-light">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-calendar-alt"></i> Monthly Revenue</h3>
+                </div>
+                <div class="card-body">
+                    <h4>Total Revenue: <strong>$12,450</strong></h4>
+                    <p>Compared to last month: <span class="text-success"><i class="fas fa-level-up-alt"></i> +12%</span></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <div class="card bg-info">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-chart-pie"></i> Top Performing Category</h3>
+                </div>
+                <div class="card-body">
+                    <h5><i class="fas fa-arrow-circle-right"></i> Category: Electronics</h5>
+                    <p>Revenue Contribution: <span class="text-primary">45%</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
         <div class="col-lg-6 col-sm-12">
             <div class="card">
                 <div class="card-header">
@@ -87,7 +111,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-lg-6 col-sm-12">
             <div class="card">
                 <div class="card-header">
@@ -100,7 +123,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-lg-6 col-sm-12">
             <div class="card">
                 <div class="card-header">
@@ -113,7 +135,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-lg-6 col-sm-12">
             <div class="card">
                 <div class="card-header">
@@ -126,6 +147,20 @@
                 </div>
             </div>
         </div>
+
+        <!-- Pie Chart -->
+        <div class="col-lg-6 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Pie Chart</h3>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -133,65 +168,73 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Radar Chart
-            const radarData = {
-                labels: ['Speed', 'Strength', 'Endurance', 'Skill', 'Agility'],
-                datasets: [{
-                    label: 'Team A',
-                    data: [65, 59, 90, 81, 56],
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgb(54, 162, 235)',
-                }]
-            };
             new Chart(document.getElementById('radarChart'), {
                 type: 'radar',
-                data: radarData,
+                data: {
+                    labels: ['Speed', 'Strength', 'Endurance', 'Skill', 'Agility'],
+                    datasets: [{
+                        label: 'Team A',
+                        data: [65, 59, 90, 81, 56],
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgb(54, 162, 235)'
+                    }]
+                },
                 options: { responsive: true }
             });
 
             // Bar Chart
-            const barData = {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-                datasets: [{
-                    label: 'Monthly Sales',
-                    data: [15, 30, 25, 40, 20, 35],
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    borderColor: 'rgb(75, 192, 192)',
-                }]
-            };
             new Chart(document.getElementById('barChart'), {
                 type: 'bar',
-                data: barData,
+                data: {
+                    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+                    datasets: [{
+                        label: 'Sales',
+                        data: [15, 30, 25, 40, 35, 50],
+                        backgroundColor: 'rgba(255, 206, 86, 0.6)',
+                        borderColor: 'rgb(255, 206, 86)'
+                    }]
+                },
                 options: { responsive: true }
             });
 
             // Doughnut Chart
-            const doughnutData = {
-                labels: ['Marketing', 'Development', 'Support'],
-                datasets: [{
-                    label: 'Department Allocation',
-                    data: [30, 50, 20],
-                    backgroundColor: ['#ff6384', '#36a2eb', '#ffce56'],
-                }]
-            };
             new Chart(document.getElementById('doughnutChart'), {
                 type: 'doughnut',
-                data: doughnutData,
+                data: {
+                    labels: ['Marketing', 'Development', 'Support'],
+                    datasets: [{
+                        data: [30, 40, 30],
+                        backgroundColor: ['#ff6384', '#36a2eb', '#ff9f40']
+                    }]
+                },
                 options: { responsive: true }
             });
 
             // Line Chart
-            const lineData = {
-                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                datasets: [{
-                    label: 'Weekly Visits',
-                    data: [200, 300, 250, 400],
-                    borderColor: 'rgba(153, 102, 255, 1)',
-                    fill: false,
-                }]
-            };
             new Chart(document.getElementById('lineChart'), {
                 type: 'line',
-                data: lineData,
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Traffic',
+                        data: [200, 350, 280, 450],
+                        borderColor: 'rgb(75, 192, 192)',
+                        fill: false
+                    }]
+                },
+                options: { responsive: true }
+            });
+
+            // Pie Chart
+            new Chart(document.getElementById('pieChart'), {
+                type: 'pie',
+                data: {
+                    labels: ['Direct', 'Referral', 'Organic'],
+                    datasets: [{
+                        data: [50, 30, 20],
+                        backgroundColor: ['#4caf50', '#2196f3', '#ff9800']
+                    }]
+                },
                 options: { responsive: true }
             });
         });
