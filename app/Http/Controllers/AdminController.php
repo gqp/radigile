@@ -53,13 +53,17 @@ class AdminController extends Controller
             return back()->withErrors(['current_password' => 'The current password is incorrect.']);
         }
 
-        // Update the admin's password
-        $admin->update([
-            'password' => Hash::make($request->password), // Hash the new password before storing it
-        ]);
+        try {
+            // Update the admin's password
+            $admin->update([
+                'password' => Hash::make($request->password), // Hash the new password before storing it
+            ]);
 
-        // Redirect back with a success message
-        return back()->with('success', 'Password updated successfully!');
+            // Redirect back with a success message
+            return back()->with('success', 'Password updated successfully!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'An unexpected error occurred. Please try again later.']);
+        }
     }
 
 

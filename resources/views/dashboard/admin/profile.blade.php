@@ -19,50 +19,54 @@
                         <hr>
 
                         {{-- Name Edit Section --}}
-                        <form
-                            action="{{ route('admin.updateName') }}"
-                            method="POST"
-                            id="adminNameForm"
-                        >
+                        <form action="{{ route('admin.updatePassword') }}" method="POST">
                             @csrf
                             @method('PUT')
 
-                            <div class="d-flex align-items-center mb-3">
-                                <label for="adminNameInput" class="form-label me-2"><strong>Name:</strong></label>
+                            <div class="mb-3">
+                                <label for="current_password" class="form-label">Current Password</label>
                                 <input
-                                    type="text"
-                                    name="name"
-                                    id="adminNameInput"
-                                    value="{{ old('name', Auth::user()->name) }}"
-                                    class="form-control @error('name') is-invalid @enderror"
-                                    style="max-width: 300px;"
-                                    disabled
+                                    type="password"
+                                    name="current_password"
+                                    id="current_password"
+                                    class="form-control @error('current_password') is-invalid @enderror"
+                                    required
                                 >
-                                {{-- Edit Button --}}
-                                <button
-                                    id="editAdminNameButton"
-                                    class="btn btn-sm btn-outline-secondary ms-3"
-                                    type="button"
-                                >
-                                    <i class="bi bi-pencil"></i> Edit
-                                </button>
-                                {{-- Save Button (hidden initially) --}}
-                                <button
-                                    id="saveAdminNameButton"
-                                    class="btn btn-sm btn-primary ms-2 d-none"
-                                    type="submit"
-                                >
-                                    Save
-                                </button>
+                                @error('current_password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
-                            @error('name')
-                            <div class="invalid-feedback">
-                                {{ $message }}
+                            <div class="mb-3">
+                                <label for="password" class="form-label">New Password</label>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    id="password"
+                                    class="form-control @error('password') is-invalid @enderror"
+                                    required
+                                >
+                                @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                            @enderror
+
+                            <div class="mb-3">
+                                <label for="password_confirmation" class="form-label">Confirm New Password</label>
+                                <input
+                                    type="password"
+                                    name="password_confirmation"
+                                    id="password_confirmation"
+                                    class="form-control @error('password_confirmation') is-invalid @enderror"
+                                    required
+                                >
+                                @error('password_confirmation')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Update Password</button>
                         </form>
-
                         {{-- Prettier Joined Date --}}
                         <div>
                             <strong>Member Since:</strong>
