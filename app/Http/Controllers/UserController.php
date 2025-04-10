@@ -64,6 +64,8 @@ class UserController extends Controller
         $roles = Role::all();
         $permissions = Permission::all();
 
+        $role = $user->roles->first();
+
         // Pass user and plans to the view
         return view('dashboard.admin.users.edit', compact('user','plans', 'roles', 'permissions'));
 

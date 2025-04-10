@@ -18,6 +18,17 @@
 
                     {{-- Card Body --}}
                     <div class="card-body">
+                        {{-- Card Header --}}
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">
+                                <i class="bi bi-pencil-square"></i>
+                                Edit User: {{ $user->name }} {{-- Can use user's name if $role is not set --}}
+                            </h4>
+                            <a href="{{ route('admin.roles.index') }}" class="btn btn-outline-light btn-sm">
+                                <i class="bi bi-arrow-left"></i> Back to Roles
+                            </a>
+                        </div>
+
                         <form method="POST" action="{{ route('admin.roles.update', $role->id) }}">
                             @csrf
                             @method('PUT')
