@@ -26,7 +26,7 @@ class InviteController extends Controller
             ['value' => $status]      // Update its value
         );
 
-        return redirect()->route('admin.invites.index')->with('success', 'Invite-only status updated successfully.');
+        return redirect()->back()->with('success', "The 'Notify Me' feature has been " . ($status ? 'enabled' : 'disabled') . ".");
     }
 
     /**
