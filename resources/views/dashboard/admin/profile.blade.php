@@ -20,7 +20,7 @@
 
                         {{-- Name Edit Section --}}
                         <form
-                            action="{{ route('user.updateName') }}"
+                            action="{{ route('admin.updateName') }}"
                             method="POST"
                             id="adminNameForm"
                         >
@@ -68,6 +68,63 @@
                             <strong>Member Since:</strong>
                             {{ Auth::user()->created_at->isoFormat('MMMM D, YYYY [at] h:mm A') }}
                         </div>
+
+                        {{-- Change Password --}}
+                        <div>
+                            <h4>Change Password</h4>
+                            <form action="{{ route('user.updatePassword') }}" method="POST">
+                                @csrf
+                                @method('PUT')
+
+                                <div class="mb-3">
+                                    <label for="current_password" class="form-label">Current Password</label>
+                                    <input
+                                        type="password"
+                                        name="current_password"
+                                        id="current_password"
+                                        class="form-control"
+                                        required
+                                    >
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="new_password" class="form-label">New Password</label>
+                                    <input
+                                        type="password"
+                                        name="new_password"
+                                        id="new_password"
+                                        class="form-control"
+                                        required
+                                    >
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="new_password_confirmation" class="form-label">Confirm New Password</label>
+                                    <input
+                                        type="password"
+                                        name="new_password_confirmation"
+                                        id="new_password_confirmation"
+                                        class="form-control"
+                                        required
+                                    >
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Update Password</button>
+                            </form>
+                        </div>
+
+                        {{-- Success or Error Messages --}}
+                        @if(session('success'))
+                            <div class="alert alert-success mt-3">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if(session('error'))
+                            <div class="alert alert-danger mt-3">
+                                {{ session('error') }}
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
