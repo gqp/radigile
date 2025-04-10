@@ -3,29 +3,34 @@
 @section('content')
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h1>
-                            Hi Admin:
-                            <span id="adminName">{{ Auth::user()->name }}</span>
-                        </h1>
+            <div class="col-md-10">
+                {{-- Profile Card --}}
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-person-fill"></i> Admin Profile
+                        </h4>
+                        <span>Welcome, {{ Auth::user()->name }}</span>
                     </div>
 
                     <div class="card-body">
-                        {{-- Admin Profile Section --}}
-                        <span><strong>Profile</strong></span>
-
+                        <h5 class="text-secondary">
+                            <i class="bi bi-card-checklist"></i> Profile Details
+                        </h5>
                         <hr>
 
-                        {{-- Joined Date --}}
-                        <div>
+                        {{-- Admin Profile Section --}}
+                        <div class="mb-4">
                             <strong>Member Since:</strong>
-                            {{ Auth::user()->created_at->isoFormat('MMMM D, YYYY [at] h:mm A') }}
+                            <span>{{ Auth::user()->created_at->isoFormat('MMMM D, YYYY [at] h:mm A') }}</span>
                         </div>
 
+                        <h5 class="text-secondary">
+                            <i class="bi bi-lock-fill"></i> Update Password
+                        </h5>
                         <hr>
 
+                        {{-- Update Password Form --}}
                         <form action="{{ route('admin.updatePassword') }}" method="POST">
                             @csrf
                             @method('PUT')
@@ -87,32 +92,35 @@
                                 {{ session('error') }}
                             </div>
                         @endif
+
+                        <h5 class="text-secondary mt-4">
+                            <i class="bi bi-tools"></i> Coming Soon!
+                        </h5>
+                        <p class="text-muted mb-0">
+                            Add profile-related settings here in the future...
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    {{-- JavaScript for Toggle Behavior --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const editAdminNameButton = document.getElementById('editAdminNameButton');
-            const saveAdminNameButton = document.getElementById('saveAdminNameButton');
-            const adminNameInput = document.getElementById('adminNameInput');
-
-            editAdminNameButton.addEventListener('click', function () {
-                // Toggle the name field's disabled attribute
-                adminNameInput.disabled = !adminNameInput.disabled;
-
-                if (!adminNameInput.disabled) {
-                    // Show Save button and focus input field
-                    saveAdminNameButton.classList.remove('d-none');
-                    adminNameInput.focus();
-                } else {
-                    // Hide Save button if the input is disabled
-                    saveAdminNameButton.classList.add('d-none');
-                }
-            });
-        });
-    </script>
 @endsection
+
+@push('styles')
+    <!-- Custom Styles for Profile Page -->
+    <style>
+        .card-header h4 {
+            font-size: 1.5rem;
+        }
+
+        /* Adjusting any necessary form button or layout styles */
+        button.btn-primary {
+            background-color: #663399;
+            border: none;
+        }
+
+        button.btn-primary:hover {
+            background-color: #552b81;
+        }
+    </style>
+@endpush
