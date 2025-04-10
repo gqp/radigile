@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Subscription;
 use App\Models\Plan;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
