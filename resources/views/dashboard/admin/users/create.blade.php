@@ -3,13 +3,13 @@
 @section('content')
     <div class="container mt-5">
         <div class="row justify-content-center">
-            <div class="col-md-10">
-                {{-- Create Role Card --}}
+            <div class="col-lg-9">
+                {{-- Card for Creating Role --}}
                 <div class="card shadow-sm">
                     {{-- Card Header --}}
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <h4 class="mb-0">
-                            <i class="bi bi-shield-plus"></i> Create New Role
+                            <i class="bi bi-plus-circle"></i> Create New Role
                         </h4>
                         <a href="{{ route('admin.roles.index') }}" class="btn btn-outline-light btn-sm">
                             <i class="bi bi-arrow-left"></i> Back to Roles
@@ -51,10 +51,10 @@
                                 @endforeach
                             </div>
 
-                            {{-- Actions --}}
+                            {{-- Buttons --}}
                             <div class="d-flex justify-content-between mt-4">
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-save"></i> Save Role
+                                    <i class="bi bi-check-circle"></i> Save Role
                                 </button>
                                 <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary">
                                     <i class="bi bi-x-circle"></i> Cancel
@@ -67,17 +67,3 @@
         </div>
     </div>
 @endsection
-
-@push('styles')
-    <style>
-        .btn-primary {
-            background-color: #663399;
-            border-color: #663399;
-        }
-
-        .btn-primary:hover {
-            background-color: #552b81;
-            border-color: #552b81;
-        }
-    </style>
-@endpush

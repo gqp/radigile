@@ -3,8 +3,8 @@
 @section('content')
     <div class="container mt-5">
         <div class="row justify-content-center">
-            <div class="col-md-10">
-                {{-- Roles Management Card --}}
+            <div class="col-lg-10">
+                {{-- Card for Roles Management --}}
                 <div class="card shadow-sm">
                     {{-- Card Header --}}
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -18,8 +18,8 @@
 
                     {{-- Card Body --}}
                     <div class="card-body">
-                        {{-- Roles Table --}}
                         @if ($roles->isNotEmpty())
+                            {{-- Roles Table --}}
                             <div class="table-responsive">
                                 <table class="table table-hover table-bordered align-middle">
                                     <thead class="table-light">
@@ -55,6 +55,7 @@
                                 </table>
                             </div>
                         @else
+                            {{-- No Roles Alert --}}
                             <div class="alert alert-warning text-center">
                                 <i class="bi bi-exclamation-circle"></i> No roles found.
                             </div>
@@ -65,32 +66,3 @@
         </div>
     </div>
 @endsection
-
-@push('styles')
-    <style>
-        .btn-primary {
-            background-color: #663399;
-            border-color: #663399;
-        }
-
-        .btn-primary:hover {
-            background-color: #552b81;
-            border-color: #552b81;
-        }
-
-        .btn-warning {
-            background-color: #ffc107;
-            border-color: #ffc107;
-        }
-
-        .btn-warning:hover {
-            background-color: #e0a800;
-            border-color: #d39e00;
-        }
-
-        .btn-danger:hover {
-            background-color: #dc3545;
-            border-color: #dc3545;
-        }
-    </style>
-@endpush

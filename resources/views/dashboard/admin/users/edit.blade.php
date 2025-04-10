@@ -3,8 +3,8 @@
 @section('content')
     <div class="container mt-5">
         <div class="row justify-content-center">
-            <div class="col-md-10">
-                {{-- Edit Role Card --}}
+            <div class="col-lg-9">
+                {{-- Card for Editing Role --}}
                 <div class="card shadow-sm">
                     {{-- Card Header --}}
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -53,10 +53,10 @@
                                 @endforeach
                             </div>
 
-                            {{-- Actions --}}
+                            {{-- Buttons --}}
                             <div class="d-flex justify-content-between mt-4">
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-save"></i> Save Changes
+                                    <i class="bi bi-check-circle"></i> Save Changes
                                 </button>
                                 <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary">
                                     <i class="bi bi-x-circle"></i> Cancel
@@ -69,17 +69,3 @@
         </div>
     </div>
 @endsection
-
-@push('styles')
-    <style>
-        .btn-primary {
-            background-color: #663399;
-            border-color: #663399;
-        }
-
-        .btn-primary:hover {
-            background-color: #552b81;
-            border-color: #552b81;
-        }
-    </style>
-@endpush
