@@ -32,6 +32,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
     Route::put('/admin/update-name', [AdminController::class, 'updateName'])->name('admin.updateName');
+    Route::put('/admin/update-password', [AdminController::class, 'updatePassword'])->name('admin.updatePassword');
 
     // Invite Routes
     Route::get('/invites', [InviteController::class, 'index'])->name('admin.invites.index');
