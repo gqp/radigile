@@ -11,7 +11,7 @@
 <p>If you're new, register <a href="{{ route('register') }}">here</a>.</p>
 <p>If you're already registered, visit your dashboard.</p>
 
-<p>Thank you,</p>
-<p>The Radigile Team</p>
+<p>Thank you from,</p>
+<p>Garrick & The Radigile Team</p>
 </body>
 </html>
