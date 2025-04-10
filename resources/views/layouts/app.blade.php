@@ -57,5 +57,8 @@
     <!-- Include Footer -->
     @include('layouts.footer')
 </div>
+    <!-- Yield Scripts Section -->
+    @yield('scripts')
+
 </body>
 </html>
