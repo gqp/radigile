@@ -25,7 +25,7 @@
                                         name="invite_only"
                                     value="1"
                                     {{ \App\Models\Setting::get('invite_only') ? 'checked' : '' }}
-                                    onchange="document.getElementById('notifyMeToggleForm').submit();">
+                                    onchange="document.getElementById('invitationSystemToggleForm').submit();">
                                 </div>
                             </form>
                         </div>
