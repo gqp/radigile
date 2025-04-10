@@ -22,10 +22,10 @@
                                         type="checkbox"
                                         class="form-check-input"
                                         id="invitationSystemToggle"
-                                        name="invite_only"
-                                        value="1"
-                                        {{ \App\Models\Setting::get('invite_only') ? 'checked' : '' }}
-                                        onchange="document.getElementById('invitationSystemToggleForm').submit();">
+                                        name="status" <!-- Match the request key in your controller -->
+                                    value="1"
+                                    {{ \App\Models\Setting::get('invite_only') ? 'checked' : '' }}
+                                    onchange="document.getElementById('invitationSystemToggleForm').submit();">
                                 </div>
                             </form>
                         </div>
