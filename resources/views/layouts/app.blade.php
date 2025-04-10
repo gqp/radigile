@@ -31,15 +31,9 @@
 </head>
 
 <body class="hold-transition sidebar-mini">
-<div class="wrapper">
-    <!-- Logo Section -->
-    <div class="logo-section text-center py-3">
-        <img src="{{ asset('images/logo-grayscale-inverted.png') }}" alt="Logo" class="img-fluid" style="max-height: 80px;">
-    </div>
 
     <!-- Include Sidebar -->
     @include('layouts.sidebar')
-
     <!-- Content Wrapper -->
     <div class="content-wrapper">
         <div class="content-header">

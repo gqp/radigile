@@ -2,7 +2,7 @@
     <!-- Brand Logo -->
     <a href="{{ route('admin.dashboard') }}" class="brand-link">
         <span class="brand-text font-weight-light">
-        <img src="{{ asset('imgs/logo-grayscale-inverted.png') }}" alt="Logo" class="img-fluid" style="max-height: 80px;">
+        <img src="{{ asset('imgs/logo-white-purple.png') }}" alt="Logo" class="img-fluid" style="max-height: 80px;">
         </span>
     </a>
 
