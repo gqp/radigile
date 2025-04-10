@@ -18,13 +18,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('admin.subscriptions.plans') }}" class="nav-link">
+                    <a href="{{ route('admin.plans.index') }}" class="nav-link">
                         <i class="nav-icon fas fa-user"></i>
                         <p>Plans</p>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('admin.subscriptions') }}" class="nav-link">
+                    <a href="{{ route('admin.subscriptions.index') }}" class="nav-link">
                         <i class="nav-icon fas fa-user"></i>
                         <p>Subscriptions</p>
                     </a>
@@ -48,7 +48,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('admin.invites') }}" class="nav-link">
+                    <a href="{{ route('admin.invites.index') }}" class="nav-link">
                         <i class="nav-icon fas fa-users"></i>
                         <p>Invites</p>
                     </a>
