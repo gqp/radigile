@@ -88,6 +88,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
 Route::group(['prefix' => 'user', 'middleware' => ['auth','role:User']], function () {
     Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
+    Route::put('/user/update-name', [UserController::class, 'updateName'])->name('user.updateName');
     Route::put('/user/update-password', [UserController::class, 'updatePassword'])->name('user.updatePassword');
 
     // Subscription Routes

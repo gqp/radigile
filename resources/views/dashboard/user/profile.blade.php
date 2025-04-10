@@ -6,24 +6,59 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        <h1>Profile: {{ $user->name }}</h1>
+                        <h1>Profile</h1>
                     </div>
 
                     <div class="card-body">
+                        {{-- Personal Information --}}
                         <div>
                             <h4>Personal Information</h4>
-                            <ul>
-                                <li><strong>Name:</strong> {{ $user->name }}</li>
-                                <li><strong>Email:</strong> {{ $user->email }}</li>
-                                <li><strong>Remaining Invites:</strong> {{ $user->remaining_invites }}</li>
-                                <li><strong>Email Verified At:</strong> {{ $user->email_verified_at ?? 'Not Verified' }}</li>
-                                <li><strong>Created At:</strong> {{ $user->created_at->format('Y-m-d H:i:s') }}</li>
-                                <li><strong>Updated At:</strong> {{ $user->updated_at->format('Y-m-d H:i:s') }}</li>
-                            </ul>
+                            <form action="{{ route('user.updateName') }}" method="POST">
+                                @csrf
+                                @method('PUT')
+
+                                <div class="mb-3">
+                                    <label for="name" class="form-label"><strong>Name:</strong></label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        id="name"
+                                        value="{{ old('name', $user->name) }}"
+                                        class="form-control @error('name') is-invalid @enderror"
+                                        required
+                                    >
+                                    @error('name')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <strong>Email:</strong> {{ $user->email }}
+                                </div>
+
+                                <div>
+                                    <strong>Remaining Invites:</strong> {{ $user->remaining_invites }}
+                                </div>
+
+                                <div>
+                                    <strong>Email Verified At:</strong> {{ $user->email_verified_at ?? 'Not Verified' }}
+                                </div>
+
+                                <div>
+                                    <strong>Created At:</strong> {{ $user->created_at->format('Y-m-d H:i:s') }}
+                                </div>
+
+                                <div class="mt-3">
+                                    <button class="btn btn-primary" type="submit">Update Name</button>
+                                </div>
+                            </form>
                         </div>
 
                         <hr>
 
+                        {{-- Change Password --}}
                         <div>
                             <h4>Change Password</h4>
                             <form action="{{ route('user.updatePassword') }}" method="POST">
@@ -67,6 +102,7 @@
                             </form>
                         </div>
 
+                        {{-- Success or Error Messages --}}
                         @if(session('success'))
                             <div class="alert alert-success mt-3">
                                 {{ session('success') }}

@@ -158,4 +158,20 @@ class UserController extends Controller
 
         return back()->with('success', 'Password successfully updated.');
     }
+
+    public function updateName(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $user = Auth::user(); // Get the authenticated user
+
+        // Update the user's name
+        $user->update([
+            'name' => $request->name,
+        ]);
+
+        return back()->with('success', 'Name updated successfully.');
+    }
 }
