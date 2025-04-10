@@ -68,16 +68,6 @@
                                 </div>
                             </form>
                         </div>
-
-                        {{-- Additional Settings Placeholder --}}
-                        <div class="mt-4">
-                            <h6 class="text-secondary">
-                                <i class="bi bi-wrench-adjustable"></i> Coming Soon!
-                            </h6>
-                            <p class="text-muted mb-0">
-                                Add more settings here in the future...
-                            </p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -85,8 +75,8 @@
     </div>
 @endsection
 
+<!-- Add Custom CSS for Toggles -->
 @push('styles')
-    <!-- Custom Styles for Toggle Buttons -->
     <style>
         .btn-toggle {
             position: relative;
@@ -98,7 +88,6 @@
             border: none;
             border-radius: 1.5rem;
             padding: 0;
-            margin: 0;
             cursor: pointer;
             transition: background-color 0.3s;
         }
@@ -125,6 +114,7 @@
     </style>
 @endpush
 
+<!-- Add JavaScript for Toggles -->
 @push('scripts')
     <script>
         function toggleSetting(formId) {
