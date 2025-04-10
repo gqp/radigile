@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\NotifyMe;
 use App\Models\Setting;
+use App\Models\Invite;
 
 class AdminNotifyController extends Controller
 {
