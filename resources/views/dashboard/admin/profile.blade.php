@@ -18,6 +18,12 @@
 
                         <hr>
 
+                        {{-- Joined Date --}}
+                        <div>
+                            <strong>Member Since:</strong>
+                            {{ Auth::user()->created_at->isoFormat('MMMM D, YYYY [at] h:mm A') }}
+                        </div>
+
                         <form action="{{ route('admin.updatePassword') }}" method="POST">
                             @csrf
                             @method('PUT')
@@ -66,12 +72,6 @@
 
                             <button type="submit" class="btn btn-primary">Update Password</button>
                         </form>
-
-                        {{-- Prettier Joined Date --}}
-                        <div>
-                            <strong>Member Since:</strong>
-                            {{ Auth::user()->created_at->isoFormat('MMMM D, YYYY [at] h:mm A') }}
-                        </div>
 
                         {{-- Success or Error Messages --}}
                         @if(session('success'))
