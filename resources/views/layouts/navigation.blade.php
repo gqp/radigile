@@ -1,6 +1,8 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
-        <a class="navbar-brand" href="{{ route('home') }}">Radigile.com - A New Era of Team Growth</a>
+        <a class="navbar-brand" href="{{ route('home') }}">
+            <img src="{{ asset('imgs/logo-purple.png') }}" alt="Logo" class="img-fluid" style="max-height: 80px;">
+        </a>
         <button
             class="navbar-toggler"
             type="button"
