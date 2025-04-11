@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -17,15 +18,6 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    // Ensuring roles are always retrieved
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::retrieved(function ($user) {
-            $user->load('roles');
-        });
-    }
 
     protected $fillable = [
         'name',
@@ -34,6 +26,20 @@ class User extends Authenticatable
         'remaining_invites',
         'invite_code',
     ];
+
+    /**
+     * Ensure roles are always eagerly loaded when retrieving the user.
+     */
+    protected $with = ['roles'];
+
+    /**
+     * Define the roles relationship.
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.

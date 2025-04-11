@@ -16,7 +16,9 @@ class RoleMiddleware
         }
 
         // Retrieve the authenticated user and load roles explicitly
-        $user = Auth::user()->load('roles');
+        $user = Auth::user();
+        $user->load('roles');
+
         $roles = $user->getRoleNames();
 
         \Log::info('Role check initiated:', [

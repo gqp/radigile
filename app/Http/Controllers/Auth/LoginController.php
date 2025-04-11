@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
+
 
 class LoginController extends Controller
 {
@@ -58,8 +60,13 @@ class LoginController extends Controller
 
         // Attempt authentication
         if (auth()->attempt($request->only(['email', 'password']))) {
-            // Eagerly load roles to resolve lazy-loading issues
-            $user = auth()->user()->load('roles');
+
+            // Fetch User
+            $user = auth()->user();
+
+            // Explicitly reload roles from the database
+            $user->load('roles');
+
 
             \Log::info('User logged in successfully:', [
                 'user_id' => $user->id,
@@ -95,6 +102,9 @@ class LoginController extends Controller
         if (!is_null($userId)) {
             \DB::table('sessions')->where('user_id', $userId)->delete();
         }
+
+        // Clear role/permission cache for this user
+        Cache::forget("spatie.permission.cache");
 
         \Log::info('User logged out successfully:', ['user_id' => $userId]);
 
