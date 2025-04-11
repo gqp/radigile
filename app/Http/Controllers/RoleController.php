@@ -36,7 +36,7 @@ class RoleController extends Controller
         // Sync permissions using names to avoid "no permission named" issues
         $role->syncPermissions($permissions);
 
-        return redirect()->route('roles.index')->with('success', 'Role created successfully!');
+        return redirect()->route('roles.roles.index')->with('success', 'Role created successfully!');
     }
 
     public function edit(Role $role)
@@ -52,13 +52,11 @@ class RoleController extends Controller
             'permissions' => 'required|array',
         ]);
 
-        // Convert permission IDs to names
-        $permissionIds = $request->permissions;
-        $permissions = Permission::whereIn('id', $permissionIds)->pluck('name')->toArray();
-
+        // Assign permissions
+        $permissions = Permission::whereIn('id', $request->permissions)->pluck('name')->toArray();
         $role->syncPermissions($permissions);
 
-        return redirect()->route('roles.index')->with('success', 'Role updated successfully!');
+        return redirect()->route('admin.roles.index')->with('success', 'Role updated successfully!');
     }
 
     public function destroy(Role $role)
