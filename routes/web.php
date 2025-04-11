@@ -102,10 +102,8 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
-Route::post('/logout', function () {
-    Auth::logout();
-    return redirect('/'); // Redirect to home or login page
-})->name('logout');
+// Logout Route
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 
 Auth::routes();
