@@ -179,4 +179,14 @@ class UserController extends Controller
 
         return back()->with('success', 'Name updated successfully.');
     }
+
+    public function toggleActive($id)
+    {
+        $user = User::findOrFail($id);
+        $user->is_active = !$user->is_active;
+        $user->save();
+
+        return redirect()->route('admin.users.index')->with('success', 'User status updated successfully.');
+    }
+
 }
