@@ -97,3 +97,21 @@
                                                     <button type="submit" class="btn btn-sm btn-danger">
                                                         <i class="bi bi-trash"></i> Delete
                                                     </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="alert alert-warning text-center">
+                                <i class="bi bi-exclamation-circle"></i> No users found.
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
