@@ -52,12 +52,18 @@ class LoginController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
-        // Clear cache before attempting login
-        cache()->flush();
-
-
         // Attempt authentication
         if (auth()->attempt(['email' => $request->email, 'password' => $request->password])) {
+            // Log user information after successful authentication
+            if (auth()->check()) {
+                \Log::info('User logged in successfully:', [
+                    'user_id' => auth()->id(),
+                    'roles' => auth()->user()->getRoleNames(),
+                ]);
+            } else {
+                \Log::error('User session check failed after login.');
+            }
+
             // Redirect based on the user's role
             if (auth()->user()->hasRole('Admin')) {
                 return redirect()->route('admin.dashboard')
@@ -66,8 +72,9 @@ class LoginController extends Controller
 
             if (auth()->user()->hasRole('User')) {
                 return redirect()->route('user.dashboard')
-                ->with('success', 'Welcome User!');
+                    ->with('success', 'Welcome User!');
             }
+
 
             // Default fallback
             return redirect('/');
