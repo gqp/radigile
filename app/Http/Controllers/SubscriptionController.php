@@ -79,6 +79,34 @@ class SubscriptionController extends Controller
         return view('dashboard.admin.subscriptions.edit', compact('subscription', 'plans'));
     }
 
+    /**
+     * Show the form to create a new subscription.
+     */
+    public function createSubscription(): \Illuminate\View\View
+    {
+        $users = \App\Models\User::all(); // Fetch all users
+        $plans = \App\Models\Plan::all(); // Fetch all plans
+        return view('dashboard.admin.subscriptions.create', compact('users', 'plans'));
+    }
+
+    /**
+     * Store a new subscription in the database.
+     */
+    public function storeSubscription(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $validated = $request->validate([
+            'user_id'   => 'required|exists:users,id',
+            'plan_id'   => 'required|exists:plans,id',
+            'starts_at' => 'required|date',
+            'ends_at'   => 'nullable|date|after_or_equal:starts_at',
+            'is_active' => 'required|boolean',
+        ]);
+
+        Subscription::create($validated);
+
+        return redirect()->route('admin.subscriptions.index')->with('message', 'Subscription created successfully!');
+    }
+
     public function updateSubscription(Request $request, Subscription $subscription): \Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
