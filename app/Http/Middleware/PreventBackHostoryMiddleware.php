@@ -17,8 +17,9 @@ class PreventBackHostoryMiddleware
     {
         $response = $next($request);
 
-        return $response->header('Cache-Control', 'no-store, private')
+        return $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
-            ->header('Expires', '0');
+            ->header('Expires', '0')
+            ->header('Set-Cookie', 'laravel_session=; Max-Age=0; path=/; HttpOnly');
     }
 }

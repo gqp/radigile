@@ -82,9 +82,14 @@ class LoginController extends Controller
         // Log the user out
         auth()->logout();
 
-        // Flush the session
+        // Invalidate the current session
         $request->session()->invalidate();
+
+        // Regenerate session token to prevent re-use
         $request->session()->regenerateToken();
+
+        // Cleanup old session data for the user in the session table
+        \DB::table('sessions')->where('user_id', auth()->id())->delete();
 
         // Redirect to the homepage
         return redirect('/')

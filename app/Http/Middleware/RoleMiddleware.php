@@ -11,10 +11,11 @@ class RoleMiddleware
     {
         // Ensure the user is authenticated
         if (!Auth::check()) {
+            Auth::logout();   // Force logout if the session is stale
             abort(403, 'Unauthorized'); // Redirect if user is not logged in
         }
 
-        // Check if the user has the required role using Spatie's `hasRole` method
+        // Check if the user has the required role using Spatie's `hasRole`
         if (!Auth::user()->hasRole($role)) {
             abort(403, 'Unauthorized'); // Abort if role does not match
         }
