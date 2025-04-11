@@ -9,31 +9,33 @@ class RoleMiddleware
 {
     public function handle($request, Closure $next, $role)
     {
-        // Log unauthenticated users and redirect
-        if (!Auth::check()) {
-            \Log::warning('Unauthorized access attempt.', ['url' => $request->url()]);
-            return redirect('/login')->with('error', 'Please login to continue.');
+        if (!auth()->check()) {
+            \Log::warning('Unauthorized access attempt to:', ['url' => $request->url()]);
+            return redirect('/login')->with('error', 'Please login to access this page.');
         }
+
 
         // Retrieve the authenticated user and load roles explicitly
         $user = Auth::user();
 
-        $user->load('roles');
+        // Reload roles to ensure proper assignment
+        $user->loadMissing('roles');
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $roles = $user->getRoleNames();
+        $userRoles = $user->getRoleNames()->toArray();
 
-        \Log::info('Role check initiated:', [
+        \Log::info('Checking roles for user:', [
             'user_id' => $user->id,
-            'roles' => $roles,
+            'user_roles' => $userRoles,
             'required_role' => $role,
+            'intended_url' => $request->url(),
         ]);
 
         // Check if the user has the required role
         if (!$user->hasRole($role)) {
-            \Log::error('Role validation failed.', [
+            \Log::error('User denied access due to insufficient role:', [
                 'user_id' => $user->id,
-                'roles' => $roles->toArray(),
+                'user_roles' => $userRoles,
                 'required_role' => $role,
             ]);
 

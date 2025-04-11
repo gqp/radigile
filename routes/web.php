@@ -33,10 +33,10 @@ Route::middleware(['web'])->group(function () {
 });
 
 // Protected Routes with Middleware
-Route::middleware(['web', PreventBackHistoryMiddleware::class, 'auth'])->group(function () {
+// Route::middleware(['web', PreventBackHistoryMiddleware::class, 'auth'])->group(function () {
 
     // Admin Routes
-    Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], function () {
+    Route::group(['prefix' => 'admin', 'middleware' => ['web','auth','role:Admin']], function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
         Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
         Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
@@ -94,7 +94,7 @@ Route::middleware(['web', PreventBackHistoryMiddleware::class, 'auth'])->group(f
     });
 
     // User Routes
-    Route::group(['prefix' => 'user', 'middleware' => ['auth','role:User']], function () {
+    Route::group(['prefix' => 'user', 'middleware' => ['web','auth','role:User']], function () {
         Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
         Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
         Route::put('/profile/update-name', [UserController::class, 'updateName'])->name('user.updateName');
@@ -105,12 +105,12 @@ Route::middleware(['web', PreventBackHistoryMiddleware::class, 'auth'])->group(f
     });
 
     // Subscription Routes
-    Route::middleware(['auth'])->group(function () {
+    Route::middleware(['web','auth'])->group(function () {
         Route::get('/access-feature', [SubscriptionController::class, 'accessFeature'])->name('subscription.access-feature');
         Route::get('/check-free-tier', [SubscriptionController::class, 'checkFreeTier'])->name('subscription.check-free-tier');
     });
 
-});
+// });
 
 // Logout Route
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
