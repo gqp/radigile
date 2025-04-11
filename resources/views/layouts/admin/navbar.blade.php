@@ -2,8 +2,7 @@
     <div class="d-flex justify-content-between align-items-center">
         <!-- User Profile and Name -->
         <div class="d-flex align-items-center">
-            {{-- <img src="{{ Auth::user()->profile_image_url ?? asset('default-profile.png') }}" --}}
-            <img src=""
+            <img src="{{ asset('profile/Default-Profile.png') }}"
                  alt="{{ Auth::user()->name }}"
                  class="rounded-circle"
                  width="40"
