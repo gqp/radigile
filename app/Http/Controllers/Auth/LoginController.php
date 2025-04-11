@@ -19,6 +19,10 @@ class LoginController extends Controller
      * @return string
      */
 
+    protected function authenticated(Request $request, $user)
+    {
+        return redirect()->intended($this->redirectTo());
+    }
     /**
      * Redirect users after login based on their role.
      */
@@ -67,15 +71,15 @@ class LoginController extends Controller
             // Explicitly reload roles from the database
             $user->load('roles');
 
-
             \Log::info('User logged in successfully:', [
                 'user_id' => $user->id,
                 'roles' => $user->getRoleNames(),
             ]);
 
-            // Redirect based on user role
-            $roleRedirect = $this->redirectTo();
-            return redirect($roleRedirect)->with('success', 'Welcome back!');
+            // Bust role cache
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+            return redirect()->intended($this->redirectTo()); // redirect after successful login
         }
 
         // Failed authentication
