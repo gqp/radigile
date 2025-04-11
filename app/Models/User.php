@@ -30,20 +30,6 @@ class User extends Authenticatable
     ];
 
     /**
-     * Ensure roles are always eagerly loaded when retrieving the user.
-     */
-    protected $with = ['roles'];
-
-    /**
-     * Define the roles relationship.
-     */
-    public function roles(): BelongsToMany
-    {
-        return $this->belongsToMany(Role::class);
-    }
-
-
-    /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
