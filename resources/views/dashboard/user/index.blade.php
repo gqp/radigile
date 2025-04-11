@@ -30,7 +30,7 @@
                     <div class="icon">
                         <i class="fas fa-bell"></i>
                     </div>
-                    <a href="{{ route('user.notifications') }}" class="small-box-footer">
+                    <a href="#" class="small-box-footer">
                         View Details <i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>
