@@ -52,6 +52,10 @@ class LoginController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
+        // Clear cache before attempting login
+        cache()->flush();
+
+
         // Attempt authentication
         if (auth()->attempt(['email' => $request->email, 'password' => $request->password])) {
             // Redirect based on the user's role
@@ -72,4 +76,19 @@ class LoginController extends Controller
         // If authentication fails, redirect back with an error
         return redirect()->route('login')->with('error', 'Invalid email or password.');
     }
+
+    public function logout(Request $request)
+    {
+        // Log the user out
+        auth()->logout();
+
+        // Flush the session
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Redirect to the homepage
+        return redirect('/')
+            ->with('success', 'You have been logged out successfully.');
+    }
+
 }
