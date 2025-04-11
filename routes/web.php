@@ -102,4 +102,10 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
+Route::post('/logout', function () {
+    Auth::logout();
+    return redirect('/'); // Redirect to home or login page
+})->name('logout');
+
+
 Auth::routes();

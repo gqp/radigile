@@ -23,6 +23,17 @@
                         <p>Profile</p>
                     </a>
                 </li>
+                <!-- Logout Button -->
+                <li class="nav-item">
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-link nav-link text-left" style="color: #c2c7d0;">
+                            <i class="nav-icon fas fa-sign-out-alt"></i>
+                            <p>Logout</p>
+                        </button>
+                    </form>
+                </li>
+
                 <!-- Add more links as needed -->
             </ul>
         </nav>
