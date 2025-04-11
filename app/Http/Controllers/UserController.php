@@ -13,6 +13,15 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    public function toggleActive($id)
+    {
+        $user = User::findOrFail($id);
+        $user->is_active = !$user->is_active;
+        $user->save();
+
+        return redirect()->route('admin.users.index')->with('success', 'User status updated successfully.');
+    }
+
     public function index()
     {
         return view('dashboard.user.index');
@@ -31,9 +40,10 @@ class UserController extends Controller
         // Retrieve all available plans from the database
         $plans = Plan::all();
         $permissions = Permission::all();
+        $roles = Role::all();
 
         // Pass the $plans variable to the view
-        return view('dashboard.admin.users.create', compact('plans','permissions'));
+        return view('dashboard.admin.users.create', compact('plans','permissions','roles'));
     }
 
 
@@ -178,15 +188,6 @@ class UserController extends Controller
         ]);
 
         return back()->with('success', 'Name updated successfully.');
-    }
-
-    public function toggleActive($id)
-    {
-        $user = User::findOrFail($id);
-        $user->is_active = !$user->is_active;
-        $user->save();
-
-        return redirect()->route('admin.users.index')->with('success', 'User status updated successfully.');
     }
 
 }
