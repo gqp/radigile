@@ -14,6 +14,7 @@
             font-size: 2rem;
         }
     </style>
+    @include('layouts.user.header')
     <div class="app-container-fluid">
         <div class="container mt-5">
             <div class="row">

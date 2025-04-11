@@ -25,6 +25,10 @@
 <!-- Include Sidebar -->
 @include('layouts.user.sidebar')
 
+<!-- Include Navbar -->
+@include('layouts.user.navbar')
+
+
 <!-- Content Wrapper -->
 <div class="content-wrapper">
     <!-- Main Content -->
