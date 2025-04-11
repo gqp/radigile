@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 
 class LoginController extends Controller
 {
@@ -15,14 +16,23 @@ class LoginController extends Controller
      *
      * @return string
      */
+
     /**
-     * Where to redirect users after login, based on their role.
+     * Redirect users after login based on their role.
      */
     protected function redirectTo()
     {
-        return auth()->user()->hasRole('Admin')
-            ? route('admin.dashboard')
-            : (auth()->user()->hasRole('User') ? route('user.dashboard') : '/');
+        $user = auth()->user();
+
+        if ($user->hasRole('Admin')) {
+            return route('admin.dashboard');
+        }
+
+        if ($user->hasRole('User')) {
+            return route('user.dashboard');
+        }
+
+        return '/'; // Default fallback
     }
 
     /**
@@ -37,9 +47,6 @@ class LoginController extends Controller
 
     /**
      * Handle a login request to the application.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function login(Request $request)
     {
@@ -51,11 +58,15 @@ class LoginController extends Controller
 
         // Attempt authentication
         if (auth()->attempt($request->only(['email', 'password']))) {
+            // Eagerly load roles to resolve lazy-loading issues
+            $user = auth()->user()->load('roles');
+
             \Log::info('User logged in successfully:', [
-                'user_id' => auth()->id(),
-                'roles' => auth()->user()->getRoleNames(),
+                'user_id' => $user->id,
+                'roles' => $user->getRoleNames(),
             ]);
 
+            // Redirect based on user role
             $roleRedirect = $this->redirectTo();
             return redirect($roleRedirect)->with('success', 'Welcome back!');
         }
@@ -65,6 +76,9 @@ class LoginController extends Controller
         return back()->withErrors(['email' => 'Invalid credentials provided.']);
     }
 
+    /**
+     * Log the user out and clean up the session.
+     */
     public function logout(Request $request)
     {
         // Get user ID before logging out
@@ -77,7 +91,7 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Clean up session table
+        // Clean up session table for the user
         if (!is_null($userId)) {
             \DB::table('sessions')->where('user_id', $userId)->delete();
         }
@@ -86,6 +100,5 @@ class LoginController extends Controller
 
         return redirect('/')->with('success', 'You have been logged out successfully.');
     }
-
 
 }

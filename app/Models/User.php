@@ -17,6 +17,16 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    // Ensuring roles are always retrieved
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::retrieved(function ($user) {
+            $user->load('roles');
+        });
+    }
+
     protected $fillable = [
         'name',
         'email',

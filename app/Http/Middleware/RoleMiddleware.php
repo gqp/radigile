@@ -15,8 +15,8 @@ class RoleMiddleware
             return redirect('/login')->with('error', 'Please login to continue.');
         }
 
-        // Retrieve user and roles
-        $user = Auth::user();
+        // Retrieve the authenticated user and load roles explicitly
+        $user = Auth::user()->load('roles');
         $roles = $user->getRoleNames();
 
         \Log::info('Role check initiated:', [
