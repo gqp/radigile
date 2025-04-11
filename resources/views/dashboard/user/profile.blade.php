@@ -8,7 +8,7 @@
                     {{-- Card Header --}}
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <h4 class="mb-0"><i class="bi bi-person-lines-fill"></i> My Profile</h4>
-                        <a href="{{ route('dashboard') }}" class="btn btn-outline-light btn-sm">
+                        <a href="{{ route('user.dashboard') }}" class="btn btn-outline-light btn-sm">
                             <i class="bi bi-arrow-left"></i> Back to Dashboard
                         </a>
                     </div>
