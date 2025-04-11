@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Plan;
+use App\Models\User;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
 
@@ -75,8 +76,9 @@ class SubscriptionController extends Controller
 
     public function editSubscription(Subscription $subscription): \Illuminate\View\View
     {
-        $plans = Plan::all(); // Load all plans for dropdown options
-        return view('dashboard.admin.subscriptions.edit', compact('subscription', 'plans'));
+        $users = User::all(); // Fetch all users
+        $plans = Plan::all(); // Fetch all plans
+        return view('dashboard.admin.subscriptions.edit', compact('subscription', 'plans','users'));
     }
 
     /**
@@ -84,8 +86,8 @@ class SubscriptionController extends Controller
      */
     public function createSubscription(): \Illuminate\View\View
     {
-        $users = \App\Models\User::all(); // Fetch all users
-        $plans = \App\Models\Plan::all(); // Fetch all plans
+        $users = User::all(); // Fetch all users
+        $plans = Plan::all(); // Fetch all plans
         return view('dashboard.admin.subscriptions.create', compact('users', 'plans'));
     }
 
