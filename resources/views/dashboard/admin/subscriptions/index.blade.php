@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <div class="container mt-5">
@@ -41,7 +41,8 @@
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <a href="{{ route('admin.subscriptions.edit', $subscription->id) }}" class="btn btn-sm btn-warning">
+                                                <a href="{{ route('admin.subscriptions.edit', $subscription->id) }}"
+                                                   class="btn btn-sm btn-warning">
                                                     <i class="bi bi-pencil-square"></i> Edit
                                                 </a>
                                             </td>

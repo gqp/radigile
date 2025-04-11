@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <div class="container mt-5">
@@ -21,19 +21,22 @@
                             {{-- Plan Name --}}
                             <div class="mb-3">
                                 <label for="name" class="form-label">Plan Name</label>
-                                <input type="text" name="name" id="name" class="form-control" placeholder="Enter plan name" required>
+                                <input type="text" name="name" id="name" class="form-control"
+                                       placeholder="Enter plan name" required>
                             </div>
 
                             {{-- Description --}}
                             <div class="mb-3">
                                 <label for="description" class="form-label">Description</label>
-                                <textarea name="description" id="description" class="form-control" placeholder="Enter plan description"></textarea>
+                                <textarea name="description" id="description" class="form-control"
+                                          placeholder="Enter plan description"></textarea>
                             </div>
 
                             {{-- Price --}}
                             <div class="mb-3">
                                 <label for="price" class="form-label">Price (in USD)</label>
-                                <input type="number" name="price" id="price" class="form-control" step="0.01" placeholder="Enter price" required>
+                                <input type="number" name="price" id="price" class="form-control" step="0.01"
+                                       placeholder="Enter price" required>
                             </div>
 
                             {{-- Interval --}}

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <style>
@@ -71,112 +71,115 @@
             background-color: #0056b3;
         }
     </style>
-<div class="app-container">
-    <div class="container mt-5">
-        {{-- Page Header --}}
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3">Manage Invites</h1>
-            {{-- Current Status --}}
-            <div class="alert alert-{{ \App\Models\Setting::get('invite_only') ? 'success' : 'danger' }}">
-                <strong>Invitation System is currently {{ \App\Models\Setting::get('invite_only') ? 'Enabled' : 'Disabled' }}.</strong>
-                You can toggle it from the <a href="{{ route('admin.settings') }}">Settings Page</a>.
+    <div class="app-container">
+        <div class="container mt-5">
+            {{-- Page Header --}}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Manage Invites</h1>
+                {{-- Current Status --}}
+                <div class="alert alert-{{ \App\Models\Setting::get('invite_only') ? 'success' : 'danger' }}">
+                    <strong>Invitation System is
+                        currently {{ \App\Models\Setting::get('invite_only') ? 'Enabled' : 'Disabled' }}.</strong>
+                    You can toggle it from the <a href="{{ route('admin.settings') }}">Settings Page</a>.
+                </div>
             </div>
-        </div>
 
-        {{-- Generate Invite Form --}}
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Generate and Send Invite</h5>
+            {{-- Generate Invite Form --}}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Generate and Send Invite</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ route('admin.invites.create') }}">
+                        @csrf
+
+                        {{-- Max Uses --}}
+                        <div class="mb-3">
+                            <label for="max_uses" class="form-label">Maximum Uses</label>
+                            <input type="number" id="max_uses" name="max_uses" class="form-control" required>
+                        </div>
+
+                        {{-- Email Input --}}
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Recipient Email(s)</label>
+                            <input type="email" id="email" name="email[]" class="form-control" multiple required>
+                        </div>
+
+                        {{-- Expiration Date --}}
+                        <div class="mb-3">
+                            <label for="expires_at" class="form-label">Expiration Date</label>
+                            <input type="datetime-local" id="expires_at" name="expires_at" class="form-control">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Generate Invite</button>
+                    </form>
+                </div>
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ route('admin.invites.create') }}">
-                    @csrf
 
-                    {{-- Max Uses --}}
-                    <div class="mb-3">
-                        <label for="max_uses" class="form-label">Maximum Uses</label>
-                        <input type="number" id="max_uses" name="max_uses" class="form-control" required>
-                    </div>
-
-                    {{-- Email Input --}}
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Recipient Email(s)</label>
-                        <input type="email" id="email" name="email[]" class="form-control" multiple required>
-                    </div>
-
-                    {{-- Expiration Date --}}
-                    <div class="mb-3">
-                        <label for="expires_at" class="form-label">Expiration Date</label>
-                        <input type="datetime-local" id="expires_at" name="expires_at" class="form-control">
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Generate Invite</button>
-                </form>
-            </div>
-        </div>
-
-        {{-- Invite List --}}
-        <div class="card shadow-sm">
-            <div class="card-header bg-secondary text-white">
-                <h5 class="mb-0">All Invites</h5>
-            </div>
-            <div class="card-body">
-                @if ($invites->isEmpty())
-                    <p class="text-muted">No invites available.</p>
-                @else
-                    <table class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Code</th>
-                            <th>Created By</th>
-                            <th>Invited User ID</th>
-                            <th>Times Used</th>
-                            <th>Max Uses</th>
-                            <th>Status</th>
-                            <th>Expires At</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach ($invites as $index => $invite)
+            {{-- Invite List --}}
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">All Invites</h5>
+                </div>
+                <div class="card-body">
+                    @if ($invites->isEmpty())
+                        <p class="text-muted">No invites available.</p>
+                    @else
+                        <table class="table table-striped">
+                            <thead>
                             <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $invite->code }}</td>
-                                <td>{{ $invite->creator->name }}</td>
-                                <td>{{ $invite->invited_user_id ?? 'N/A' }}</td>
-                                <td>{{ $invite->times_used }}</td>
-                                <td>{{ $invite->max_uses }}</td>
-                                <td>
-                                    @if ($invite->is_active)
-                                        <span class="badge bg-success">Active</span>
-                                    @else
-                                        <span class="badge bg-danger">Inactive</span>
-                                    @endif
-                                </td>
-                                <td>{{ $invite->expires_at ? $invite->expires_at->format('Y-m-d H:i') : 'No Expiry' }}</td>
-                                <td>
-                                    @if ($invite->is_active)
-                                        <form action="{{ route('admin.invites.disable', $invite->id) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('PUT')
-                                            <button type="submit" class="btn btn-warning btn-sm">Disable</button>
-                                        </form>
-                                    @else
-                                        <form action="{{ route('admin.invites.enable', $invite->id) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('PUT')
-                                            <button type="submit" class="btn btn-success btn-sm">Enable</button>
-                                        </form>
-                                    @endif
-                                </td>
+                                <th>#</th>
+                                <th>Code</th>
+                                <th>Created By</th>
+                                <th>Invited User ID</th>
+                                <th>Times Used</th>
+                                <th>Max Uses</th>
+                                <th>Status</th>
+                                <th>Expires At</th>
+                                <th>Actions</th>
                             </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                @endif
+                            </thead>
+                            <tbody>
+                            @foreach ($invites as $index => $invite)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $invite->code }}</td>
+                                    <td>{{ $invite->creator->name }}</td>
+                                    <td>{{ $invite->invited_user_id ?? 'N/A' }}</td>
+                                    <td>{{ $invite->times_used }}</td>
+                                    <td>{{ $invite->max_uses }}</td>
+                                    <td>
+                                        @if ($invite->is_active)
+                                            <span class="badge bg-success">Active</span>
+                                        @else
+                                            <span class="badge bg-danger">Inactive</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $invite->expires_at ? $invite->expires_at->format('Y-m-d H:i') : 'No Expiry' }}</td>
+                                    <td>
+                                        @if ($invite->is_active)
+                                            <form action="{{ route('admin.invites.disable', $invite->id) }}"
+                                                  method="POST" style="display:inline;">
+                                                @csrf
+                                                @method('PUT')
+                                                <button type="submit" class="btn btn-warning btn-sm">Disable</button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('admin.invites.enable', $invite->id) }}"
+                                                  method="POST" style="display:inline;">
+                                                @csrf
+                                                @method('PUT')
+                                                <button type="submit" class="btn btn-success btn-sm">Enable</button>
+                                            </form>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
-</div>
 @endsection

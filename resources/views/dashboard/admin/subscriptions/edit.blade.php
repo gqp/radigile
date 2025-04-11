@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <div class="container mt-5">
@@ -47,7 +47,8 @@
                             <div class="mb-3">
                                 <label for="starts_at" class="form-label">Start Date</label>
                                 <input type="datetime-local" name="starts_at" id="starts_at" class="form-control"
-                                       value="{{ old('starts_at', $subscription->starts_at->format('Y-m-d\TH:i')) }}" required>
+                                       value="{{ old('starts_at', $subscription->starts_at->format('Y-m-d\TH:i')) }}"
+                                       required>
                             </div>
 
                             {{-- Ends At --}}
@@ -62,7 +63,8 @@
                                 <label for="is_active" class="form-label">Status</label>
                                 <select name="is_active" id="is_active" class="form-select">
                                     <option value="1" {{ $subscription->is_active ? 'selected' : '' }}>Active</option>
-                                    <option value="0" {{ !$subscription->is_active ? 'selected' : '' }}>Inactive</option>
+                                    <option value="0" {{ !$subscription->is_active ? 'selected' : '' }}>Inactive
+                                    </option>
                                 </select>
                             </div>
 

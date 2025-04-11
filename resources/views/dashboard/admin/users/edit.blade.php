@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <div class="container mt-5">
@@ -23,23 +23,27 @@
                             {{-- Name --}}
                             <div class="mb-3">
                                 <label for="name" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="name" name="name" value="{{ $user->name }}" required>
+                                <input type="text" class="form-control" id="name" name="name" value="{{ $user->name }}"
+                                       required>
                             </div>
 
                             {{-- Email --}}
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" name="email" value="{{ $user->email }}" required>
+                                <input type="email" class="form-control" id="email" name="email"
+                                       value="{{ $user->email }}" required>
                             </div>
 
                             {{-- Status (Active/Inactive) --}}
                             <div class="mb-3">
                                 <h5>User Status</h5>
                                 <label class="me-3">
-                                    <input type="radio" name="is_active" value="1" {{ $user->is_active ? 'checked' : '' }}> Active
+                                    <input type="radio" name="is_active"
+                                           value="1" {{ $user->is_active ? 'checked' : '' }}> Active
                                 </label>
                                 <label>
-                                    <input type="radio" name="is_active" value="0" {{ !$user->is_active ? 'checked' : '' }}> Inactive
+                                    <input type="radio" name="is_active"
+                                           value="0" {{ !$user->is_active ? 'checked' : '' }}> Inactive
                                 </label>
                             </div>
 
@@ -49,14 +53,15 @@
                                 @foreach ($roles as $role)
                                     <div class="form-check">
                                         <input
-                                            type="radio"
-                                            class="form-check-input"
-                                            name="role"
-                                            id="role-{{ $role->id }}"
-                                            value="{{ $role->name }}"
-                                            {{ $user->roles->contains('name', $role->name) ? 'checked' : '' }}
+                                                type="radio"
+                                                class="form-check-input"
+                                                name="role"
+                                                id="role-{{ $role->id }}"
+                                                value="{{ $role->name }}"
+                                                {{ $user->roles->contains('name', $role->name) ? 'checked' : '' }}
                                         >
-                                        <label class="form-check-label" for="role-{{ $role->id }}">{{ $role->name }}</label>
+                                        <label class="form-check-label"
+                                               for="role-{{ $role->id }}">{{ $role->name }}</label>
                                     </div>
                                 @endforeach
                             </div>
@@ -76,8 +81,11 @@
 
                             {{-- Buttons --}}
                             <div class="d-flex justify-content-between mt-4">
-                                <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Save Changes</button>
-                                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary"><i class="bi bi-x-circle"></i> Cancel</a>
+                                <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Save
+                                    Changes
+                                </button>
+                                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary"><i
+                                            class="bi bi-x-circle"></i> Cancel</a>
                             </div>
                         </form>
                     </div>

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <div class="container mt-5">
@@ -51,10 +51,12 @@
 
                                             {{-- Active Status --}}
                                             <td>
-                                                <form method="POST" action="{{ route('admin.users.toggle-active', $user->id) }}">
+                                                <form method="POST"
+                                                      action="{{ route('admin.users.toggle-active', $user->id) }}">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <button type="submit" class="btn btn-sm {{ $user->is_active ? 'btn-success' : 'btn-secondary' }}">
+                                                    <button type="submit"
+                                                            class="btn btn-sm {{ $user->is_active ? 'btn-success' : 'btn-secondary' }}">
                                                         {{ $user->is_active ? 'Active' : 'Inactive' }}
                                                     </button>
                                                 </form>
@@ -88,10 +90,13 @@
 
                                             {{-- Actions --}}
                                             <td class="text-center">
-                                                <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-warning">
+                                                <a href="{{ route('admin.users.edit', $user->id) }}"
+                                                   class="btn btn-sm btn-warning">
                                                     <i class="bi bi-pencil-square"></i> Edit
                                                 </a>
-                                                <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}" class="d-inline">
+                                                <form method="POST"
+                                                      action="{{ route('admin.users.destroy', $user->id) }}"
+                                                      class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-sm btn-danger">

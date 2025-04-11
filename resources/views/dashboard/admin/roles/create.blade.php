@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <div class="container mt-5">
@@ -21,7 +21,8 @@
                             {{-- Role Name --}}
                             <div class="mb-3">
                                 <label for="name" class="form-label">Role Name</label>
-                                <input type="text" class="form-control" id="name" name="name" placeholder="Enter role name" required>
+                                <input type="text" class="form-control" id="name" name="name"
+                                       placeholder="Enter role name" required>
                             </div>
 
                             {{-- Permissions --}}
@@ -29,8 +30,10 @@
                                 <h5>Assign Permissions</h5>
                                 @foreach ($permissions as $permission)
                                     <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" id="permission-{{ $permission->id }}" value="{{ $permission->id }}">
-                                        <label class="form-check-label" for="permission-{{ $permission->id }}">{{ $permission->name }}</label>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]"
+                                               id="permission-{{ $permission->id }}" value="{{ $permission->id }}">
+                                        <label class="form-check-label"
+                                               for="permission-{{ $permission->id }}">{{ $permission->name }}</label>
                                     </div>
                                 @endforeach
                             </div>

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <div class="container mt-5">
@@ -43,7 +43,8 @@
                             {{-- Starts At --}}
                             <div class="mb-3">
                                 <label for="starts_at" class="form-label">Start Date</label>
-                                <input type="datetime-local" name="starts_at" id="starts_at" class="form-control" required>
+                                <input type="datetime-local" name="starts_at" id="starts_at" class="form-control"
+                                       required>
                             </div>
 
                             {{-- Ends At --}}

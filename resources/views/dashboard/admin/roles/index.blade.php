@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <div class="container mt-5">
@@ -31,10 +31,13 @@
                                             <td>{{ $role->name }}</td>
                                             <td>{{ $role->permissions->pluck('name')->join(', ') }}</td>
                                             <td>
-                                                <a href="{{ route('admin.roles.edit', $role->id) }}" class="btn btn-sm btn-warning">
+                                                <a href="{{ route('admin.roles.edit', $role->id) }}"
+                                                   class="btn btn-sm btn-warning">
                                                     <i class="bi bi-pencil-square"></i> Edit
                                                 </a>
-                                                <form method="POST" action="{{ route('admin.roles.destroy', $role->id) }}" class="d-inline">
+                                                <form method="POST"
+                                                      action="{{ route('admin.roles.destroy', $role->id) }}"
+                                                      class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-sm btn-danger">

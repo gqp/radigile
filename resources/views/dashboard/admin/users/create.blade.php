@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <div class="container mt-5">
@@ -22,25 +22,29 @@
                             {{-- Name --}}
                             <div class="mb-3">
                                 <label for="name" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="name" name="name" placeholder="Enter user name" required>
+                                <input type="text" class="form-control" id="name" name="name"
+                                       placeholder="Enter user name" required>
                             </div>
 
                             {{-- Email --}}
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter user email" required>
+                                <input type="email" class="form-control" id="email" name="email"
+                                       placeholder="Enter user email" required>
                             </div>
 
                             {{-- Password --}}
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+                                <input type="password" class="form-control" id="password" name="password"
+                                       placeholder="Enter password" required>
                             </div>
 
                             {{-- Confirm Password --}}
                             <div class="mb-3">
                                 <label for="password_confirmation" class="form-label">Confirm Password</label>
-                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Confirm password" required>
+                                <input type="password" class="form-control" id="password_confirmation"
+                                       name="password_confirmation" placeholder="Confirm password" required>
                             </div>
 
                             {{-- Roles --}}
@@ -49,13 +53,14 @@
                                 @foreach ($roles as $role)
                                     <div class="form-check">
                                         <input
-                                            type="radio"
-                                            class="form-check-input"
-                                            name="role"
-                                            id="role-{{ $role->id }}"
-                                            value="{{ $role->name }}"
+                                                type="radio"
+                                                class="form-check-input"
+                                                name="role"
+                                                id="role-{{ $role->id }}"
+                                                value="{{ $role->name }}"
                                         >
-                                        <label class="form-check-label" for="role-{{ $role->id }}">{{ $role->name }}</label>
+                                        <label class="form-check-label"
+                                               for="role-{{ $role->id }}">{{ $role->name }}</label>
                                     </div>
                                 @endforeach
                             </div>
@@ -73,8 +78,11 @@
 
                             {{-- Buttons --}}
                             <div class="d-flex justify-content-between mt-4">
-                                <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Save User</button>
-                                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary"><i class="bi bi-x-circle"></i> Cancel</a>
+                                <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Save
+                                    User
+                                </button>
+                                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary"><i
+                                            class="bi bi-x-circle"></i> Cancel</a>
                             </div>
                         </form>
                     </div>
