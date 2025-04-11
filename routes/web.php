@@ -56,6 +56,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
     Route::get('/manage-users', [UserController::class, 'manage'])->name('admin.users.index');
     Route::get('/manage-users/create', [UserController::class, 'create'])->name('admin.users.create');
     Route::post('/manage-users', [UserController::class, 'store'])->name('admin.users.store');
+    Route::patch('/admin/users/{id}/toggle-active', [UserController::class, 'toggleActive'])->name('admin.users.toggle-active');
 
     // Edit User Routes
     Route::get('/manage-users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
