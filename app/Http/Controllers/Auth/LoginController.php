@@ -15,17 +15,14 @@ class LoginController extends Controller
      *
      * @return string
      */
+    /**
+     * Where to redirect users after login, based on their role.
+     */
     protected function redirectTo()
     {
-        if (auth()->user()->hasRole('Admin')) {
-            return route('admin.dashboard');
-        }
-
-        if (auth()->user()->hasRole('User')) {
-            return route('user.dashboard');
-        }
-
-        return '/';
+        return auth()->user()->hasRole('Admin')
+            ? route('admin.dashboard')
+            : (auth()->user()->hasRole('User') ? route('user.dashboard') : '/');
     }
 
     /**
@@ -53,54 +50,42 @@ class LoginController extends Controller
         ]);
 
         // Attempt authentication
-        if (auth()->attempt(['email' => $request->email, 'password' => $request->password])) {
-            // Log user information after successful authentication
-            if (auth()->check()) {
-                \Log::info('User logged in successfully:', [
-                    'user_id' => auth()->id(),
-                    'roles' => auth()->user()->getRoleNames(),
-                ]);
-            } else {
-                \Log::error('User session check failed after login.');
-            }
+        if (auth()->attempt($request->only(['email', 'password']))) {
+            \Log::info('User logged in successfully:', [
+                'user_id' => auth()->id(),
+                'roles' => auth()->user()->getRoleNames(),
+            ]);
 
-            // Redirect based on the user's role
-            if (auth()->user()->hasRole('Admin')) {
-                return redirect()->route('admin.dashboard')
-                    ->with('success', 'Welcome Admin!');
-            }
-
-            if (auth()->user()->hasRole('User')) {
-                return redirect()->route('user.dashboard')
-                    ->with('success', 'Welcome User!');
-            }
-
-
-            // Default fallback
-            return redirect('/');
+            $roleRedirect = $this->redirectTo();
+            return redirect($roleRedirect)->with('success', 'Welcome back!');
         }
 
-        // If authentication fails, redirect back with an error
-        return redirect()->route('login')->with('error', 'Invalid email or password.');
+        // Failed authentication
+        \Log::error('Login attempt failed:', ['email' => $request->email]);
+        return back()->withErrors(['email' => 'Invalid credentials provided.']);
     }
 
     public function logout(Request $request)
     {
+        // Get user ID before logging out
+        $userId = auth()->id();
+
         // Log the user out
         auth()->logout();
 
         // Invalidate the current session
         $request->session()->invalidate();
-
-        // Regenerate session token to prevent re-use
         $request->session()->regenerateToken();
 
-        // Cleanup old session data for the user in the session table
-        \DB::table('sessions')->where('user_id', auth()->id())->delete();
+        // Clean up session table
+        if (!is_null($userId)) {
+            \DB::table('sessions')->where('user_id', $userId)->delete();
+        }
 
-        // Redirect to the homepage
-        return redirect('/')
-            ->with('success', 'You have been logged out successfully.');
+        \Log::info('User logged out successfully:', ['user_id' => $userId]);
+
+        return redirect('/')->with('success', 'You have been logged out successfully.');
     }
+
 
 }

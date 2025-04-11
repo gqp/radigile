@@ -9,32 +9,34 @@ class RoleMiddleware
 {
     public function handle($request, Closure $next, $role)
     {
-        // Ensure the user is authenticated
+        // Log unauthenticated users and redirect
         if (!Auth::check()) {
-            \Log::error('User is not authenticated.');
-            Auth::logout();   // Force logout if the session is stale
-            abort(403, 'Unauthorized'); // Redirect if user is not logged in
+            \Log::warning('Unauthorized access attempt.', ['url' => $request->url()]);
+            return redirect('/login')->with('error', 'Please login to continue.');
         }
 
-        // Log user info and roles
-        \Log::info('Authenticated user:', [
-            'user_id' => Auth::id(),
-            'roles' => Auth::user()->getRoleNames(), // Logs all roles assigned
+        // Retrieve user and roles
+        $user = Auth::user();
+        $roles = $user->getRoleNames();
+
+        \Log::info('Role check initiated:', [
+            'user_id' => $user->id,
+            'roles' => $roles,
             'required_role' => $role,
         ]);
 
         // Check if the user has the required role
-        if (!Auth::user()->hasRole($role)) {
-            \Log::error('User does not have required role.', [
-                'user_id' => Auth::id(),
-                'roles' => Auth::user()->getRoleNames(),
+        if (!$user->hasRole($role)) {
+            \Log::error('Role validation failed.', [
+                'user_id' => $user->id,
+                'roles' => $roles,
                 'required_role' => $role,
             ]);
-            abort(403, 'Unauthorized');
+
+            abort(403, 'Unauthorized access.');
         }
 
-
         return $next($request);
-
     }
+
 }
