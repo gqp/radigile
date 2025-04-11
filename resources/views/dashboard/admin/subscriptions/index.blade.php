@@ -8,6 +8,9 @@
                     {{-- Card Header --}}
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <h4 class="mb-0"><i class="bi bi-clipboard-data"></i> Manage Subscriptions</h4>
+                        <a href="{{ route('admin.subscriptions.create') }}" class="btn btn-outline-light btn-sm">
+                            <i class="bi bi-plus-circle"></i> Create Subscription
+                        </a>
                     </div>
 
                     {{-- Card Body --}}
