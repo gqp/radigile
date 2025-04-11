@@ -13,7 +13,8 @@
         .small-box h3 {
             font-size: 2rem;
         }
-    </style>
+    </style><!-- Include Navbar -->
+    @include('layouts.admin.navbar')
     <div class="app-container-fluid">
         <div class="container mt-5">
             <div class="row">

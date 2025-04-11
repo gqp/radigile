@@ -25,9 +25,6 @@
 <!-- Include Sidebar -->
 @include('layouts.admin.sidebar')
 
-<!-- Include Navbar -->
-@include('layouts.admin.navbar')
-
 <!-- Content Wrapper -->
 <div class="content-wrapper">
     <!-- Main Content -->
