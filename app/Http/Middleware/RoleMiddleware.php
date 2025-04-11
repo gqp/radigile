@@ -17,7 +17,9 @@ class RoleMiddleware
 
         // Retrieve the authenticated user and load roles explicitly
         $user = Auth::user();
+
         $user->load('roles');
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $roles = $user->getRoleNames();
 
@@ -31,7 +33,7 @@ class RoleMiddleware
         if (!$user->hasRole($role)) {
             \Log::error('Role validation failed.', [
                 'user_id' => $user->id,
-                'roles' => $roles,
+                'roles' => $roles->toArray(),
                 'required_role' => $role,
             ]);
 

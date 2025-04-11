@@ -70,14 +70,13 @@ class LoginController extends Controller
 
             // Explicitly reload roles from the database
             $user->load('roles');
+            // Bust role cache
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
             \Log::info('User logged in successfully:', [
                 'user_id' => $user->id,
                 'roles' => $user->getRoleNames(),
             ]);
-
-            // Bust role cache
-            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
             return redirect()->intended($this->redirectTo()); // redirect after successful login
         }
@@ -92,27 +91,28 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        // Get user ID before logging out
-        $userId = auth()->id();
+        $user = auth()->user();
 
-        // Log the user out
+        // Log current session state
+        \Log::info('Logging out user:', ['user_id' => $user->id, 'roles' => $user->getRoleNames()]);
+
+        // Ensure Spatie cache is cleared for this user
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Perform logout
         auth()->logout();
 
-        // Invalidate the current session
+        // Invalidate and regenerate session
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Clean up session table for the user
-        if (!is_null($userId)) {
-            \DB::table('sessions')->where('user_id', $userId)->delete();
-        }
+        // Remove session row for the user (if SESSION_DRIVER=database)
+        \DB::table('sessions')->where('user_id', $user->id)->delete();
 
-        // Clear role/permission cache for this user
-        Cache::forget("spatie.permission.cache");
-
-        \Log::info('User logged out successfully:', ['user_id' => $userId]);
+        \Log::info('User logged out and session cleared:', ['user_id' => $user->id]);
 
         return redirect('/')->with('success', 'You have been logged out successfully.');
     }
+
 
 }
