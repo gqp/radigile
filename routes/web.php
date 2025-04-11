@@ -8,10 +8,15 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\NotifyController;
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\InviteController;
 use App\Http\Controllers\Admin\AdminNotifyController;
 use App\Http\Middleware\PreventBackHistoryMiddleware;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
 // Public Routes
 Route::middleware(['web'])->group(function () {
@@ -23,23 +28,13 @@ Route::middleware(['web'])->group(function () {
 
     // Notify Me Route
     Route::post('/notify-me', [NotifyController::class, 'store'])->name('notify.store');
-
-    // Login and Logout Routes
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login'); // Show login form
-    Route::post('/login', [LoginController::class, 'login'])->name('login.process'); // Process login
 });
 
-// Protected Routes with PreventBackHistoryMiddleware
+// Protected Routes with Middleware
 Route::middleware(['web', PreventBackHistoryMiddleware::class, 'auth'])->group(function () {
-    // Logout Route
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
-    // Admin Routes (Protected with Role Middleware)
-    Route::middleware(['role:Admin'])->prefix('admin')->group(function () {
-        // Dashboard Route
+    // Admin Routes
+    Route::group(['prefix' => 'admin', 'middleware' => ['role:Admin']], function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-
-        // Profile and Settings Routes
         Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
         Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
         Route::put('/admin/update-name', [AdminController::class, 'updateName'])->name('admin.updateName');
@@ -53,7 +48,7 @@ Route::middleware(['web', PreventBackHistoryMiddleware::class, 'auth'])->group(f
         Route::put('/invites/enable/{id}', [InviteController::class, 'enable'])->name('admin.invites.enable');
         Route::put('/invites/update/{id}', [InviteController::class, 'update'])->name('admin.invites.update');
 
-        // Role Resource Routes
+        // Roles Resource Routes
         Route::resource('roles', RoleController::class)->names([
             'index' => 'admin.roles.index',
             'create' => 'admin.roles.create',
@@ -77,11 +72,11 @@ Route::middleware(['web', PreventBackHistoryMiddleware::class, 'auth'])->group(f
         Route::delete('/manage-users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 
         // Notify Me Routes
-        Route::get('/admin/notify-me', [AdminNotifyController::class, 'index'])->name('admin.notify-me');
+        Route::get('/notify-me', [AdminNotifyController::class, 'index'])->name('admin.notify-me');
         Route::post('/notify-me/toggle-global', [AdminNotifyController::class, 'toggleGlobal'])->name('admin.notify-me.toggle-global');
-        Route::post('notify-me/{id}/send-invite', [AdminNotifyController::class, 'sendInvite'])->name('admin.notify.send-invite');
+        Route::post('/notify-me/{id}/send-invite', [AdminNotifyController::class, 'sendInvite'])->name('admin.notify.send-invite');
 
-        // Subscriptions and Plans Routes
+        // Subscriptions and Plan Routes
         Route::get('/subscriptions/plans', [SubscriptionController::class, 'indexPlans'])->name('admin.plans.index');
         Route::get('/subscriptions/plans/create', [SubscriptionController::class, 'createPlan'])->name('admin.plans.create');
     });
