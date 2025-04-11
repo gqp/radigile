@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="app-container-fluid">
-    <div class="container">
+    <div class="container mt-5">
         <h1>Manage Subscriptions</h1>
         <table class="table">
             <thead>

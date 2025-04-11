@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="app-container">
-    <div class="container">
+    <div class="container mt-5">
         <h1>Manage Plans</h1>
         <a href="{{ route('admin.plans.create') }}" class="btn btn-primary mb-3">Create New Plan</a>
         <table class="table">

@@ -14,8 +14,9 @@
             font-size: 2rem;
         }
     </style>
-
-    <div class="row">
+    <div class="app-container-fluid">
+        <div class="container mt-5">
+            <div class="row">
         <!-- Widgets Section -->
         <div class="col-lg-3 col-sm-6">
             <div class="small-box bg-primary">
@@ -160,6 +161,8 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
         </div>
     </div>
 @endsection

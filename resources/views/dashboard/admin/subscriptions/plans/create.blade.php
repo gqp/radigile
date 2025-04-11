@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="app-container">
-    <div class="container">
+    <div class="container mt-5">
         <h1>Create a New Plan</h1>
         <form action="{{ route('admin.plans.store') }}" method="POST">
             @csrf

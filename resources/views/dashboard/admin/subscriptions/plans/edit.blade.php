@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="app-container">
-    <div class="container">
+    <div class="container mt-5">
         <h1>Edit Plan</h1>
 
         @if($errors->any())
