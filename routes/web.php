@@ -88,8 +88,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:Admin']], funct
 Route::group(['prefix' => 'user', 'middleware' => ['auth','role:User']], function () {
     Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
-    Route::put('/user/update-name', [UserController::class, 'updateName'])->name('user.updateName');
-    Route::put('/user/update-password', [UserController::class, 'updatePassword'])->name('user.updatePassword');
+    Route::put('/profile/update-name', [UserController::class, 'updateName'])->name('user.updateName');
+    Route::put('/profile/update-password', [UserController::class, 'updatePassword'])->name('user.updatePassword');
 
     // Subscription Routes
     Route::post('/subscribe/free', [SubscriptionController::class, 'subscribeToFreePlan'])->name('subscribe.free');
@@ -99,6 +99,7 @@ Route::group(['prefix' => 'user', 'middleware' => ['auth','role:User']], functio
 Route::middleware(['auth'])->group(function () {
     Route::get('/access-feature', [SubscriptionController::class, 'accessFeature'])->name('subscription.access-feature');
     Route::get('/check-free-tier', [SubscriptionController::class, 'checkFreeTier'])->name('subscription.check-free-tier');
+
 });
 
 Auth::routes();
