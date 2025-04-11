@@ -45,7 +45,7 @@
                     <div class="icon">
                         <i class="fas fa-briefcase"></i>
                     </div>
-                    <a href="{{ route('user.projects') }}" class="small-box-footer">
+                    <a href="#" class="small-box-footer">
                         Explore Projects <i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>
@@ -60,7 +60,7 @@
                     <div class="icon">
                         <i class="fas fa-tasks"></i>
                     </div>
-                    <a href="{{ route('user.tasks') }}" class="small-box-footer">
+                    <a href="#" class="small-box-footer">
                         View Tasks <i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>
@@ -75,7 +75,7 @@
                     <div class="icon">
                         <i class="fas fa-chart-line"></i>
                     </div>
-                    <a href="{{ route('user.tasks.completed') }}" class="small-box-footer">
+                    <a href="#" class="small-box-footer">
                         See Progress <i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>
