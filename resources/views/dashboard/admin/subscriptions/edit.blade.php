@@ -1,6 +1,8 @@
 @extends('layouts.admin')
 
 @section('content')
+    <!-- Include Navbar -->
+    @include('layouts.admin.navbar')
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-lg-9">

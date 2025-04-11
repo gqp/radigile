@@ -71,6 +71,8 @@
             background-color: #0056b3;
         }
     </style>
+    <!-- Include Navbar -->
+    @include('layouts.admin.navbar')
     <div class="app-container">
         <div class="container mt-5">
             {{-- Page Header --}}

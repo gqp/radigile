@@ -11,7 +11,8 @@
             font-size: 2rem;
         }
     </style>
-
+    <!-- Include Navbar -->
+    @include('layouts.user.navbar')
     <div class="container mt-5">
         <div class="row">
             <!-- Welcome Section -->
