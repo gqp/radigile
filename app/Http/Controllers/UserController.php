@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\Subscription;
+use App\Mail\NewUserNotification;
 use App\Models\Plan;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Subscription;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use App\Notifications\NewUserNotification;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -63,32 +63,40 @@ class UserController extends Controller
         ]);
 
         try {
-            // Determine whether a test user is being created
-            $isTestUser = $request->boolean('test_user', false);
+            $isTestUser = $request->boolean('test_user', false); // Whether it's a test user
+            $skipVerification = $request->boolean('skip_verification', false); // Whether email verification should be skipped
 
-            // Generate a random password if none is provided for non-test users
-            $password = $isTestUser ? $request->password : ($request->password ?: Str::random(12));
+            // Determine the user's password
+            $password = $isTestUser
+                ? ($request->password ?: Str::random(12)) // Use provided password for test users, or generate one
+                : Str::random(12); // Always generate a temp password for non-test users
 
             // Create the user
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($password), // Hash the password
-                'force_password_reset' => !$isTestUser, // Force password reset for non-test users
+                'password' => Hash::make($password),
+                'force_password_reset' => !$isTestUser || !$request->password, // Require password reset in specific cases
             ]);
 
-            // Assign the provided role to the user
+            // Assign the user's role
             $user->assignRole($request->role);
 
-            // Handle email verification status
-            if ($isTestUser && $request->boolean('skip_verification', false)) {
-                $user->markEmailAsVerified();
+            // Handle email verification
+            if ($isTestUser) {
+                if ($skipVerification) {
+                    $user->markEmailAsVerified();
+                } else {
+                    $user->sendEmailVerificationNotification(); // Send email verification for test users without skipping
+                }
             } else {
-                $user->sendEmailVerificationNotification();
+                $user->sendEmailVerificationNotification(); // Always send verification for non-test users
             }
 
-            // Notify the user of account creation
-            $user->notify(new NewUserNotification($password, $isTestUser));
+            // Send NewUserNotification where appropriate
+            if (!$isTestUser || !$request->password) {
+                $user->notify(new NewUserNotification($password, $isTestUser)); // Notify with temp password if necessary
+            }
 
             return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
         } catch (\Exception $e) {

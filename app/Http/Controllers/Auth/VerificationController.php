@@ -1,8 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
-use App\Notifications\NewUserNotification;
-
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\VerifiesEmails;
 
