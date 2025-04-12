@@ -3,26 +3,21 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ForcePasswordReset
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
      */
     public function handle($request, Closure $next)
     {
+        // Check if the user is logged in and their force_password_reset flag is active
         if (Auth::check() && Auth::user()->force_password_reset) {
-            // Redirect to the password reset route
-            return redirect()->route('password.reset.form');
+            // Redirect to a dedicated password reset page
+            return redirect()->route('password.force_reset');
         }
 
         return $next($request);
     }
 }
-
