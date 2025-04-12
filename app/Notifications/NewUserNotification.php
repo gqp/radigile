@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-// App/Notifications/NewUserNotification.php
 use Illuminate\Notifications\Notification;
 
 class NewUserNotification extends Notification
