@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
@@ -28,6 +29,9 @@ Route::middleware(['web'])->group(function () {
 
     // Notify Me Route
     Route::post('/notify-me', [NotifyController::class, 'store'])->name('notify.store');
+
+    // Authentication and Email Verification Routes
+    Auth::routes(['verify' => true]);
 });
 
 // Admin Routes
@@ -62,20 +66,16 @@ Route::prefix('admin')->middleware(['web', 'auth', 'role:Admin', CheckActiveStat
     Route::get('/manage-users/create', [UserController::class, 'create'])->name('admin.users.create');
     Route::post('/manage-users', [UserController::class, 'store'])->name('admin.users.store');
     Route::patch('/admin/users/{id}/toggle-active', [UserController::class, 'toggleActive'])->name('admin.users.toggle-active');
-
-    // Edit User Routes
     Route::get('/manage-users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
     Route::put('/manage-users/{user}', [UserController::class, 'update'])->name('admin.users.update');
-
-    // Delete User
     Route::delete('/manage-users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 
-    // Notify Me Routes
+    // Notifications
     Route::get('/admin/notify-me', [AdminNotifyController::class, 'index'])->name('admin.notify-me');
     Route::post('/notify-me/toggle-global', [AdminNotifyController::class, 'toggleGlobal'])->name('admin.notify-me.toggle-global');
     Route::post('notify-me/{id}/send-invite', [AdminNotifyController::class, 'sendInvite'])->name('admin.notify.send-invite');
 
-    // Subscriptions and Plan Routes
+    // Subscriptions and Plans
     Route::get('/subscriptions/plans', [SubscriptionController::class, 'indexPlans'])->name('admin.plans.index');
 });
 
