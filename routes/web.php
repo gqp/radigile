@@ -32,9 +32,6 @@ Route::middleware(['web'])->group(function () {
     Route::post('/notify-me', [NotifyController::class, 'store'])->name('notify.store');
 });
 
-// Authentication and Email Verification Routes
-Auth::routes(['verify' => true]);
-
 // Admin Routes
 Route::group(['prefix' => 'admin', 'middleware' => ['web','auth','role:Admin']], function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
@@ -110,6 +107,6 @@ Route::middleware(['web','auth'])->group(function () {
     Route::get('/check-free-tier', [SubscriptionController::class, 'checkFreeTier'])->name('subscription.check-free-tier');
 });
 
-// Logout Route
-Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+// Authentication and Email Verification Routes
+Auth::routes(['verify' => true]);
 
