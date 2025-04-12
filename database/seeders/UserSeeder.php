@@ -53,17 +53,17 @@ class UserSeeder extends Seeder
         $admin->assignRole('Admin');
 
         // Create a standard User
-        $user = User::firstOrCreate([
-            'email' => 'garrick.plaisted@gmail.com',
-        ], [
-            'name' => 'Garrick User',
-            'password' => bcrypt('password'), // Be sure to change this in a production environment
-        ]);
+//        $user = User::firstOrCreate([
+//            'email' => 'garrick.plaisted@gmail.com',
+//        ], [
+//            'name' => 'Garrick User',
+//            'password' => bcrypt('password'), // Be sure to change this in a production environment
+//        ]);
 
         // Assign User Role to Standard User
-        $user->assignRole('User');
+        //$user->assignRole('User');
 
         // Log results to ensure everything seeded successfully
-        \Log::info('UserSeeder executed successfully.');
+        //\Log::info('UserSeeder executed successfully.');
     }
 }
