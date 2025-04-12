@@ -57,11 +57,16 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        User::create([
+        // Create the user with unverified email
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+
+
+        // Send email verification notification
+        $user->sendEmailVerificationNotification();
 
         return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
