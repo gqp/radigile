@@ -55,21 +55,39 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|string|exists:roles,name'
+            'role' => 'required|string|exists:roles,name',
+            'test_user' => 'nullable|boolean',
+            'skip_verification' => 'nullable|boolean',
         ]);
 
-        // Create the user with unverified email
+        $isTestUser = $request->boolean('test_user', false);
+
+        // Generate random password if not a test user
+        $password = $isTestUser ? $request->password : Str::random(12);
+
+        // Create user
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($password),
+            'force_password_reset' => !$isTestUser, // Only enforce password reset for regular users
         ]);
 
         // Assign the role to the user
         $user->assignRole($request->role);
 
+        // Skip email verification if it's a test user and explicitly allowed
+        if ($isTestUser && $request->boolean('skip_verification', false)) {
+            $user->markEmailAsVerified();
+        } else {
+            $user->sendEmailVerificationNotification();
+        }
+
+        // Send the new credentials notification
+        $user->notify(new NewUserNotification($password, $isTestUser)); // Notify new credentials to the user
+
         // Send email verification notification
-        $user->sendEmailVerificationNotification();
+        //$user->sendEmailVerificationNotification();
 
         return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
@@ -202,5 +220,24 @@ class UserController extends Controller
 
         return back()->with('success', 'Name updated successfully.');
     }
+    public function showPasswordResetForm()
+    {
+        return view('auth.passwords.reset');
+    }
+
+    public function processPasswordReset(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = Auth::user();
+        $user->password = Hash::make($request->password);
+        $user->force_password_reset = false; // Disable forced password reset after setting a new password
+        $user->save();
+
+        return redirect()->route('admin.dashboard')->with('success', 'Password reset successfully.');
+    }
+
 
 }

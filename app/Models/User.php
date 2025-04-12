@@ -30,6 +30,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'invite_code',
         'is_active',
         'last_login_at',
+        'force_password_reset'
     ];
 
     /**
@@ -51,6 +52,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'last_login_at' => 'datetime',
+        'force_password_reset' => 'boolean',
     ];
 
     /**

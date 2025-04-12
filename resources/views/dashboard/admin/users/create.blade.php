@@ -35,18 +35,43 @@
                                        placeholder="Enter user email" required>
                             </div>
 
-                            {{-- Password --}}
+                            {{-- Test User Options --}}
                             <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" name="password"
-                                       placeholder="Enter password" required>
-                            </div>
+                                <h5>Test User Options</h5>
 
-                            {{-- Confirm Password --}}
-                            <div class="mb-3">
-                                <label for="password_confirmation" class="form-label">Confirm Password</label>
-                                <input type="password" class="form-control" id="password_confirmation"
-                                       name="password_confirmation" placeholder="Confirm password" required>
+                                {{-- Create as Test User --}}
+                                <div class="form-check">
+                                    <input type="checkbox" name="test_user" id="test_user" class="form-check-input" value="1">
+                                    <label for="test_user" class="form-check-label">
+                                        Create as Test User
+                                    </label>
+                                </div>
+
+                                {{-- Skip Email Verification --}}
+                                <div class="form-check mt-2">
+                                    <input type="checkbox" name="skip_verification" id="skip_verification"
+                                           class="form-check-input" value="1">
+                                    <label for="skip_verification" class="form-check-label">
+                                        Skip Email Verification (for Test Users)
+                                    </label>
+                                </div>
+
+                                {{-- Conditionally Show Password Fields for Test Users --}}
+                                <div id="test-user-password-section" class="mt-3" style="display: none;">
+                                    <label>Password (Optional for Test Users)</label>
+
+                                    {{-- Password --}}
+                                    <div class="mb-2">
+                                        <input type="password" name="password" id="password" class="form-control"
+                                               placeholder="Enter password">
+                                    </div>
+
+                                    {{-- Confirm Password --}}
+                                    <div>
+                                        <input type="password" name="password_confirmation" id="password_confirmation"
+                                               class="form-control" placeholder="Confirm password">
+                                    </div>
+                                </div>
                             </div>
 
                             {{-- Roles --}}
@@ -55,11 +80,12 @@
                                 @foreach ($roles as $role)
                                     <div class="form-check">
                                         <input
-                                                type="radio"
-                                                class="form-check-input"
-                                                name="role"
-                                                id="role-{{ $role->id }}"
-                                                value="{{ $role->name }}"
+                                            type="radio"
+                                            class="form-check-input"
+                                            name="role"
+                                            id="role-{{ $role->id }}"
+                                            value="{{ $role->name }}"
+                                            required
                                         >
                                         <label class="form-check-label"
                                                for="role-{{ $role->id }}">{{ $role->name }}</label>
@@ -67,24 +93,22 @@
                                 @endforeach
                             </div>
 
-                            {{-- Subscription --}}
+                            {{-- Subscription Plans --}}
                             <div class="mb-3">
                                 <label for="subscription" class="form-label">Assign Subscription Plan (Optional)</label>
                                 <select name="subscription" id="subscription" class="form-control">
-                                    <option value="">Select a plan</option>
+                                    <option value="">No Plan</option>
                                     @foreach ($plans as $plan)
-                                        <option value="{{ $plan->id }}">{{ $plan->name }}</option>
+                                        <option value="{{ $plan->id }}">{{ $plan->name }} ({{ $plan->price > 0 ? "$" . $plan->price : "Free" }})</option>
                                     @endforeach
                                 </select>
                             </div>
 
-                            {{-- Buttons --}}
-                            <div class="d-flex justify-content-between mt-4">
-                                <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Save
-                                    User
+                            {{-- Submit Button --}}
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Create User
                                 </button>
-                                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary"><i
-                                            class="bi bi-x-circle"></i> Cancel</a>
                             </div>
                         </form>
                     </div>
@@ -92,4 +116,21 @@
             </div>
         </div>
     </div>
+@endsection
+
+{{-- JavaScript to Toggle Password Fields for Test Users --}}
+@section('script')
+    <script>
+        // Handle "Create as Test User" checkbox toggle
+        const testUserCheckbox = document.getElementById('test_user');
+        const testUserPasswordSection = document.getElementById('test-user-password-section');
+
+        testUserCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                testUserPasswordSection.style.display = 'block';
+            } else {
+                testUserPasswordSection.style.display = 'none';
+            }
+        });
+    </script>
 @endsection
