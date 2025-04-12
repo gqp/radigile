@@ -55,36 +55,41 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'nullable|string|min:8|confirmed',
             'role' => 'required|string|exists:roles,name',
             'test_user' => 'nullable|boolean',
             'skip_verification' => 'nullable|boolean',
         ]);
 
         try {
+            // Determine whether a test user is being created
             $isTestUser = $request->boolean('test_user', false);
 
-            $password = $isTestUser ? $request->password : Str::random(12);
+            // Generate a random password if none is provided for non-test users
+            $password = $isTestUser ? $request->password : ($request->password ?: Str::random(12));
 
+            // Create the user
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($password),
-                'force_password_reset' => !$isTestUser,
+                'password' => Hash::make($password), // Hash the password
+                'force_password_reset' => !$isTestUser, // Force password reset for non-test users
             ]);
 
+            // Assign the provided role to the user
             $user->assignRole($request->role);
 
+            // Handle email verification status
             if ($isTestUser && $request->boolean('skip_verification', false)) {
                 $user->markEmailAsVerified();
             } else {
                 $user->sendEmailVerificationNotification();
             }
 
+            // Notify the user of account creation
             $user->notify(new NewUserNotification($password, $isTestUser));
 
             return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
-
         } catch (\Exception $e) {
             \Log::error('User creation failed: ' . $e->getMessage());
             return redirect()->back()->withInput()->with('error', 'Something went wrong. Please try again.');

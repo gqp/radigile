@@ -101,4 +101,12 @@ class User extends Authenticatable implements MustVerifyEmail
         $freePlan = Plan::where('price', 0)->first();
         return $freePlan && $this->subscribedTo($freePlan);
     }
+
+    /**
+     * Query Scope: Get only active users.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }
