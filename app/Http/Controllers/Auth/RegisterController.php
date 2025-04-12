@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 class RegisterController extends Controller
 {
@@ -124,6 +125,9 @@ class RegisterController extends Controller
         if ($invite) {
             $invite->update(['times_used' => $invite->times_used + 1, 'invited_user_id' => $user->id]);
         }
+
+        // Send email verification notification
+        $user->sendEmailVerificationNotification();
 
         return $user;
     }

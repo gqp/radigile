@@ -94,7 +94,7 @@ Route::middleware(['web'])->group(function () {
     });
 
     // User Routes
-    Route::group(['prefix' => 'user', 'middleware' => ['web','auth','role:User']], function () {
+    Route::group(['prefix' => 'user', 'middleware' => ['web','auth','verified','role:User']], function () {
         Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
         Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
         Route::put('/profile/update-name', [UserController::class, 'updateName'])->name('user.updateName');
