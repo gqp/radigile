@@ -15,9 +15,9 @@ class UserController extends Controller
 {
     public function toggleActive($id)
     {
-        $user = User::findOrFail($id);
-        $user->is_active = !$user->is_active;
-        $user->save();
+        $user = User::findOrFail($id); // Find user
+        $user->is_active = !$user->is_active; // Toggle `is_active`
+        $user->save(); // Save changes
 
         return redirect()->route('admin.users.index')->with('success', 'User status updated successfully.');
     }
