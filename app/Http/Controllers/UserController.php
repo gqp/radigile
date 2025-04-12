@@ -24,7 +24,9 @@ class UserController extends Controller
 
     public function index()
     {
-        return view('dashboard.user.index');
+        $users = User::with('roles')->get();
+        return view('dashboard.user.index', compact('users'));
+
 
     }
 

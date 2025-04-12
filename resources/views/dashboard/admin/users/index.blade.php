@@ -85,7 +85,7 @@
                                             </td>
 
                                             {{-- Last Login --}}
-                                            <td>{{ optional($user->last_login_at)->format('d-m-Y H:i') ?? 'Never' }}</td>
+                                            <td>{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never Logged In' }}</td>
 
                                             {{-- Created At --}}
                                             <td>{{ $user->created_at->format('d-m-Y H:i') }}</td>

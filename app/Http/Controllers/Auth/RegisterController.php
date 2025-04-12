@@ -98,7 +98,7 @@ class RegisterController extends Controller
         }
 
         // Fetch the free plan
-        $freePlan = Plan::where('name', 'Free')->first();
+        $freePlan = Plan::where('name', 'Free Plan')->first();
 
         // Create the user
         $user = User::create([
