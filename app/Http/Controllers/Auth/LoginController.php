@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 
 class LoginController extends Controller
@@ -71,8 +70,15 @@ class LoginController extends Controller
             // Fetch User
             $user = auth()->user();
 
+
             // Explicitly reload roles from the database
             $user->load('roles');
+
+
+            // Update the last login timestamp
+            $user->update([
+                'last_login_at' => now(),
+            ]);
             // Bust role cache
             app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
