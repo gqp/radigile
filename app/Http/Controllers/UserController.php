@@ -63,44 +63,40 @@ class UserController extends Controller
         ]);
 
         try {
-            $isTestUser = $request->boolean('test_user', false); // Whether it's a test user
-            $skipVerification = $request->boolean('skip_verification', false); // Whether email verification should be skipped
+            $isTestUser = $request->boolean('test_user', false);
+            $skipVerification = $request->boolean('skip_verification', false);
 
             // Determine the user's password
             $password = $isTestUser
-                ? ($request->password ?: Str::random(12)) // Use provided password for test users, or generate one
-                : Str::random(12); // Always generate a temp password for non-test users
+                ? ($request->password ?: Str::random(12))
+                : Str::random(12);
 
             // Create the user
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($password),
-                'force_password_reset' => !$isTestUser || !$request->password, // Require password reset in specific cases
+                'force_password_reset' => !$isTestUser || !$request->password,
             ]);
 
-            // Assign the user's role
+            // Assign the role
             $user->assignRole($request->role);
 
             // Handle email verification
-            if ($isTestUser) {
-                if ($skipVerification) {
-                    $user->markEmailAsVerified();
-                } else {
-                    $user->sendEmailVerificationNotification(); // Send email verification for test users without skipping
-                }
-            } else {
-                $user->sendEmailVerificationNotification(); // Always send verification for non-test users
+            if ($isTestUser && $skipVerification) {
+                $user->markEmailAsVerified(); // Mark directly if admin chooses to skip verification
+            } else if (!$isTestUser) {
+                $user->markEmailAsVerified(); // Automatically verify email for non-test users
             }
 
-            // Send NewUserNotification where appropriate
+            // Notify the user with their temporary credentials or email verification if needed
             if (!$isTestUser || !$request->password) {
-                $user->notify(new NewUserNotification($password, $isTestUser)); // Notify with temp password if necessary
+                $user->notify(new NewUserNotification($password, $isTestUser));
             }
 
             return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
         } catch (\Exception $e) {
-            \Log::error('User creation failed: ' . $e->getMessage());
+            \Log::error('User creation failed: '.$e->getMessage());
             return redirect()->back()->withInput()->with('error', 'Something went wrong. Please try again.');
         }
     }

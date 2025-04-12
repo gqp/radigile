@@ -23,27 +23,18 @@ class NewUserNotification extends Notification
 
     public function toMail($notifiable)
     {
-        $message = (new MailMessage)
-            ->greeting("Hello, {$notifiable->name}!");
-
-        if ($this->isTestUser) {
-            $message->line('Your test user account has been created.');
-        } else {
-            $message->line('Your account has been created. Please verify your email.');
-        }
-
-        $message->line('Here are your login credentials:')
+        return (new MailMessage)
+            ->greeting("Hello, {$notifiable->name}!")
+            ->line($this->isTestUser
+                ? 'Your test user account has been created.'
+                : 'Your account has been created.'
+            )
+            ->line('Here are your login credentials:')
             ->line("**Email:** {$notifiable->email}")
-            ->line("**Temporary Password:** {$this->password}");
-
-        if (!$this->isTestUser || !$this->password) {
-            $message->line('Please log in and change your password.');
-        }
-
-        $message->action('Log In', url('/login'))
+            ->line("**Temporary Password:** {$this->password}")
+            ->line('Please log in and change your password. Your email will be automatically verified after the password reset.')
+            ->action('Log In', url('/login'))
             ->line('Thank you for using our platform!');
-
-        return $message;
     }
 }
 
