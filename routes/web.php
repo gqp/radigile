@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Admin\InviteController;
 use App\Http\Controllers\Admin\AdminNotifyController;
 use App\Http\Middleware\CheckActiveStatus;
 use App\Http\Middleware\ForcePasswordReset;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +31,7 @@ Route::middleware(['web'])->group(function () {
 
     // Notify Me Route
     Route::post('/notify-me', [NotifyController::class, 'store'])->name('notify.store');
+
 });
 
 // Routes for Authenticated Users with Force Password Reset Middleware
@@ -38,9 +41,9 @@ Route::group(['middleware' => ['web', 'auth', ForcePasswordReset::class]], funct
     Route::post('/password/reset', [UserController::class, 'processPasswordReset'])->name('password.reset.process');
 });
 
-// Admin Routes with Additional Middleware
-Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin', CheckActiveStatus::class, ForcePasswordReset::class]], function () {
-    // Dashboard Routes
+// Admin Routes
+Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin', CheckActiveStatus::class, ForcePasswordReset::class
+]], function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
@@ -85,5 +88,33 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin',
 
     // Subscriptions and Plan Routes
     Route::get('/subscriptions/plans', [SubscriptionController::class, 'indexPlans'])->name('admin.plans.index');
+    Route::get('/subscriptions/plans/create', [SubscriptionController::class, 'createPlan'])->name('admin.plans.create');
     Route::post('/subscriptions/plans', [SubscriptionController::class, 'storePlan'])->name('admin.plans.store');
+    Route::get('/subscriptions/', [SubscriptionController::class, 'indexSubscriptions'])->name('admin.subscriptions.index');
+    Route::get('/subscriptions/create', [SubscriptionController::class, 'createSubscription'])->name('admin.subscriptions.create');
+    Route::post('/subscriptions/store', [SubscriptionController::class, 'storeSubscription'])->name('admin.subscriptions.store');
+    Route::get('/subscriptions/{subscription}/edit', [SubscriptionController::class, 'editSubscription'])->name('admin.subscriptions.edit');
+    Route::put('/subscriptions/{subscription}', [SubscriptionController::class, 'updateSubscription'])->name('admin.subscriptions.update');
+    Route::get('/subscriptions/plans/{plan}/edit', [SubscriptionController::class, 'editPlan'])->name('admin.plans.edit'); // Show edit form
+    Route::put('/subscriptions/plans/{plan}', [SubscriptionController::class, 'updatePlan'])->name('admin.plans.update'); // Handle form submission
 });
+
+// User Routes
+Route::group(['prefix' => 'user', 'middleware' => ['web', 'auth', 'verified', 'role:User', CheckActiveStatus::class]], function () {
+    Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
+    Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
+    Route::put('/profile/update-name', [UserController::class, 'updateName'])->name('user.updateName');
+    Route::put('/profile/update-password', [UserController::class, 'updatePassword'])->name('user.updatePassword');
+
+    // Subscription Routes
+    Route::post('/subscribe/free', [SubscriptionController::class, 'subscribeToFreePlan'])->name('subscribe.free');
+});
+
+// Subscription Routes
+Route::middleware(['web', 'auth', CheckActiveStatus::class])->group(function () {
+    Route::get('/access-feature', [SubscriptionController::class, 'accessFeature'])->name('subscription.access-feature');
+    Route::get('/check-free-tier', [SubscriptionController::class, 'checkFreeTier'])->name('subscription.check-free-tier');
+});
+
+// Authentication and Email Verification Routes
+Auth::routes(['verify' => true]);
