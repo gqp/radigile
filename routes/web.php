@@ -10,8 +10,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\NotifyController;
 use App\Http\Controllers\Admin\InviteController;
 use App\Http\Controllers\Admin\AdminNotifyController;
-use App\Http\Middleware\PreventBackHistoryMiddleware;
-
+use App\Http\Middleware\CheckActiveStatus;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,7 +20,6 @@ use App\Http\Middleware\PreventBackHistoryMiddleware;
 
 // Public Routes
 Route::middleware(['web'])->group(function () {
-
     // Home Page Routes
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -33,7 +31,8 @@ Route::middleware(['web'])->group(function () {
 });
 
 // Admin Routes
-Route::group(['prefix' => 'admin', 'middleware' => ['web','auth','role:Admin']], function () {
+Route::prefix('admin')->middleware(['web', 'auth', 'role:Admin', CheckActiveStatus::class])->group(function () {
+    // Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
@@ -78,35 +77,16 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web','auth','role:Admin']],
 
     // Subscriptions and Plan Routes
     Route::get('/subscriptions/plans', [SubscriptionController::class, 'indexPlans'])->name('admin.plans.index');
-    Route::get('/subscriptions/plans/create', [SubscriptionController::class, 'createPlan'])->name('admin.plans.create');
-    Route::post('/subscriptions/plans', [SubscriptionController::class, 'storePlan'])->name('admin.plans.store');
-    Route::get('/subscriptions/', [SubscriptionController::class, 'indexSubscriptions'])->name('admin.subscriptions.index');
-    Route::get('/subscriptions/create', [SubscriptionController::class, 'createSubscription'])->name('admin.subscriptions.create');
-    Route::post('/subscriptions/store', [SubscriptionController::class, 'storeSubscription'])->name('admin.subscriptions.store');
-    Route::get('/subscriptions/{subscription}/edit', [SubscriptionController::class, 'editSubscription'])->name('admin.subscriptions.edit');
-    Route::put('/subscriptions/{subscription}', [SubscriptionController::class, 'updateSubscription'])->name('admin.subscriptions.update');
-    Route::get('/subscriptions/plans/{plan}/edit', [SubscriptionController::class, 'editPlan'])->name('admin.plans.edit'); // Show edit form
-    Route::put('/subscriptions/plans/{plan}', [SubscriptionController::class, 'updatePlan'])->name('admin.plans.update'); // Handle form submission
-
 });
 
-// User Routes
-Route::group(['prefix' => 'user', 'middleware' => ['web','auth','verified','role:User']], function () {
-    Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
-    Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
-    Route::put('/profile/update-name', [UserController::class, 'updateName'])->name('user.updateName');
-    Route::put('/profile/update-password', [UserController::class, 'updatePassword'])->name('user.updatePassword');
+// Authenticated and Active User Routes
+Route::middleware(['auth', CheckActiveStatus::class])->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
 
-    // Subscription Routes
-    Route::post('/subscribe/free', [SubscriptionController::class, 'subscribeToFreePlan'])->name('subscribe.free');
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+
+    Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::get('/subscriptions/{id}/details', [SubscriptionController::class, 'details'])->name('subscriptions.details');
 });
-
-// Subscription Routes
-Route::middleware(['web','auth'])->group(function () {
-    Route::get('/access-feature', [SubscriptionController::class, 'accessFeature'])->name('subscription.access-feature');
-    Route::get('/check-free-tier', [SubscriptionController::class, 'checkFreeTier'])->name('subscription.check-free-tier');
-});
-
-// Authentication and Email Verification Routes
-Auth::routes(['verify' => true]);
-
