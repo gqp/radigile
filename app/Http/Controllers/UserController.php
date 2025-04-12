@@ -55,6 +55,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|string|exists:roles,name;'
         ]);
 
         // Create the user with unverified email
@@ -64,6 +65,8 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // Assign the role to the user
+        $user->assignRole($request->role);
 
         // Send email verification notification
         $user->sendEmailVerificationNotification();
