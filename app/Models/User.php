@@ -29,6 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'remaining_invites',
         'invite_code',
         'is_active',
+        'last_login_at',
     ];
 
     /**

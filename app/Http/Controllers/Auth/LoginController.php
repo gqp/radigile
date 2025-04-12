@@ -74,7 +74,6 @@ class LoginController extends Controller
             // Explicitly reload roles from the database
             $user->load('roles');
 
-
             // Update the last login timestamp
             $user->update([
                 'last_login_at' => now(),
