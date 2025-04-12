@@ -55,7 +55,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|string|exists:roles,name;'
+            'role' => 'required|string|exists:roles,name'
         ]);
 
         // Create the user with unverified email
