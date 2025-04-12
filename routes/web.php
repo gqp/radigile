@@ -29,9 +29,6 @@ Route::middleware(['web'])->group(function () {
 
     // Notify Me Route
     Route::post('/notify-me', [NotifyController::class, 'store'])->name('notify.store');
-
-    // Authentication and Email Verification Routes
-    Auth::routes(['verify' => true]);
 });
 
 // Admin Routes
@@ -90,3 +87,6 @@ Route::middleware(['auth', CheckActiveStatus::class])->group(function () {
     Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
     Route::get('/subscriptions/{id}/details', [SubscriptionController::class, 'details'])->name('subscriptions.details');
 });
+
+// Authentication and Email Verification Routes
+Auth::routes(['verify' => true]);
