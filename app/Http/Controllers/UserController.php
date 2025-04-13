@@ -195,8 +195,8 @@ class UserController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'current_password' => 'required',
-            'new_password' => 'required|string|min:8|confirmed',
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         // Verify the current password
