@@ -39,12 +39,16 @@ Route::middleware(['web'])->group(function () {
 Route::group(['middleware' => ['web', 'auth', ForcePasswordReset::class]], function () {
     // Force Password Reset Routes
     Route::get('/password/reset', [UserController::class, 'showPasswordResetForm'])->name('password.reset.form');
-    Route::post('/password/reset', [UserController::class, 'processPasswordReset'])->name('password.reset.process');
 
-    // Password Update Route
+    // Process Password Reset Route
+    Route::post('/password/reset/process', [UserController::class, 'processPasswordReset'])
+        ->name('password.reset.process');
+
+    // Password Update Route (if they're kept separate)
     Route::post('/password/reset', [UserController::class, 'updatePassword'])
         ->name('password.update')
         ->middleware(['web', 'auth', 'force.password.reset']);
+
 });
 
 // ----------------- Admin Routes -----------------
