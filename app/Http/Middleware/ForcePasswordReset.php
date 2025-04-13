@@ -20,7 +20,7 @@ class ForcePasswordReset
 
         // Check if force password reset is required
         if ($user && $user->force_password_reset) {
-            return redirect()->route('password.reset.form')
+            return redirect()->route('password.force.reset')
                 ->with('warning', 'You are required to reset your password before proceeding.');
         }
 
