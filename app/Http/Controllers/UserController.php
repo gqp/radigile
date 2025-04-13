@@ -68,11 +68,14 @@ class UserController extends Controller
             // Determine whether to set `force_password_reset`
             $forcePasswordReset = !$isTestUser || !$request->filled('password');
 
+            // Generate temp password
+            $password = $request->password ?: Str::random(12);
+
             // Create the user
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($request->password ?: Str::random(12)),
+                'password' => Hash::make($password),
                 'force_password_reset' => $forcePasswordReset,
             ]);
 
@@ -88,7 +91,6 @@ class UserController extends Controller
 
             // Notify the user with temporary credentials
             if ($forcePasswordReset || !$request->filled('password')) {
-                $password = $request->password ?: Str::random(12); // For notifications
                 $user->notify(new NewUserNotification($password, $isTestUser));
             }
 
