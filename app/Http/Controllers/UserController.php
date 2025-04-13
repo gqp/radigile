@@ -64,39 +64,37 @@ class UserController extends Controller
 
         try {
             $isTestUser = $request->boolean('test_user', false);
-            $skipVerification = $request->boolean('skip_verification', false);
 
-            // Determine the user's password
-            $password = $isTestUser
-                ? ($request->password ?: Str::random(12))
-                : Str::random(12);
+            // Determine whether to set `force_password_reset`
+            $forcePasswordReset = !$isTestUser || !$request->filled('password');
 
             // Create the user
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($password),
-                'force_password_reset' => !$isTestUser || !$request->password,
+                'password' => Hash::make($request->password ?: Str::random(12)),
+                'force_password_reset' => $forcePasswordReset,
             ]);
 
             // Assign the role
             $user->assignRole($request->role);
 
             // Handle email verification
-            if ($isTestUser && $skipVerification) {
-                $user->markEmailAsVerified(); // Mark directly if admin chooses to skip verification
+            if ($isTestUser && $request->boolean('skip_verification')) {
+                $user->markEmailAsVerified();
             } else if (!$isTestUser) {
-                $user->markEmailAsVerified(); // Automatically verify email for non-test users
+                $user->markEmailAsVerified();
             }
 
-            // Notify the user with their temporary credentials or email verification if needed
-            if (!$isTestUser || !$request->password) {
+            // Notify the user with temporary credentials
+            if ($forcePasswordReset || !$request->filled('password')) {
+                $password = $request->password ?: Str::random(12); // For notifications
                 $user->notify(new NewUserNotification($password, $isTestUser));
             }
 
             return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
         } catch (\Exception $e) {
-            \Log::error('User creation failed: '.$e->getMessage());
+            \Log::error('User creation failed: ' . $e->getMessage());
             return redirect()->back()->withInput()->with('error', 'Something went wrong. Please try again.');
         }
     }

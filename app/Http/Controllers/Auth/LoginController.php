@@ -20,6 +20,11 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
+        // If force password reset is active, redirect to the reset form
+        if ($user->force_password_reset) {
+            return redirect()->route('password.reset.form');
+        }
+
         return redirect()->intended($this->redirectTo());
     }
     /**

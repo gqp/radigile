@@ -10,14 +10,16 @@ class ForcePasswordReset
     /**
      * Handle an incoming request.
      */
-    public function handle($request, Closure $next)
-    {
-        // Check if the user is logged in and their force_password_reset flag is active
-        if (Auth::check() && Auth::user()->force_password_reset) {
-            // Redirect to a dedicated password reset page
-            return redirect()->route('password.force_reset');
+public function handle($request, Closure $next)
+{
+    // If user is authenticated and requires a password reset
+    if (Auth::check() && Auth::user()->force_password_reset) {
+        // Allow only access to the password reset form/page
+        if (!$request->routeIs('password.reset.form') && !$request->routeIs('password.reset.process')) {
+            return redirect()->route('password.reset.form');
         }
+    }
 
-        return $next($request);
+    return $next($request);
     }
 }
