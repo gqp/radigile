@@ -1,88 +1,63 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\AboutController;
-use App\Http\Controllers\SubscriptionController;
-use App\Http\Controllers\NotifyController;
-use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\Admin\InviteController;
-use App\Http\Middleware\CheckActiveStatus;
-use App\Http\Middleware\ForcePasswordReset;
+namespace App\Http\Controllers\Auth;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
+use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\ResetsPasswords;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
-// Public Routes
-Route::middleware(['web'])->group(function () {
-    // Home Page Routes
-    Route::get('/', [HomeController::class, 'index'])->name('home');
+class ResetPasswordController extends Controller
+{
+    /*
+    |--------------------------------------------------------------------------
+    | Password Reset Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller is responsible for handling password reset requests
+    | and uses a simple trait to include this behavior. You're free to
+    | explore this trait and override any methods you wish to tweak.
+    |
+    */
 
-    // About Page Routes
-    Route::get('/about', [AboutController::class, 'index'])->name('about');
+    use ResetsPasswords;
 
-    // Notify Me Route
-    Route::post('/notify-me', [NotifyController::class, 'store'])->name('notify.store');
-});
+    /**
+     * Where to redirect users after resetting their password.
+     *
+     * @var string
+     */
+    protected $redirectTo = '/';
 
-// Password Reset Routes
-Route::group(['prefix' => 'password', 'middleware' => ['web']], function () {
-    // Show Password Reset Form
-    Route::get('/reset', [ResetPasswordController::class, 'showResetForm'])->name('password.reset.form');
+    /**
+     * Process the password reset and handle email verification if required.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function processPasswordReset(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
 
-    // Handle Password Reset Request
-    Route::post('/reset', [ResetPasswordController::class, 'processPasswordReset'])->name('password.reset.process');
-});
+        // Fetch the user
+        $user = User::where('email', $request->email)->firstOrFail();
 
-// Routes for Authenticated Users with Force Password Reset Middleware
-Route::group(['middleware' => ['web', 'auth', ForcePasswordReset::class]], function () {
-    // Handle Password Reset (Redirected to ResetPasswordController)
-    Route::get('/password/reset', [ResetPasswordController::class, 'showResetForm'])->name('password.reset.form');
-    Route::post('/password/reset', [ResetPasswordController::class, 'processPasswordReset'])->name('password.reset.process');
-});
+        // Update the password
+        $user->update([
+            'password' => Hash::make($request->password),
+            'force_password_reset' => false, // Remove the flag after the password is updated
+        ]);
 
-// Admin Routes
-Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin', CheckActiveStatus::class, ForcePasswordReset::class]], function () {
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-    Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
-    Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
-    Route::put('/admin/update-name', [AdminController::class, 'updateName'])->name('admin.updateName');
-    Route::put('/admin/update-password', [AdminController::class, 'updatePassword'])->name('admin.updatePassword');
+        // Mark email as verified upon successful password reset
+        if (!$user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        }
 
-    // Invite Routes
-    Route::get('/invites', [InviteController::class, 'index'])->name('admin.invites.index');
-    Route::post('/invites/create', [InviteController::class, 'store'])->name('admin.invites.create');
-    Route::post('/invites/toggle', [InviteController::class, 'toggleInviteOnly'])->name('admin.invites.toggle');
-    Route::put('/invites/disable/{id}', [InviteController::class, 'disable'])->name('admin.invites.disable');
-    Route::put('/invites/enable/{id}', [InviteController::class, 'enable'])->name('admin.invites.enable');
-    Route::put('/invites/update/{id}', [InviteController::class, 'update'])->name('admin.invites.update');
-
-    // Roles Resource Routes
-    Route::resource('roles', RoleController::class)->names([
-        'index' => 'admin.roles.index',
-        'create' => 'admin.roles.create',
-        'store' => 'admin.roles.store',
-        'edit' => 'admin.roles.edit',
-        'update' => 'admin.roles.update',
-        'destroy' => 'admin.roles.destroy',
-    ]);
-
-    // Manage Users Routes
-    Route::get('/manage-users', [UserController::class, 'manage'])->name('admin.users.index');
-    Route::get('/manage-users/create', [UserController::class, 'create'])->name('admin.users.create');
-    Route::post('/manage-users', [UserController::class, 'store'])->name('admin.users.store');
-    Route::patch('/admin/users/{id}/toggle-active', [UserController::class, 'toggleActive'])->name('admin.users.toggle-active');
-
-    // Edit User Routes
-    Route::get('/manage-users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
-    Route::put('/manage-users/{user}', [UserController::class, 'update'])->name('admin.users.update');
-
-    // Delete User
-    Route::delete('/manage-users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
-});
+        // Redirect to the login page with a success message
+        return redirect()->route('login')->with('success', 'Your password has been updated, and your email is now verified. Please log in to continue.');
+    }
+}

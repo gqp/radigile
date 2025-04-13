@@ -78,3 +78,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin',
     // Delete User
     Route::delete('/manage-users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 });
+
+// Authentication and Email Verification Routes
+Auth::routes(['verify' => true]);
