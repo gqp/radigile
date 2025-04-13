@@ -9,16 +9,19 @@ class ForcePasswordReset
 {
     /**
      * Handle an incoming request.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure $next
+     * @return mixed
      */
     public function handle($request, Closure $next)
     {
         $user = Auth::user();
 
+        // Check if force password reset is required
         if ($user && $user->force_password_reset) {
-            // Force the user to go to the password reset page unless they are already on it
-            if (!$request->is('password/reset')) {
-                return redirect()->route('password.reset.form');
-            }
+            return redirect()->route('password.reset.form')
+                ->with('warning', 'You are required to reset your password before proceeding.');
         }
 
         return $next($request);

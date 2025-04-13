@@ -9,6 +9,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\NotifyController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Admin\InviteController;
 use App\Http\Controllers\Admin\AdminNotifyController;
 use App\Http\Middleware\CheckActiveStatus;
@@ -37,9 +38,11 @@ Route::middleware(['web'])->group(function () {
 
 // ----------------- Authenticated User Routes -----------------
 Route::middleware(['web', 'auth', ForcePasswordReset::class])->group(function () {
-    // Password Reset Routes
-    Route::get('/password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showPasswordResetForm'])->name('password.reset.form');
-    Route::post('/password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'processPasswordReset'])->name('password.reset');
+    Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showPasswordResetForm'])
+        ->name('password.reset.form');
+    Route::post('/password/reset', [ResetPasswordController::class, 'processPasswordReset'])
+        ->name('password.reset');
+
 });
 
 // ----------------- Admin Routes -----------------
