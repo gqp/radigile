@@ -15,6 +15,25 @@
     @include('layouts.user.navbar')
     <div class="container mt-5">
         <div class="row">
+            <!-- Flash Messages Section -->
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Success!</strong> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             <!-- Welcome Section -->
             <div class="col-md-12 text-center mb-4">
                 <h1>Welcome back, {{ Auth::user()->name }}!</h1>
