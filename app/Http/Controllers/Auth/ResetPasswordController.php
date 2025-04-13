@@ -28,7 +28,7 @@ class ResetPasswordController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/';
+    protected $redirectTo = '/login';
 
     /**
      * Process the password reset and handle email verification if required.
@@ -64,7 +64,6 @@ class ResetPasswordController extends Controller
         if (!$user->hasVerifiedEmail()) {
             $user->markEmailAsVerified();
         }
-
         // Redirect to the login page with a success message
         return redirect()->route('login')->with('success', 'Your password has been updated, and your email is now verified. Please log in to continue.');
     }
