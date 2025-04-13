@@ -50,7 +50,7 @@ class ResetPasswordController extends Controller
             if ($updateSuccessful) {
                 \Log::info('Password reset successfully for user.', ['user_id' => $user->id]);
 
-                return redirect()->route('login')->with('success', 'Your password has been updated successfully.');
+                return redirect()->route('user.dashboard')->with('success', 'Your password has been updated successfully.');
             } else {
                 \Log::warning('Password reset failed for user.', ['user_id' => $user->id]);
                 return redirect()->route('password.force.reset')->withErrors('Failed to update the password. Please try again.');
