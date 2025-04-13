@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -14,91 +13,66 @@ class LoginController extends Controller
 
     /**
      * Where to redirect users after login.
-     *
-     * @return string
-     */
-
-    protected function authenticated(Request $request, $user)
-    {
-        // If force password reset is active, redirect to the reset form
-        if ($user->force_password_reset) {
-            \Log::info('Force password reset triggered.', ['user_id' => $user->id]);
-            return redirect()->route('password.reset.form');
-        }
-
-        return redirect()->intended($this->redirectTo());
-    }
-    /**
-     * Redirect users after login based on their role.
      */
     protected function redirectTo()
     {
         $user = auth()->user();
 
         if ($user->hasRole('Admin')) {
-//            \Log::info('RedirectTo: Redirecting Admin user.', ['user_id' => $user->id]);
             return route('admin.dashboard');
         }
 
         if ($user->hasRole('User')) {
-//            \Log::info('RedirectTo: Redirecting User.', ['user_id' => $user->id]);
             return route('user.dashboard');
         }
 
-//        \Log::warning('RedirectTo: No role matched, sending to default route.', ['user_id' => $user->id]);
-        return '/'; // Fallback
+        return '/'; // Default fallback
     }
 
     /**
-     * Create a new controller instance.
-     *
-     * @return void
+     * Handle post-login actions.
      */
-    public function __construct()
+    protected function authenticated(Request $request, $user)
     {
-        $this->middleware('guest')->except('logout');
+        \Log::info('User logged in successfully.', ['user_id' => $user->id]);
+
+        // Check if the user needs to reset their password
+        if ($user->force_password_reset) {
+            \Log::info('Force password reset triggered for user.', ['user_id' => $user->id]);
+            return redirect()->route('password.reset.form')->with('warning', 'You must reset your password before proceeding.');
+        }
+
+        // Proceed to the intended location
+        return redirect()->intended($this->redirectTo());
     }
 
     /**
-     * Handle a login request to the application.
+     * Handle a login request.
      */
     public function login(Request $request)
     {
-        // Validate the incoming request
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
 
-        // Attempt authentication
-        if (auth()->attempt($request->only(['email', 'password']))) {
-
-            // Fetch User
+        if (auth()->attempt($request->only('email', 'password'))) {
             $user = auth()->user();
 
-
-            // Explicitly reload roles from the database
+            // Reload roles and other states
             $user->load('roles');
 
             // Update the last login timestamp
             $user->update([
                 'last_login_at' => now(),
             ]);
-            // Bust role cache
+
+            // Clear permissions cache (Spatie)
             app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-//            $userRoles = $user->getRoleNames()->toArray();
-
-//            \Log::info('User logged in successfully:', [
-//                'user_id' => $user->id,
-//                'roles' => $userRoles(),
-//            ]);
-
-            return redirect()->intended($this->redirectTo()); // redirect after successful login
+            return $this->authenticated($request, $user);
         }
 
-        // Failed authentication
-//        \Log::error('Login attempt failed:', ['email' => $request->email]);
         return back()->withErrors(['email' => 'Invalid credentials provided.']);
     }
 
@@ -108,35 +82,27 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         $user = auth()->user();
-//        $userRoles = $user ? $user->getRoleNames()->toArray() : [];
 
-
-        // Log current session state
-//        \Log::info('Logging out user:', [
-//            'user_id' => $user->id ?? null,
-//            'user_roles' => $userRoles,
-//        ]);
-
-        // Ensure Spatie cache is cleared for this user
+        // Clear permission cache for the user (Spatie)
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Perform logout
         auth()->logout();
 
         // Invalidate and regenerate session
-//        \Log::info('Invalidating session...');
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Clear any session rows in the database (if using SESSION_DRIVER=database)
+        // Clear any session rows in the database (if SESSION_DRIVER=database)
         if (!is_null($user)) {
             \DB::table('sessions')->where('user_id', $user->id)->delete();
         }
 
-//        \Log::info('User logged out and session cleared:', ['user_id' => $user->id]);
-
         return redirect('/')->with('success', 'You have been logged out successfully.');
     }
 
-
+    public function __construct()
+    {
+        $this->middleware('guest')->except('logout');
+    }
 }

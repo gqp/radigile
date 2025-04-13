@@ -65,12 +65,12 @@ class UserController extends Controller
         try {
             $isTestUser = $request->boolean('test_user', false);
 
-            // Determine whether to set `force_password_reset`
-            $forcePasswordReset = !$isTestUser || !$request->filled('password');
-            \Log::info('Setting force_password_reset:', ['value' => $forcePasswordReset]);
-
             // Generate temp password
             $password = $request->password ?: Str::random(12);
+
+            // If no password is provided OR user is not a test user, enforce password reset
+            $forcePasswordReset = !$request->filled('password') || !$isTestUser;
+            \Log::info('Setting force_password_reset:', ['value' => $forcePasswordReset]);
 
             // Create the user
             $user = User::create([
@@ -98,7 +98,7 @@ class UserController extends Controller
             return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
         } catch (\Exception $e) {
             \Log::error('User creation failed: ' . $e->getMessage());
-            return redirect()->back()->withInput()->with('error', 'Something went wrong. Please try again.');
+            return back()->withInput()->with('error', 'Failed to create user.');
         }
     }
 

@@ -23,7 +23,7 @@ use App\Http\Middleware\ForcePasswordReset;
 // Authentication and Email Verification Routes
 Auth::routes(['verify' => true]);
 
-// Public Routes
+// ----------------- Public Routes -----------------
 Route::middleware(['web'])->group(function () {
     // Home Page Routes
     Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -35,23 +35,23 @@ Route::middleware(['web'])->group(function () {
     Route::post('/notify-me', [NotifyController::class, 'store'])->name('notify.store');
 });
 
-// Routes for Authenticated Users with Force Password Reset Middleware
+// ----------------- Authenticated Routes with ForcePasswordReset Middleware -----------------
 Route::group(['middleware' => ['web', 'auth', ForcePasswordReset::class]], function () {
-    // Handle Password Reset
+    // Force Password Reset Routes
     Route::get('/password/reset', [UserController::class, 'showPasswordResetForm'])->name('password.reset.form');
     Route::post('/password/reset', [UserController::class, 'processPasswordReset'])->name('password.reset.process');
 });
 
-// Admin Routes
+// ----------------- Admin Routes -----------------
 Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin', CheckActiveStatus::class, ForcePasswordReset::class]], function () {
-    // Dashboard and Profile Routes
+    // ---- Dashboard and Admin Profile----
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
     Route::put('/admin/update-name', [AdminController::class, 'updateName'])->name('admin.updateName');
     Route::put('/admin/update-password', [AdminController::class, 'updatePassword'])->name('admin.updatePassword');
 
-    // Invite Routes
+    // ---- Invite Management Routes ----
     Route::get('/invites', [InviteController::class, 'index'])->name('admin.invites.index');
     Route::post('/invites/create', [InviteController::class, 'store'])->name('admin.invites.create');
     Route::post('/invites/toggle', [InviteController::class, 'toggleInviteOnly'])->name('admin.invites.toggle');
@@ -59,7 +59,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin',
     Route::put('/invites/enable/{id}', [InviteController::class, 'enable'])->name('admin.invites.enable');
     Route::put('/invites/update/{id}', [InviteController::class, 'update'])->name('admin.invites.update');
 
-    // Roles Resource Routes
+    // ---- Roles Resource Routes ----
     Route::resource('roles', RoleController::class)->names([
         'index' => 'admin.roles.index',
         'create' => 'admin.roles.create',
@@ -69,7 +69,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin',
         'destroy' => 'admin.roles.destroy',
     ]);
 
-    // Manage Users Routes
+    // ---- User Management ----
     Route::get('/manage-users', [UserController::class, 'manage'])->name('admin.users.index');
     Route::get('/manage-users/create', [UserController::class, 'create'])->name('admin.users.create');
     Route::post('/manage-users', [UserController::class, 'store'])->name('admin.users.store');
@@ -78,12 +78,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin',
     Route::put('/manage-users/{user}', [UserController::class, 'update'])->name('admin.users.update');
     Route::delete('/manage-users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 
-    // Notify Me Routes
+    // ---- Admin Notify Me Routes ----
     Route::get('/admin/notify-me', [AdminNotifyController::class, 'index'])->name('admin.notify-me');
     Route::post('/notify-me/toggle-global', [AdminNotifyController::class, 'toggleGlobal'])->name('admin.notify-me.toggle-global');
-    Route::post('notify-me/{id}/send-invite', [AdminNotifyController::class, 'sendInvite'])->name('admin.notify.send-invite');
+    Route::post('/notify-me/{id}/send-invite', [AdminNotifyController::class, 'sendInvite'])->name('admin.notify.send-invite');
 
-    // Subscriptions and Plan Routes
+    // ---- Subscription Management Routes ----
     Route::get('/subscriptions/plans', [SubscriptionController::class, 'indexPlans'])->name('admin.plans.index');
     Route::get('/subscriptions/plans/create', [SubscriptionController::class, 'createPlan'])->name('admin.plans.create');
     Route::post('/subscriptions/plans', [SubscriptionController::class, 'storePlan'])->name('admin.plans.store');
@@ -96,18 +96,18 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin',
     Route::put('/subscriptions/plans/{plan}', [SubscriptionController::class, 'updatePlan'])->name('admin.plans.update'); // Handle form submission
 });
 
-// User Routes
-Route::group(['prefix' => 'user', 'middleware' => ['web', 'auth', 'verified', 'role:User', CheckActiveStatus::class]], function () {
+// ----------------- User Routes -----------------
+Route::group(['prefix' => 'user', 'middleware' => ['web', 'auth', 'verified', 'role:User', CheckActiveStatus::class, ForcePasswordReset::class]], function () {
     Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
     Route::put('/profile/update-name', [UserController::class, 'updateName'])->name('user.updateName');
     Route::put('/profile/update-password', [UserController::class, 'updatePassword'])->name('user.updatePassword');
 
-    // Subscription Routes
+    // ---- User Subscription Routes ----
     Route::post('/subscribe/free', [SubscriptionController::class, 'subscribeToFreePlan'])->name('subscribe.free');
 });
 
-// Subscription Routes
+// ----------------- Misc Subscription Routes -----------------
 Route::middleware(['web', 'auth', CheckActiveStatus::class])->group(function () {
     Route::get('/access-feature', [SubscriptionController::class, 'accessFeature'])->name('subscription.access-feature');
     Route::get('/check-free-tier', [SubscriptionController::class, 'checkFreeTier'])->name('subscription.check-free-tier');
