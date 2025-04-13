@@ -36,9 +36,12 @@ class ResetPasswordController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function showPasswordResetForm()
+    public function showPasswordResetForm(Request $request)
     {
-        return view('auth.passwords.reset');
+        $token = $request->route('token'); // Retrieve token from the route (if applicable)
+        $email = $request->email; // Get the email if provided as a query string (optional)
+
+        return view('auth.passwords.reset', compact('token', 'email'));
     }
 
     public function processPasswordReset(Request $request)
