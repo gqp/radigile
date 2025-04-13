@@ -15,43 +15,26 @@ class ResetPasswordController extends Controller
      * @param Request $request
      * @return \Illuminate\View\View
      */
-    public function showPasswordResetForm(Request $request)
+    public function showForcePasswordResetForm()
     {
-        $token = $request->route('token'); // Get token from the route
-        $email = $request->email; // Get email if provided
-
-        return view('auth.passwords.reset', compact('token', 'email'));
+        // Render a simple form for users to set a new password
+        return view('auth.passwords.force-reset');
     }
 
-    /**
-     * Process the password reset and handle email verification.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function processPasswordReset(Request $request)
+    public function processForcePasswordReset(Request $request)
     {
-        // Validate request
         $request->validate([
-            'email' => 'required|email|exists:users,email',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // Find the user
-        $user = User::where('email', $request->email)->firstOrFail();
+        $user = $request->user(); // Get the authenticated user
 
-        // Update password and clear the reset flag
+        // Update the password
         $user->update([
             'password' => Hash::make($request->password),
-            'force_password_reset' => false, // Remove force reset
+            'force_password_reset' => false, // Remove force reset flag
         ]);
 
-        // Verify email if not already verified
-        if (!$user->hasVerifiedEmail()) {
-            $user->markEmailAsVerified();
-        }
-
-        // Redirect to login with success message
-        return redirect()->route('login')->with('success', 'Your password has been updated, and your email is now verified. Please log in to continue.');
+        return redirect()->route('home')->with('success', 'Your password has been updated successfully.');
     }
 }

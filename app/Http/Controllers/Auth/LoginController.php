@@ -39,7 +39,7 @@ class LoginController extends Controller
         // Check if the user needs to reset their password
         if ($user->force_password_reset) {
             \Log::info('Force password reset triggered for user.', ['user_id' => $user->id]);
-            return redirect()->route('password.reset.form')->with('warning', 'You must reset your password before proceeding.');
+            return redirect()->route('password.force.reset')->with('warning', 'You must reset your password before proceeding.');
         }
 
         // Proceed to the intended location

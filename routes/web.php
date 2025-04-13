@@ -38,10 +38,12 @@ Route::middleware(['web'])->group(function () {
 
 // ----------------- Authenticated User Routes -----------------
 Route::middleware(['web', 'auth', ForcePasswordReset::class])->group(function () {
-    Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showPasswordResetForm'])
-        ->name('password.reset.form');
-    Route::post('/password/reset', [ResetPasswordController::class, 'processPasswordReset'])
-        ->name('password.reset');
+    Route::get('/password/force-reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showForcePasswordResetForm'])
+        ->name('password.force.reset');
+
+    Route::post('/password/force-reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'processForcePasswordReset'])
+        ->name('password.force.reset.process');
+
 
 });
 
