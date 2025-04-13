@@ -95,9 +95,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin',
     Route::get('/subscriptions/plans/{plan}/edit', [SubscriptionController::class, 'editPlan'])->name('admin.plans.edit'); // Show edit form
     Route::put('/subscriptions/plans/{plan}', [SubscriptionController::class, 'updatePlan'])->name('admin.plans.update'); // Handle form submission
 
-    // Force Password Reset Routes
-    Route::get('/password/reset', [UserController::class, 'showPasswordResetForm'])->name('password.reset.form');
-    Route::post('/password/reset', [UserController::class, 'processPasswordReset'])->name('password.reset.process');
 });
 
 // ----------------- User Routes -----------------
@@ -106,6 +103,10 @@ Route::group(['prefix' => 'user', 'middleware' => ['web', 'auth', 'verified', 'r
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
     Route::put('/profile/update-name', [UserController::class, 'updateName'])->name('user.updateName');
     Route::put('/profile/update-password', [UserController::class, 'updatePassword'])->name('user.updatePassword');
+
+    // Force Password Reset Routes
+    Route::get('/password/reset', [UserController::class, 'showPasswordResetForm'])->name('password.reset.form');
+    Route::post('/password/reset', [UserController::class, 'processPasswordReset'])->name('password.reset.process');
 
     // ---- User Subscription Routes ----
     Route::post('/subscribe/free', [SubscriptionController::class, 'subscribeToFreePlan'])->name('subscribe.free');
