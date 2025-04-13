@@ -19,9 +19,12 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot()
     {
-        //
+        parent::boot();
+
+        // Register middleware aliases
+        Route::aliasMiddleware('force.password.reset', ForcePasswordReset::class);
     }
 
 }
