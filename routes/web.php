@@ -43,8 +43,6 @@ Route::middleware(['web', 'auth', ForcePasswordReset::class])->group(function ()
 
     Route::post('/password/force-reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'processForcePasswordReset'])
         ->name('password.force.reset.process');
-
-
 });
 
 // ----------------- Admin Routes -----------------

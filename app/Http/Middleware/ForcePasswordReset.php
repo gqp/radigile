@@ -18,10 +18,13 @@ class ForcePasswordReset
     {
         $user = Auth::user();
 
-        // Check if force password reset is required
+        // Check if the user is authenticated and force a password reset
         if ($user && $user->force_password_reset) {
-            return redirect()->route('password.force.reset')
-                ->with('warning', 'You are required to reset your password before proceeding.');
+            // Exclude the force-reset route to avoid redirection loops
+            if ($request->route()->getName() !== 'password.force.reset') {
+                return redirect()->route('password.force.reset')
+                    ->with('warning', 'You are required to reset your password before proceeding.');
+            }
         }
 
         return $next($request);
