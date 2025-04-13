@@ -122,7 +122,7 @@
             </div>
         @endif
         <div class="content-section">
-            <form method="POST" action="{{ route('password.update') }}">
+            <form method="POST" action="{{ route('password.reset') }}">
                 @csrf
 
                 <input type="hidden" name="token" value="{{ $token }}">

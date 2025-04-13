@@ -36,6 +36,11 @@ class ResetPasswordController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
+    public function showPasswordResetForm()
+    {
+        return view('auth.passwords.reset');
+    }
+
     public function processPasswordReset(Request $request)
     {
         $request->validate([

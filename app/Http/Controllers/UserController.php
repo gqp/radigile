@@ -199,11 +199,6 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // Verify the current password
-        if (!Hash::check($request->current_password, $user->password)) {
-            return back()->with('error', 'The current password is incorrect.');
-        }
-
         // Check if the current password matches
         if (!Hash::check($request->current_password, $user->password)) {
             return back()->withErrors(['current_password' => 'The current password you entered is incorrect.']);
