@@ -15,7 +15,8 @@ public function handle($request, Closure $next)
     // If user is authenticated and requires a password reset
     if (Auth::check() && Auth::user()->force_password_reset) {
         // Allow only access to the password reset form/page
-        if (!$request->routeIs('password.reset.form') && !$request->routeIs('password.reset.process')) {
+        if (!$request->routeIs('password.reset.form') &&
+            !$request->routeIs('password.reset.process')) {
             return redirect()->route('password.reset.form');
         }
     }

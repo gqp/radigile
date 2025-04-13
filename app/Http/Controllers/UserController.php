@@ -67,6 +67,7 @@ class UserController extends Controller
 
             // Determine whether to set `force_password_reset`
             $forcePasswordReset = !$isTestUser || !$request->filled('password');
+            \Log::info('Setting force_password_reset:', ['value' => $forcePasswordReset]);
 
             // Generate temp password
             $password = $request->password ?: Str::random(12);
@@ -242,10 +243,10 @@ class UserController extends Controller
 
         $user = Auth::user();
         $user->password = Hash::make($request->password);
-        $user->force_password_reset = false; // Disable forced password reset after setting a new password
+        $user->force_password_reset = 0; // Disable forced password reset after setting a new password
         $user->save();
 
-        return redirect()->route('admin.dashboard')->with('success', 'Password reset successfully.');
+        return redirect()->route('user.dashboard')->with('success', 'Password reset successfully.');
     }
 
 
