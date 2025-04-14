@@ -92,7 +92,7 @@ class UserController extends Controller
             if ($isTestUser) {
                 // For Test Users: Optionally send NewUserNotification
                 if ($sendNotification) {
-                    $user->notify(new NewUserNotification($user, $password));
+                    $user->notify(new NewUserNotification($password, $isTestUser));
                 }
 
                 // For Test Users: Optionally send email verification
@@ -101,7 +101,7 @@ class UserController extends Controller
                 }
             } else {
                 // For Non-Test Users: Always send NewUserNotification
-                $user->notify(new NewUserNotification($user, $password));
+                $user->notify(new NewUserNotification($password, $isTestUser));
             }
 
             // Step 5: Handle Subscription (Optional)

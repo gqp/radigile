@@ -66,6 +66,15 @@
                                     <label for="test_user" class="form-check-label">Create as Test User</label>
                                 </div>
 
+                                {{-- Skip Email Verification --}}
+                                <div class="form-check mt-3" id="skip-verification-section" style="display: none;">
+                                    <input type="checkbox" name="skip_verification" id="skip_verification" class="form-check-input" value="1">
+                                    <label for="skip_verification" class="form-check-label">
+                                        Skip Email Verification (Test Users Only)
+                                    </label>
+                                </div>
+
+
                                 {{-- Send New User Notification --}}
                                 <div class="form-check mt-3" id="send-notification-section" style="display: none;">
                                     <input type="checkbox" name="send_notification" id="send_notification" class="form-check-input" value="1">
