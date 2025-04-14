@@ -45,9 +45,9 @@
                                 </select>
                             </div>
 
-                            {{-- Plan (Optional) --}}
+                            {{-- Subscription Plan --}}
                             <div class="mb-3">
-                                <label for="subscription" class="form-label">Select Subscription Plan (Optional)</label>
+                                <label for="subscription" class="form-label">Subscription Plan (Optional)</label>
                                 <select name="subscription" id="subscription" class="form-control">
                                     <option value="">No Plan</option>
                                     @foreach($plans as $plan)
@@ -60,34 +60,26 @@
                             <div class="mb-3">
                                 <h5>Test User Options</h5>
 
-                                {{-- Check if it's a test user --}}
+                                {{-- Create Test User --}}
                                 <div class="form-check">
                                     <input type="checkbox" name="test_user" id="test_user" class="form-check-input" value="1">
-                                    <label for="test_user" class="form-check-label">
-                                        Create as Test User
-                                    </label>
+                                    <label for="test_user" class="form-check-label">Create as Test User</label>
                                 </div>
 
-                                {{-- Send NewUserNotification Checkbox --}}
+                                {{-- Send New User Notification --}}
                                 <div class="form-check mt-3" id="send-notification-section" style="display: none;">
                                     <input type="checkbox" name="send_notification" id="send_notification" class="form-check-input" value="1">
-                                    <label for="send_notification" class="form-check-label">
-                                        Send New User Notification (Test Users Only)
-                                    </label>
+                                    <label for="send_notification" class="form-check-label">Send New User Notification</label>
                                 </div>
 
-                                {{-- Conditionally Display Password Fields --}}
+                                {{-- Password Fields (Optional for Test Users) --}}
                                 <div id="test-user-password-section" class="mt-3" style="display: none;">
-                                    <label>Password (Optional for Test Users)</label>
-                                    <input type="password" name="password" id="password" class="form-control" placeholder="Enter password">
-                                    <input type="password" name="password_confirmation" id="password_confirmation"
-                                           class="form-control mt-2" placeholder="Confirm password">
-                                </div>
-
-                                {{-- Skip Email Verification --}}
-                                <div class="form-check mt-3" id="skip-verification-section" style="display: none;">
-                                    <input type="checkbox" name="skip_verification" id="skip_verification" class="form-check-input" value="1">
-                                    <label for="skip_verification" class="form-check-label">Skip Email Verification</label>
+                                    <div class="mb-2">
+                                        <input type="password" name="password" class="form-control" placeholder="Enter password (optional)">
+                                    </div>
+                                    <div>
+                                        <input type="password" name="password_confirmation" class="form-control" placeholder="Confirm password">
+                                    </div>
                                 </div>
                             </div>
 
@@ -108,27 +100,19 @@
             const sendNotificationCheckbox = document.getElementById('send_notification');
             const passwordSection = document.getElementById('test-user-password-section');
             const sendNotificationSection = document.getElementById('send-notification-section');
-            const skipVerificationSection = document.getElementById('skip-verification-section');
 
             testUserCheckbox.addEventListener('change', function () {
                 if (this.checked) {
                     sendNotificationSection.style.display = 'block';
-                    skipVerificationSection.style.display = 'block';
-                    sendNotificationCheckbox.checked = false; // Reset Send Notification
-                    passwordSection.style.display = 'block'; // Show password by default
+                    passwordSection.style.display = 'block';
                 } else {
                     sendNotificationSection.style.display = 'none';
                     passwordSection.style.display = 'none';
-                    skipVerificationSection.style.display = 'none';
                 }
             });
 
             sendNotificationCheckbox.addEventListener('change', function () {
-                if (this.checked) {
-                    passwordSection.style.display = 'none';
-                } else {
-                    passwordSection.style.display = 'block';
-                }
+                passwordSection.style.display = this.checked ? 'none' : 'block';
             });
         });
     </script>

@@ -71,11 +71,11 @@ class UserController extends Controller
             $sendNotification = $request->boolean('send_notification', false);
             $skipVerification = $request->boolean('skip_verification', false);
 
-            // Generate a password
+            // Generate a random password if none is provided
             $password = $request->password ?: Str::random(12);
 
-            // Non-test users must reset their password (force reset)
-            $forcePasswordReset = (!$isTestUser || !$sendNotification);
+            // Set force_password_reset based on the type of user and password entry
+            $forcePasswordReset = (!$isTestUser && !$request->filled('password')) || ($isTestUser && !$request->filled('password'));
 
             // Step 3: Create the User
             $user = User::create([
@@ -117,7 +117,7 @@ class UserController extends Controller
                 ]);
             }
 
-            // Step 6: Log success and redirect
+            // Step 6: Redirect with success message
             return redirect()->route('admin.users.index')
                 ->with('success', 'User created successfully.');
         } catch (\Exception $e) {
