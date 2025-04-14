@@ -35,11 +35,21 @@
                                        placeholder="Enter user email" required>
                             </div>
 
+                            {{-- Role --}}
+                            <div class="mb-3">
+                                <label for="role" class="form-label">Role</label>
+                                <select name="role" id="role" class="form-control" required>
+                                    @foreach($roles as $role)
+                                        <option value="{{ $role->name }}">{{ $role->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
                             {{-- Test User Options --}}
                             <div class="mb-3">
                                 <h5>Test User Options</h5>
 
-                                {{-- Create as Test User --}}
+                                {{-- Check if it's a test user --}}
                                 <div class="form-check">
                                     <input type="checkbox" name="test_user" id="test_user" class="form-check-input" value="1">
                                     <label for="test_user" class="form-check-label">
@@ -47,69 +57,31 @@
                                     </label>
                                 </div>
 
-                                {{-- Skip Email Verification --}}
-                                <div class="form-check mt-2">
-                                    <input type="checkbox" name="skip_verification" id="skip_verification"
-                                           class="form-check-input" value="1">
-                                    <label for="skip_verification" class="form-check-label">
-                                        Skip Email Verification (for Test Users)
+                                {{-- Send NewUserNotification Checkbox --}}
+                                <div class="form-check mt-3" id="send-notification-section" style="display: none;">
+                                    <input type="checkbox" name="send_notification" id="send_notification" class="form-check-input" value="1">
+                                    <label for="send_notification" class="form-check-label">
+                                        Send New User Notification (Test Users Only)
                                     </label>
                                 </div>
 
-                                {{-- Conditionally Show Password Fields for Test Users --}}
+                                {{-- Conditionally Display Password Fields --}}
                                 <div id="test-user-password-section" class="mt-3" style="display: none;">
                                     <label>Password (Optional for Test Users)</label>
+                                    <input type="password" name="password" id="password" class="form-control" placeholder="Enter password">
+                                    <input type="password" name="password_confirmation" id="password_confirmation"
+                                           class="form-control mt-2" placeholder="Confirm password">
+                                </div>
 
-                                    {{-- Password --}}
-                                    <div class="mb-2">
-                                        <input type="password" name="password" id="password" class="form-control"
-                                               placeholder="Enter password">
-                                    </div>
-
-                                    {{-- Confirm Password --}}
-                                    <div>
-                                        <input type="password" name="password_confirmation" id="password_confirmation"
-                                               class="form-control" placeholder="Confirm password">
-                                    </div>
+                                {{-- Skip Email Verification --}}
+                                <div class="form-check mt-3" id="skip-verification-section" style="display: none;">
+                                    <input type="checkbox" name="skip_verification" id="skip_verification" class="form-check-input" value="1">
+                                    <label for="skip_verification" class="form-check-label">Skip Email Verification</label>
                                 </div>
                             </div>
 
-                            {{-- Roles --}}
-                            <div class="mb-3">
-                                <h5>Assign Roles</h5>
-                                @foreach ($roles as $role)
-                                    <div class="form-check">
-                                        <input
-                                            type="radio"
-                                            class="form-check-input"
-                                            name="role"
-                                            id="role-{{ $role->id }}"
-                                            value="{{ $role->name }}"
-                                            required
-                                        >
-                                        <label class="form-check-label"
-                                               for="role-{{ $role->id }}">{{ $role->name }}</label>
-                                    </div>
-                                @endforeach
-                            </div>
-
-                            {{-- Subscription Plans --}}
-                            <div class="mb-3">
-                                <label for="subscription" class="form-label">Assign Subscription Plan (Optional)</label>
-                                <select name="subscription" id="subscription" class="form-control">
-                                    <option value="">No Plan</option>
-                                    @foreach ($plans as $plan)
-                                        <option value="{{ $plan->id }}">{{ $plan->name }} ({{ $plan->price > 0 ? "$" . $plan->price : "Free" }})</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
                             {{-- Submit Button --}}
-                            <div class="d-flex justify-content-end">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-check-circle"></i> Create User
-                                </button>
-                            </div>
+                            <button type="submit" class="btn btn-primary">Create User</button>
                         </form>
                     </div>
                 </div>
@@ -118,19 +90,35 @@
     </div>
 @endsection
 
-{{-- JavaScript to Toggle Password Fields for Test Users --}}
 @section('script')
     <script>
-        // Handle "Create as Test User" checkbox toggle
-        const testUserCheckbox = document.getElementById('test_user');
-        const testUserPasswordSection = document.getElementById('test-user-password-section');
+        document.addEventListener('DOMContentLoaded', function () {
+            const testUserCheckbox = document.getElementById('test_user');
+            const sendNotificationCheckbox = document.getElementById('send_notification');
+            const passwordSection = document.getElementById('test-user-password-section');
+            const sendNotificationSection = document.getElementById('send-notification-section');
+            const skipVerificationSection = document.getElementById('skip-verification-section');
 
-        testUserCheckbox.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                testUserPasswordSection.style.display = 'block';
-            } else {
-                testUserPasswordSection.style.display = 'none';
-            }
+            testUserCheckbox.addEventListener('change', function () {
+                if (this.checked) {
+                    sendNotificationSection.style.display = 'block';
+                    skipVerificationSection.style.display = 'block';
+                    sendNotificationCheckbox.checked = false; // Reset Send Notification
+                    passwordSection.style.display = 'block'; // Show password by default
+                } else {
+                    sendNotificationSection.style.display = 'none';
+                    passwordSection.style.display = 'none';
+                    skipVerificationSection.style.display = 'none';
+                }
+            });
+
+            sendNotificationCheckbox.addEventListener('change', function () {
+                if (this.checked) {
+                    passwordSection.style.display = 'none';
+                } else {
+                    passwordSection.style.display = 'block';
+                }
+            });
         });
     </script>
 @endsection

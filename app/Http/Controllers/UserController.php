@@ -53,29 +53,30 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        // Step 1: Validate the request
+        // Step 1: Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'nullable|string|min:8|confirmed',
             'role' => 'required|string|exists:roles,name',
-            'subscription' => 'nullable|integer|exists:plans,id',
             'test_user' => 'nullable|boolean',
+            'send_notification' => 'nullable|boolean',
             'skip_verification' => 'nullable|boolean',
         ]);
 
         try {
-            // Step 2: Determine if this is a test user
+            // Step 2: Determine if this is a test user or non-test user
             $isTestUser = $request->boolean('test_user', false);
+            $sendNotification = $request->boolean('send_notification', false);
+            $skipVerification = $request->boolean('skip_verification', false);
 
-            // Generate a temporary password if none is provided
+            // Generate a password
             $password = $request->password ?: Str::random(12);
 
-            // Determine if the user must reset their password
-            $forcePasswordReset = !$request->filled('password') || !$isTestUser;
-            \Log::info('Setting force_password_reset:', ['value' => $forcePasswordReset]);
+            // Non-test users must reset their password (force reset)
+            $forcePasswordReset = (!$isTestUser || !$sendNotification);
 
-            // Step 3: Create the user
+            // Step 3: Create the User
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -83,45 +84,30 @@ class UserController extends Controller
                 'force_password_reset' => $forcePasswordReset,
             ]);
 
-            // Assign the role to the user
+            // Assign the selected role to the user
             $user->assignRole($request->role);
 
-            // Step 4: Handle emails
-            // Always send the NewUserEmail
-            $user->notify(new NewUserNotification($user, $password));
+            // Step 4: Handle Notifications
+            if ($isTestUser) {
+                // For Test Users: Optionally send NewUserNotification
+                if ($sendNotification) {
+                    $user->notify(new NewUserNotification($user, $password));
+                }
 
-            // Handle email verification logic
-            if ($isTestUser && !$request->boolean('skip_verification')) {
-                // For test users, optionally send verification email if not skipped
-                $user->sendEmailVerificationNotification();
-            } elseif (!$isTestUser) {
-                // Non-test users should never receive the verification email
-                \Log::info('Skipped email verification for non-test user.', ['user_id' => $user->id]);
+                // For Test Users: Optionally send email verification
+                if (!$skipVerification) {
+                    $user->sendEmailVerificationNotification();
+                }
+            } else {
+                // For Non-Test Users: Always send NewUserNotification
+                $user->notify(new NewUserNotification($user, $password));
             }
 
-            // Step 5: Create a subscription if a plan is selected
-            if ($request->filled('subscription')) {
-                $plan = Plan::findOrFail($request->subscription);
-
-                Subscription::create([
-                    'user_id' => $user->id,
-                    'plan_id' => $plan->id,
-                    'starts_at' => now(),
-                    'ends_at' => $plan->interval === 'monthly' ? now()->addMonth() : now()->addYear(),
-                    'is_active' => true,
-                ]);
-
-                \Log::info('Subscription created and associated with user.', [
-                    'user_id' => $user->id,
-                    'plan_id' => $plan->id,
-                ]);
-            }
-
-            // Redirect with success message
+            // Step 5: Log success and redirect
             return redirect()->route('admin.users.index')
-                ->with('success', 'User created successfully, and emails have been sent.');
+                ->with('success', 'User created successfully.');
         } catch (\Exception $e) {
-            \Log::error('Error creating user:', ['message' => $e->getMessage()]);
+            \Log::error('User Creation Failed:', ['error' => $e->getMessage()]);
             return redirect()->back()->withErrors(['error' => 'There was an issue creating the user.']);
         }
     }
