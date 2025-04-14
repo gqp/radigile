@@ -86,23 +86,29 @@ class UserController extends Controller
             // Assign the role to the user
             $user->assignRole($request->role);
 
-            // Step 4: Process email verification
-            if ($isTestUser && $request->boolean('skip_verification')) {
-                $user->markEmailAsVerified();
-            } elseif (!$isTestUser) {
+            // Step 4: Handle emails
+            // Always send the NewUserEmail
+            \Mail::to($user->email)->send(new NewUserNotification($user, $password));
+
+            // Handle email verification logic
+            if ($isTestUser && !$request->boolean('skip_verification')) {
+                // For test users, optionally send verification email if not skipped
                 $user->sendEmailVerificationNotification();
+            } elseif (!$isTestUser) {
+                // Non-test users should never receive the verification email
+                \Log::info('Skipped email verification for non-test user.', ['user_id' => $user->id]);
             }
 
             // Step 5: Create a subscription if a plan is selected
-            if ($request->filled('subscription')) { // Use 'subscription' as per validation and form input
-                $plan = Plan::findOrFail($request->subscription); // Retrieve plan using 'subscription'
+            if ($request->filled('subscription')) {
+                $plan = Plan::findOrFail($request->subscription);
 
                 Subscription::create([
                     'user_id' => $user->id,
                     'plan_id' => $plan->id,
-                    'starts_at' => now(), // Subscription starts immediately
-                    'ends_at' => $plan->interval === 'monthly' ? now()->addMonth() : now()->addYear(), // Adjust duration based on interval
-                    'is_active' => true, // Mark subscription as active
+                    'starts_at' => now(),
+                    'ends_at' => $plan->interval === 'monthly' ? now()->addMonth() : now()->addYear(),
+                    'is_active' => true,
                 ]);
 
                 \Log::info('Subscription created and associated with user.', [
@@ -111,18 +117,12 @@ class UserController extends Controller
                 ]);
             }
 
-            // Step 6: Notify the user with temporary credentials, if needed
-            if ($forcePasswordReset || !$request->filled('password')) {
-                $user->notify(new NewUserNotification($password, $isTestUser));
-            }
-
+            // Redirect with success message
             return redirect()->route('admin.users.index')
-                ->with('success', 'User created successfully, and subscription has been assigned.');
+                ->with('success', 'User created successfully, and emails have been sent.');
         } catch (\Exception $e) {
-            // Handle any errors that occur during the process
-            \Log::error('Error creating user:', ['error' => $e->getMessage()]);
-
-            return redirect()->back()->withErrors(['error' => 'An error occurred while creating the user. Please try again.']);
+            \Log::error('Error creating user:', ['message' => $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'There was an issue creating the user.']);
         }
     }
 
