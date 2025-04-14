@@ -62,6 +62,7 @@ class UserController extends Controller
             'test_user' => 'nullable|boolean',
             'send_notification' => 'nullable|boolean',
             'skip_verification' => 'nullable|boolean',
+            'subscription' => 'nullable|integer|exists:plans,id', // Validate subscription plan
         ]);
 
         try {
@@ -103,7 +104,20 @@ class UserController extends Controller
                 $user->notify(new NewUserNotification($user, $password));
             }
 
-            // Step 5: Log success and redirect
+            // Step 5: Handle Subscription (Optional)
+            if ($request->filled('subscription')) {
+                $plan = Plan::findOrFail($request->subscription);
+
+                Subscription::create([
+                    'user_id' => $user->id,
+                    'plan_id' => $plan->id,
+                    'starts_at' => now(),
+                    'ends_at' => $plan->interval === 'monthly' ? now()->addMonth() : now()->addYear(),
+                    'is_active' => true,
+                ]);
+            }
+
+            // Step 6: Log success and redirect
             return redirect()->route('admin.users.index')
                 ->with('success', 'User created successfully.');
         } catch (\Exception $e) {

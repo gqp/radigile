@@ -45,6 +45,17 @@
                                 </select>
                             </div>
 
+                            {{-- Plan (Optional) --}}
+                            <div class="mb-3">
+                                <label for="subscription" class="form-label">Select Subscription Plan (Optional)</label>
+                                <select name="subscription" id="subscription" class="form-control">
+                                    <option value="">No Plan</option>
+                                    @foreach($plans as $plan)
+                                        <option value="{{ $plan->id }}">{{ $plan->name }} - ${{ $plan->price }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
                             {{-- Test User Options --}}
                             <div class="mb-3">
                                 <h5>Test User Options</h5>
