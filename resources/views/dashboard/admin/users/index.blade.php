@@ -88,13 +88,13 @@
                                                 {{-- Edit Button --}}
                                                 <a href="{{ route('admin.users.edit', $user->id) }}"
                                                    class="btn btn-warning btn-sm">
-                                                    <i class="bi bi-pencil-fill"></i>
+                                                    <i class="fa fa-pencil"></i>
                                                 </a>
 
                                                 {{-- Delete Button --}}
                                                 <button class="btn btn-danger btn-sm" {{ Auth::id() === $user->id ? 'disabled' : '' }}
                                                 onclick="confirmDelete('{{ $user->id }}', '{{ $user->name }}')">
-                                                    <i class="bi bi-trash"></i>
+                                                    <i class="fa fa-trash"> Delete</i>
                                                 </button>
                                             </td>
                                         </tr>
