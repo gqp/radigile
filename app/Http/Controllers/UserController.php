@@ -88,7 +88,7 @@ class UserController extends Controller
 
             // Step 4: Handle emails
             // Always send the NewUserEmail
-            \Mail::to($user->email)->send(new NewUserNotification($user, $password));
+            $user->notify(new NewUserNotification($user, $password));
 
             // Handle email verification logic
             if ($isTestUser && !$request->boolean('skip_verification')) {
