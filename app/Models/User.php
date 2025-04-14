@@ -30,7 +30,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'invite_code',
         'is_active',
         'last_login_at',
-        'force_password_reset'
+        'force_password_reset',
+        'email_verified_at'
     ];
 
     /**
