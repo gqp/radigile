@@ -10,10 +10,10 @@ class SettingsSeeder extends Seeder
     public function run(): void
     {
         DB::table('settings')->insert([
-            ['name' => 'invite_only', 'value' => false], // Default: registration open without invites
+            ['name' => 'invite_only', 'value' => true], // Default: registration open without invites
         ]);
         DB::table('settings')->insert([
-            ['name' => 'notify_me', 'value' => false], // Default: registration open without invites
+            ['name' => 'notify_me', 'value' => true], // Default: registration open without invites
         ]);
     }
 }
