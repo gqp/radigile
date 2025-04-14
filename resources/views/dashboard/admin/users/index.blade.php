@@ -9,9 +9,9 @@
                 <div class="card shadow-sm">
                     {{-- Card Header --}}
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0"><i class="bi bi-people-fill"></i> User Management</h4>
+                        <h4 class="mb-0"><i class="fas fa-users"></i> User Management</h4>
                         <a href="{{ route('admin.users.create') }}" class="btn btn-outline-light btn-sm">
-                            <i class="bi bi-plus-circle"></i> Create User
+                            <i class="fas fa-plus-circle"></i> Create User
                         </a>
                     </div>
 
@@ -71,7 +71,6 @@
 
                                             {{-- Subscription --}}
                                             <td>
-                                                {{-- For simplicity, display subscription as text --}}
                                                 {{ $user->subscription->plan->name ?? 'None' }}
                                             </td>
 
@@ -88,14 +87,20 @@
                                                 {{-- Edit Button --}}
                                                 <a href="{{ route('admin.users.edit', $user->id) }}"
                                                    class="btn btn-warning btn-sm">
-                                                    <i class="fa fa-pencil"></i>
+                                                    <i class="fas fa-pen"></i> Edit
                                                 </a>
 
                                                 {{-- Delete Button --}}
-                                                <button class="btn btn-danger btn-sm" {{ Auth::id() === $user->id ? 'disabled' : '' }}
-                                                onclick="confirmDelete('{{ $user->id }}', '{{ $user->name }}')">
-                                                    <i class="fa fa-trash"> Delete</i>
-                                                </button>
+                                                <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}"
+                                                      style="display: inline-block;"
+                                                      onsubmit="return confirm('Are you sure you want to delete {{ $user->name }}?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger btn-sm"
+                                                        {{ Auth::id() === $user->id ? 'disabled' : '' }}>
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -110,50 +115,4 @@
             </div>
         </div>
     </div>
-
-    {{-- Delete Confirmation Modal --}}
-    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Delete</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete the user <strong id="confirmDeleteUserName"></strong>?
-                </div>
-                <div class="modal-footer">
-                    <form id="confirmDeleteForm" method="POST" action="#">
-                        @csrf
-                        @method('DELETE')
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        /**
-         * Display the confirmation modal and update the form with the correct user details.
-         * @param userId
-         * @param userName
-         */
-        function confirmDelete(userId, userName) {
-            const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-            const form = document.getElementById('confirmDeleteForm');
-            const userNameElement = document.getElementById('confirmDeleteUserName');
-
-            // Update the form's action to target the correct delete route
-            form.action = `/admin/users/${userId}`; // Adjust route prefix as needed
-
-            // Update the modal's user name
-            userNameElement.innerText = userName;
-
-            // Show the modal
-            modal.show();
-        }
-    </script>
 @endsection
