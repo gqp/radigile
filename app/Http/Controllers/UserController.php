@@ -88,7 +88,13 @@ class UserController extends Controller
             $user->assignRole($request->role);
 
             // Step 4: Handle Notifications
-            if ($sendNotification) {
+            if ($isTestUser) {
+                // For Test Users: Only send the notification if explicitly requested
+                if ($sendNotification) {
+                    $user->notify(new NewUserNotification($password, $isTestUser));
+                }
+            } else {
+                // For Non-Test Users: Always send the notification
                 $user->notify(new NewUserNotification($password, $isTestUser));
             }
 
