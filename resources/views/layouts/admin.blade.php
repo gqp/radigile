@@ -46,5 +46,6 @@
 @vite(['resources/js/app.js'])
 <!-- Yield Additional Scripts -->
 @yield('scripts')
+@stack('scripts')
 </body>
 </html>

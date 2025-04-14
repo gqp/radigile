@@ -90,7 +90,7 @@
     </div>
 @endsection
 
-@section('script')
+@section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const testUserCheckbox = document.getElementById('test_user');
