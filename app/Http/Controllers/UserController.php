@@ -59,7 +59,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'nullable|string|min:8|confirmed',
             'role' => 'required|string|exists:roles,name',
-            'plan_id' => 'nullable|integer|exists:plans,id', // Validates the plan_id
+            'subscription' => 'nullable|integer|exists:plans,id',
             'test_user' => 'nullable|boolean',
             'skip_verification' => 'nullable|boolean',
         ]);
@@ -94,8 +94,8 @@ class UserController extends Controller
             }
 
             // Step 5: Create a subscription if a plan is selected
-            if ($request->filled('plan_id')) {
-                $plan = Plan::findOrFail($request->plan_id);
+            if ($request->filled('subscription')) { // Use 'subscription' as per validation and form input
+                $plan = Plan::findOrFail($request->subscription); // Retrieve plan using 'subscription'
 
                 Subscription::create([
                     'user_id' => $user->id,
