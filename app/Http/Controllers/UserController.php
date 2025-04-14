@@ -53,6 +53,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        // Step 1: Validate the request
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -64,16 +65,17 @@ class UserController extends Controller
         ]);
 
         try {
+            // Step 2: Determine if this is a test user
             $isTestUser = $request->boolean('test_user', false);
 
-            // Generate temp password
+            // Generate a temporary password if none is provided
             $password = $request->password ?: Str::random(12);
 
-            // If no password is provided OR user is not a test user, enforce password reset
+            // Determine if the user must reset their password
             $forcePasswordReset = !$request->filled('password') || !$isTestUser;
             \Log::info('Setting force_password_reset:', ['value' => $forcePasswordReset]);
 
-            // Create the user
+            // Step 3: Create the user
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -81,42 +83,46 @@ class UserController extends Controller
                 'force_password_reset' => $forcePasswordReset,
             ]);
 
-            // Assign the role
+            // Assign the role to the user
             $user->assignRole($request->role);
 
-            // Handle email verification
+            // Step 4: Process email verification
             if ($isTestUser && $request->boolean('skip_verification')) {
                 $user->markEmailAsVerified();
-            } else if (!$isTestUser) {
-                $user->markEmailAsVerified();
+            } elseif (!$isTestUser) {
+                $user->sendEmailVerificationNotification();
             }
-            // Associate the user with a plan if one was selected
-            if ($request->filled('plan_id')) {
-                $plan = Plan::find($request->plan_id); // Retrieve the selected plan
 
-                // Create a subscription for the user
+            // Step 5: Create a subscription if a plan is selected
+            if ($request->filled('plan_id')) {
+                $plan = Plan::findOrFail($request->plan_id);
+
                 Subscription::create([
                     'user_id' => $user->id,
                     'plan_id' => $plan->id,
-                    'start_date' => now(),
-                    'end_date' => now()->addMonth(), // Example duration, based on monthly subscription
+                    'starts_at' => now(), // Subscription starts immediately
+                    'ends_at' => $plan->interval === 'monthly' ? now()->addMonth() : now()->addYear(), // Adjust duration based on interval
+                    'is_active' => true, // Mark subscription as active
                 ]);
 
-                \Log::info('Plan associated with new user.', [
+                \Log::info('Subscription created and associated with user.', [
                     'user_id' => $user->id,
                     'plan_id' => $plan->id,
                 ]);
             }
 
-            // Notify the user with temporary credentials
+            // Step 6: Notify the user with temporary credentials, if needed
             if ($forcePasswordReset || !$request->filled('password')) {
                 $user->notify(new NewUserNotification($password, $isTestUser));
             }
 
-            return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
+            return redirect()->route('admin.users.index')
+                ->with('success', 'User created successfully, and subscription has been assigned.');
         } catch (\Exception $e) {
-            \Log::error('User creation failed: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'Failed to create user.');
+            // Handle any errors that occur during the process
+            \Log::error('Error creating user:', ['error' => $e->getMessage()]);
+
+            return redirect()->back()->withErrors(['error' => 'An error occurred while creating the user. Please try again.']);
         }
     }
 

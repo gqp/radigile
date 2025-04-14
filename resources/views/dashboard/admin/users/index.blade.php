@@ -71,16 +71,12 @@
 
                                             {{-- Subscription --}}
                                             <td>
-                                                @if ($user->subscription)
-                                                    <span class="badge bg-primary">
-                                                        {{ $user->subscription->plan->name }}
-                                                    </span>
-                                                    <div>
-                                                        <small>Starts: {{ optional($user->subscription->starts_at)->format('d-m-Y') }}</small><br>
-                                                        <small>Ends: {{ optional($user->subscription->ends_at)->format('d-m-Y') }}</small>
-                                                    </div>
+                                                @if ($user->activeSubscription())
+                                                    {{ $user->activeSubscription()->plan->name }}
+                                                    ({{ $user->activeSubscription()->starts_at->format('Y-m-d') }}
+                                                    to {{ optional($user->activeSubscription()->ends_at)->format('Y-m-d') ?? 'Open-ended' }})
                                                 @else
-                                                    <span class="badge bg-secondary">No Subscription</span>
+                                                    <span class="text-muted">No active subscription</span>
                                                 @endif
                                             </td>
 

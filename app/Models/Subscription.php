@@ -38,6 +38,7 @@ class Subscription extends Model
     protected $casts = [
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
 }

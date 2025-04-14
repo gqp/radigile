@@ -75,7 +75,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function activeSubscription(): ?Subscription
     {
-        return $this->subscription()->where('is_active', true)->first();
+        return $this->subscriptions()->where('is_active', true)->first();
     }
 
     /**
