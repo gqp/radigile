@@ -204,6 +204,13 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+
+        // Prevent self-deletion
+        if (Auth::id() === $user->id) {
+            return redirect()->route('admin.users.index')->with('error', 'You cannot delete yourself.');
+        }
+
+        // Delete the user
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');

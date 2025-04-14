@@ -71,36 +71,31 @@
 
                                             {{-- Subscription --}}
                                             <td>
-                                                @if ($user->activeSubscription())
-                                                    {{ $user->activeSubscription()->plan->name }}
-                                                    ({{ $user->activeSubscription()->starts_at->format('Y-m-d') }}
-                                                    to {{ optional($user->activeSubscription()->ends_at)->format('Y-m-d') ?? 'Open-ended' }})
-                                                @else
-                                                    <span class="text-muted">No active subscription</span>
-                                                @endif
+                                                {{-- For simplicity, display subscription as text --}}
+                                                {{ $user->subscription->plan->name ?? 'None' }}
                                             </td>
 
                                             {{-- Last Login --}}
-                                            <td>{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never Logged In' }}</td>
+                                            <td>
+                                                {{ $user->last_login_at ? $user->last_login_at->format('d/m/Y H:i') : 'Never' }}
+                                            </td>
 
-                                            {{-- Created At --}}
-                                            <td>{{ $user->created_at->format('d-m-Y H:i') }}</td>
+                                            {{-- Created --}}
+                                            <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
 
-                                            {{-- Actions --}}
+                                            {{-- Actions (Edit/Delete) --}}
                                             <td class="text-center">
+                                                {{-- Edit Button --}}
                                                 <a href="{{ route('admin.users.edit', $user->id) }}"
-                                                   class="btn btn-sm btn-warning">
-                                                    <i class="bi bi-pencil-square"></i> Edit
+                                                   class="btn btn-warning btn-sm">
+                                                    <i class="bi bi-pencil-fill"></i>
                                                 </a>
-                                                <form method="POST"
-                                                      action="{{ route('admin.users.destroy', $user->id) }}"
-                                                      class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger">
-                                                        <i class="bi bi-trash"></i> Delete
-                                                    </button>
-                                                </form>
+
+                                                {{-- Delete Button --}}
+                                                <button class="btn btn-danger btn-sm" {{ Auth::id() === $user->id ? 'disabled' : '' }}
+                                                onclick="confirmDelete('{{ $user->id }}', '{{ $user->name }}')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -108,13 +103,57 @@
                                 </table>
                             </div>
                         @else
-                            <div class="alert alert-warning text-center">
-                                <i class="bi bi-exclamation-circle"></i> No users found.
-                            </div>
+                            <p class="text-center text-muted">No users found.</p>
                         @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    {{-- Delete Confirmation Modal --}}
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete the user <strong id="confirmDeleteUserName"></strong>?
+                </div>
+                <div class="modal-footer">
+                    <form id="confirmDeleteForm" method="POST" action="#">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Display the confirmation modal and update the form with the correct user details.
+         * @param userId
+         * @param userName
+         */
+        function confirmDelete(userId, userName) {
+            const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+            const form = document.getElementById('confirmDeleteForm');
+            const userNameElement = document.getElementById('confirmDeleteUserName');
+
+            // Update the form's action to target the correct delete route
+            form.action = `/admin/users/${userId}`; // Adjust route prefix as needed
+
+            // Update the modal's user name
+            userNameElement.innerText = userName;
+
+            // Show the modal
+            modal.show();
+        }
+    </script>
 @endsection
