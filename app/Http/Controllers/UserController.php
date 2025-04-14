@@ -61,7 +61,6 @@ class UserController extends Controller
             'role' => 'required|string|exists:roles,name',
             'test_user' => 'nullable|boolean',
             'send_notification' => 'nullable|boolean',
-            'skip_verification' => 'nullable|boolean',
             'subscription' => 'nullable|integer|exists:plans,id', // Validate subscription plan
         ]);
 
@@ -69,7 +68,6 @@ class UserController extends Controller
             // Step 2: Determine if this is a test user or non-test user
             $isTestUser = $request->boolean('test_user', false);
             $sendNotification = $request->boolean('send_notification', false);
-            $skipVerification = $request->boolean('skip_verification', false);
 
             // Generate a random password if none is provided
             $password = $request->password ?: Str::random(12);
@@ -83,24 +81,14 @@ class UserController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($password),
                 'force_password_reset' => $forcePasswordReset,
+                'email_verified_at' => now(), // Automatically mark email as verified
             ]);
 
             // Assign the selected role to the user
             $user->assignRole($request->role);
 
             // Step 4: Handle Notifications
-            if ($isTestUser) {
-                // For Test Users: Optionally send NewUserNotification
-                if ($sendNotification) {
-                    $user->notify(new NewUserNotification($password, $isTestUser));
-                }
-
-                // For Test Users: Optionally send email verification
-                if (!$skipVerification) {
-                    $user->sendEmailVerificationNotification();
-                }
-            } else {
-                // For Non-Test Users: Always send NewUserNotification
+            if ($sendNotification) {
                 $user->notify(new NewUserNotification($password, $isTestUser));
             }
 
@@ -140,7 +128,6 @@ class UserController extends Controller
 
         // Pass user and plans to the view
         return view('dashboard.admin.users.edit', compact('user','plans', 'roles', 'role', 'permissions'));
-
     }
 
     public function update(Request $request, $id)
