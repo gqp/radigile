@@ -58,6 +58,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'nullable|string|min:8|confirmed',
             'role' => 'required|string|exists:roles,name',
+            'plan_id' => 'nullable|integer|exists:plans,id', // Validates the plan_id
             'test_user' => 'nullable|boolean',
             'skip_verification' => 'nullable|boolean',
         ]);
@@ -88,6 +89,23 @@ class UserController extends Controller
                 $user->markEmailAsVerified();
             } else if (!$isTestUser) {
                 $user->markEmailAsVerified();
+            }
+            // Associate the user with a plan if one was selected
+            if ($request->filled('plan_id')) {
+                $plan = Plan::find($request->plan_id); // Retrieve the selected plan
+
+                // Create a subscription for the user
+                Subscription::create([
+                    'user_id' => $user->id,
+                    'plan_id' => $plan->id,
+                    'start_date' => now(),
+                    'end_date' => now()->addMonth(), // Example duration, based on monthly subscription
+                ]);
+
+                \Log::info('Plan associated with new user.', [
+                    'user_id' => $user->id,
+                    'plan_id' => $plan->id,
+                ]);
             }
 
             // Notify the user with temporary credentials
