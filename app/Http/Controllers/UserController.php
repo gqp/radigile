@@ -146,6 +146,7 @@ class UserController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
             'subscription' => 'nullable|integer|exists:plans,id',
             'role' => 'nullable|string|exists:roles,name',
+            'is_active' => 'required|boolean',
         ]);
 
         // Update user details
@@ -153,6 +154,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => $request->password ? Hash::make($request->password) : $user->password,
+            'is_active' => $request->is_active,
         ]);
 
         // Check if a subscription was submitted
