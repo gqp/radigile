@@ -43,12 +43,6 @@
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <a href="{{ route('admin.plans.edit', $plan->id) }}"
-                                                   class="btn btn-sm btn-warning">
-                                                    <i class="bi bi-pencil-square"></i> Edit
-                                                </a>
-                                            </td>
-                                            <td class="text-center">
                                                 <a href="{{ route('admin.plans.edit', $plan->id) }}" class="btn btn-sm btn-warning">
                                                     <i class="bi bi-pencil-square"></i> Edit
                                                 </a>
