@@ -48,21 +48,6 @@
                                                     <i class="bi bi-pencil-square"></i> Edit
                                                 </a>
                                             </td>
-                                            <td class="text-center">
-                                                <a href="{{ route('admin.plans.edit', $plan->id) }}" class="btn btn-sm btn-warning">
-                                                    <i class="bi bi-pencil-square"></i> Edit
-                                                </a>
-
-                                                <form action="{{ route('admin.plans.destroy', $plan->id) }}" method="POST" style="display: inline-block;"
-                                                      onsubmit="return confirm('Are you sure you want to delete this plan? This cannot be undone.');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger">
-                                                        <i class="bi bi-trash"></i> Delete
-                                                    </button>
-                                                </form>
-                                            </td>
-
                                         </tr>
                                     @endforeach
                                     </tbody>
@@ -78,28 +63,4 @@
             </div>
         </div>
     </div>
-
-    {{-- Include Bootstrap modal --}}
-    <div class="modal fade" id="deletePlanModal" tabindex="-1" aria-labelledby="deletePlanModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deletePlanModalLabel">Delete Plan</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete this plan? This action cannot be undone.
-                </div>
-                <div class="modal-footer">
-                    <form id="deletePlanForm" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
-
