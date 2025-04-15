@@ -6,6 +6,7 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 
 class SubscriptionController extends Controller
 {
