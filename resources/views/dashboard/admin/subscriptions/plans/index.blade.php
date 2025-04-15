@@ -64,3 +64,16 @@
         </div>
     </div>
 @endsection
+@section('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deletePlanModal = document.getElementById('deletePlanModal');
+            deletePlanModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const planId = button.getAttribute('data-bs-id');
+                const form = deletePlanModal.querySelector('#deletePlanForm');
+                form.action = `/admin/subscriptions/plans/${planId}`;
+            });
+        });
+    </script>
+@endsection
