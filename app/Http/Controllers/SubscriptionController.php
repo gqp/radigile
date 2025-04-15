@@ -32,7 +32,11 @@ class SubscriptionController extends Controller
      */
     public function createPlan(): \Illuminate\View\View
     {
-        return view('dashboard.admin.subscriptions.plans.create');
+        // Fetch all available roles
+        $roles = Role::all();
+
+        return view('dashboard.admin.subscriptions.plans.create', compact('roles'));
+
     }
 
     public function editPlan(Plan $plan): \Illuminate\View\View
