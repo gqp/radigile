@@ -142,4 +142,13 @@ class SubscriptionController extends Controller
         return redirect()->route('admin.subscriptions.index')->with('message', 'Subscription updated successfully!');
     }
 
+    public function destroySubscription(Subscription $subscription): \Illuminate\Http\RedirectResponse
+    {
+        // Soft-delete the subscription (removes the record but keeps it for historical purposes)
+        $subscription->delete();
+
+        return redirect()->route('admin.subscriptions.index')
+            ->with('message', 'Subscription deleted successfully!');
+    }
+
 }

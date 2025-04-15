@@ -43,6 +43,16 @@
                                                 </span>
                                             </td>
                                             <td class="text-center">
+                                                {{-- Delete Button --}}
+                                                <form action="{{ route('admin.subscriptions.destroy', $subscription->id) }}" method="POST" style="display: inline-block;"
+                                                      onsubmit="return confirm('Are you sure you want to delete this subscription? This cannot be undone.');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="bi bi-trash"></i> Delete
+                                                    </button>
+                                                </form>
+
                                                 <a href="{{ route('admin.subscriptions.edit', $subscription->id) }}"
                                                    class="btn btn-sm btn-warning">
                                                     <i class="bi bi-pencil-square"></i> Edit
