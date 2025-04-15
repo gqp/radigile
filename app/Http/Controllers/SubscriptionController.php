@@ -55,7 +55,7 @@ class SubscriptionController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'interval' => 'required|string|max:20', // Examples: free, monthly, yearly
+            'interval' => 'required|string|in:free,monthly,yearly,lifetime',
             'is_active' => 'required|boolean',
         ]);
 
