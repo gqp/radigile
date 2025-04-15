@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\VerifiesEmails;
+use Illuminate\Support\Facades\Auth;
 
 class VerificationController extends Controller
 {
@@ -22,9 +24,22 @@ class VerificationController extends Controller
     /**
      * Where to redirect users after verification.
      *
-     * @var string
+     * @return string
      */
-    protected $redirectTo = 'user/dashboard';
+    protected function redirectTo()
+    {
+        $user = Auth::user();
+
+        if ($user->hasRole('Admin')) {
+            return route('admin.dashboard'); // Admin Dashboard
+        }
+
+        if ($user->hasRole('User')) {
+            return route('user.dashboard'); // User Dashboard
+        }
+
+        return '/'; // Default fallback
+    }
 
     /**
      * Create a new controller instance.
