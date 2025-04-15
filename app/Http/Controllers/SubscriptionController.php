@@ -74,6 +74,20 @@ class SubscriptionController extends Controller
         return redirect()->route('admin.plans.index')->with('message', 'Plan updated successfully!');
     }
 
+    public function destroyPlan(Plan $plan): \Illuminate\Http\RedirectResponse
+    {
+        // Check if the plan has associated subscriptions
+        if ($plan->subscriptions()->exists()) {
+            return redirect()->route('admin.plans.index')
+                ->with('error', 'Cannot delete plan. Subscriptions are associated with it.');
+        }
+
+        $plan->delete();
+
+        return redirect()->route('admin.plans.index')
+            ->with('message', 'Plan deleted successfully!');
+    }
+
     public function editSubscription(Subscription $subscription): \Illuminate\View\View
     {
         $users = User::all(); // Fetch all users
