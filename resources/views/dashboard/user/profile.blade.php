@@ -41,7 +41,7 @@
                             <hr>
 
                             {{-- Update Name/Email Form --}}
-                            <form action="{{ route('admin.updateProfile') }}" method="POST" class="mb-4">
+                            <form action="{{ route('user.updateProfile') }}" method="POST" class="mb-4">
                                 @csrf
                                 @method('PUT')
 

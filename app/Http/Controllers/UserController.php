@@ -273,5 +273,26 @@ class UserController extends Controller
         return redirect()->route('user.dashboard')->with('success', 'Password reset successfully.');
     }
 
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . Auth::id(), // Validate unique email except for current user
+        ]);
+
+        $user = Auth::user();
+
+        try {
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+            ]);
+
+            return back()->with('success', 'Profile updated successfully!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'An unexpected error occurred. Please try again later.']);
+        }
+    }
+
 
 }
