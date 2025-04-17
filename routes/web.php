@@ -24,6 +24,10 @@ use App\Http\Middleware\ForcePasswordReset;
 // Authentication and Email Verification Routes
 Auth::routes(['verify' => true]);
 
+// Password Reset Routes
+Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset'); // Handles the password reset form
+Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update'); // Handles form submission to reset the password
+
 // ----------------- Public Routes -----------------
 Route::middleware(['web'])->group(function () {
     // Home Page Routes
@@ -51,6 +55,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin',
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
+    Route::put('/admin/update-profile', [AdminController::class, 'updateProfile'])->name('admin.updateProfile');
     Route::put('/admin/update-name', [AdminController::class, 'updateName'])->name('admin.updateName');
     Route::put('/admin/update-password', [AdminController::class, 'updatePassword'])->name('admin.updatePassword');
 

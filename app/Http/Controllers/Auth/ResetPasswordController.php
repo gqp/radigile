@@ -15,6 +15,49 @@ class ResetPasswordController extends Controller
      * @param Request $request
      * @return \Illuminate\View\View
      */
+    public function showResetForm(Request $request, $token = null)
+    {
+        // Check that the token is provided
+        if (!$token) {
+            abort(404, 'Password reset token is missing.');
+        }
+
+        // Pass the token and email to the 'reset password' form view
+        return view('auth.passwords.reset', [
+            'token' => $token,
+            'email' => $request->email,
+        ]);
+    }
+
+    public function reset(Request $request)
+    {
+        // Validate the password reset input
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        // Attempt to reset the user's password
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) use ($request) {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        // Handle success or failure
+        return $status == Password::PASSWORD_RESET
+            ? redirect()->route('login')->with('status', __($status))
+            : back()->withErrors(['email' => [__($status)]]);
+    }
+
+
     public function showForcePasswordResetForm()
     {
         // Render a simple form for users to set a new password
