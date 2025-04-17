@@ -113,7 +113,7 @@ Route::group(['prefix' => 'user', 'middleware' => ['web', 'auth', 'verified', 'r
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
     Route::put('/profile/update-name', [UserController::class, 'updateName'])->name('user.updateName');
     Route::put('/profile/update-password', [UserController::class, 'updatePassword'])->name('user.updatePassword');
-    Route::put('/update-profile', [AdminController::class, 'updateProfile'])->name('userß.updateProfile');
+    Route::put('/update-profile', [AdminController::class, 'updateProfile'])->name('user.updateProfile');
 
     // ---- User Subscription Routes ----
     Route::post('/subscribe/free', [SubscriptionController::class, 'subscribeToFreePlan'])->name('subscribe.free');
