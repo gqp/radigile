@@ -11,13 +11,15 @@ class InviteNotification extends Mailable
     use Queueable, SerializesModels;
 
     public $code; // Invite Code
+    public $registrationUrl; // Registration link
 
     /**
      * Create a new message instance.
      */
-    public function __construct($code)
+    public function __construct($code, $registrationUrl)
     {
         $this->code = $code;
+        $this->registrationUrl = $registrationUrl;
     }
 
     /**
@@ -27,6 +29,9 @@ class InviteNotification extends Mailable
     {
         return $this->subject('You Are Invited to Register')
             ->view('emails.invite_notification')
-            ->with(['code' => $this->code]);
+            ->with([
+                'code' => $this->code,
+                'registrationUrl' => $this->registrationUrl,
+            ]);
     }
 }

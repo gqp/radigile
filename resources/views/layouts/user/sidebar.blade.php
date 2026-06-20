@@ -18,6 +18,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('user.teams.index') ? 'active' : '' }}" href="{{ route('user.teams.index') }}">
+                        <i class="nav-icon fas fa-user-friends"></i>
+                        <p>My Teams</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a href="{{ route('user.profile') }}" class="nav-link">
                         <i class="nav-icon fas fa-user"></i>
                         <p>Profile</p>

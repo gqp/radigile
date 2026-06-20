@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\QuestionCategory;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,15 +15,14 @@ class DatabaseSeeder extends Seeder
         // Call all required seeders in one method
         $this->call([
             UserSeeder::class,
-        ]);
-        $this->call([
             SettingsSeeder::class,
-        ]);
-        $this->call([
             PlanSeeder::class,
-        ]);
-        $this->call([
             SubscriptionSeeder::class,
+            TeamDomainSeeder::class,  // Ensure this populates the `team_domains` table
+            TeamFrameworkSeeder::class,  // Ensure this populates the `team_frameworks` table
+            TeamSeeder::class,  // Finally, this creates `teams`
+            QuestionCategorySeeder::class,
+            QuestionSeeder::class,
         ]);
     }
 }

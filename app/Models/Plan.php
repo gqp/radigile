@@ -16,6 +16,7 @@ class Plan extends Model
         'price',
         'interval',
         'is_active',
+        'stripe_price_id',
     ];
 
     /**
@@ -26,15 +27,5 @@ class Plan extends Model
     {
         return $this->hasMany(Subscription::class);
     }
-
-    public function down()
-    {
-        Schema::table('subscriptions', function (Blueprint $table) {
-            $table->dropForeign(['user_id']); // Remove the foreign key constraint
-        });
-
-        Schema::dropIfExists('subscriptions');
-    }
-
 
 }

@@ -11,7 +11,7 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        // Create Permissions
+        // Create Permissions (remain unchanged)
         $permissions = [
             'manage users',
             'manage roles',
@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permissionName]);
         }
 
-        // Create Roles
+        // Create Roles (remain unchanged)
         $roles = [
             'Admin' => ['manage users', 'manage roles', 'manage permissions', 'view dashboard'],
             'User' => ['view dashboard', 'edit profile'],
@@ -41,29 +41,37 @@ class UserSeeder extends Seeder
             }
         }
 
-        // Create an Admin User
+        // Create an Admin User (unchanged)
         $admin = User::firstOrCreate([
             'email' => 'gqplaisted@gmail.com',
         ], [
             'name' => 'Garrick Admin',
-            'password' => bcrypt('password'), // Be sure to change this in a production environment
+            'password' => bcrypt('password'), // Make sure to change this in production
         ]);
 
         // Assign Admin Role to Admin User
         $admin->assignRole('Admin');
 
-        // Create a standard User
-//        $user = User::firstOrCreate([
-//            'email' => 'garrick.plaisted@gmail.com',
-//        ], [
-//            'name' => 'Garrick User',
-//            'password' => bcrypt('password'), // Be sure to change this in a production environment
-//        ]);
+        // -- Generate 20 Unique Users with Role of 'User' --
+        for ($i = 1; $i <= 20; $i++) {
+            // Ensure unique email by using the loop index
+            $email = "user{$i}@example.com";
 
-        // Assign User Role to Standard User
-        //$user->assignRole('User');
+            // Create the User
+            $user = User::create([
+                'name' => "User $i",
+                'email' => $email, // Unique email
+                'password' => bcrypt('password'), // Set a password
+                'email_verified_at' => now(), // Set email as verified
+                'last_login_at' => now(), // Set today's date as the last login
+                'is_active' => true, // Assuming there is a column `is_active`
+            ]);
+
+            // Assign 'User' Role to the newly created user
+            $user->assignRole('User');
+        }
 
         // Log results to ensure everything seeded successfully
-        //\Log::info('UserSeeder executed successfully.');
+        \Log::info('UserSeeder executed successfully.');
     }
 }

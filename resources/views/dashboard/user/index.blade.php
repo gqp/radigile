@@ -127,6 +127,49 @@
                 </div>
             </div>
 
+            <!-- Subscription Card -->
+            <div class="col-lg-12 col-sm-12 mb-4">
+                <div class="card">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0"><i class="fas fa-credit-card"></i> Your Plan</h4>
+                    </div>
+                    <div class="card-body">
+                        @php $subscription = Auth::user()->activeSubscription(); @endphp
+                        @if ($subscription)
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                <div>
+                                    <h5 class="mb-1">{{ $subscription->plan->name }}</h5>
+                                    <span class="badge bg-success">Active</span>
+                                    @if ($subscription->ends_at)
+                                        <small class="text-muted ms-2">Renews {{ $subscription->ends_at->format('M j, Y') }}</small>
+                                    @endif
+                                </div>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    @if ($subscription->plan->interval === 'free')
+                                        @php $plans = \App\Models\Plan::where('interval', '!=', 'free')->where('is_active', true)->get(); @endphp
+                                        @foreach ($plans as $plan)
+                                            <a href="{{ route('billing.checkout', $plan) }}" class="btn btn-primary btn-sm">
+                                                Upgrade to {{ $plan->name }} — ${{ number_format($plan->price, 2) }}/{{ $plan->interval }}
+                                            </a>
+                                        @endforeach
+                                    @else
+                                        <a href="{{ route('billing.portal') }}" class="btn btn-outline-secondary btn-sm">Manage Billing</a>
+                                    @endif
+                                </div>
+                            </div>
+                        @else
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                <p class="mb-0 text-muted">You don't have an active plan.</p>
+                                <form action="{{ route('subscribe.free') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success btn-sm">Get Started Free</button>
+                                </form>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
             <!-- Additional Features -->
             <div class="col-lg-12 col-sm-12">
                 <div class="card">

@@ -57,6 +57,7 @@ class SubscriptionController extends Controller
             'price' => 'required|numeric|min:0',
             'interval' => 'required|string|in:free,monthly,yearly,lifetime',
             'is_active' => 'required|boolean',
+            'stripe_price_id' => 'nullable|string|max:255',
         ]);
 
         Plan::create($validated);
@@ -70,8 +71,9 @@ class SubscriptionController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'interval' => 'required|string|max:20', // Examples: free, monthly, yearly
+            'interval' => 'required|string|max:20',
             'is_active' => 'required|boolean',
+            'stripe_price_id' => 'nullable|string|max:255',
         ]);
 
         $plan->update($validated);
@@ -144,11 +146,57 @@ class SubscriptionController extends Controller
 
     public function destroySubscription(Subscription $subscription): \Illuminate\Http\RedirectResponse
     {
-        // Soft-delete the subscription (removes the record but keeps it for historical purposes)
         $subscription->delete();
 
         return redirect()->route('admin.subscriptions.index')
             ->with('message', 'Subscription deleted successfully!');
+    }
+
+    public function subscribeToFreePlan(): \Illuminate\Http\RedirectResponse
+    {
+        $user = auth()->user();
+
+        if ($user->activeSubscription()) {
+            return redirect()->route('user.dashboard')
+                ->with('info', 'You already have an active subscription.');
+        }
+
+        $freePlan = Plan::where('interval', 'free')->where('is_active', true)->first();
+
+        if (!$freePlan) {
+            return redirect()->route('user.dashboard')
+                ->with('error', 'The free plan is not available at this time.');
+        }
+
+        Subscription::create([
+            'user_id' => $user->id,
+            'plan_id' => $freePlan->id,
+            'starts_at' => now(),
+            'ends_at' => null,
+            'is_active' => true,
+        ]);
+
+        return redirect()->route('user.dashboard')
+            ->with('success', 'You are now on the free plan.');
+    }
+
+    public function accessFeature(): \Illuminate\Http\JsonResponse
+    {
+        $user = auth()->user();
+        $subscription = $user->activeSubscription();
+
+        if (!$subscription) {
+            return response()->json(['access' => false, 'message' => 'No active subscription.'], 403);
+        }
+
+        return response()->json(['access' => true, 'plan' => $subscription->plan->name]);
+    }
+
+    public function checkFreeTier(): \Illuminate\Http\JsonResponse
+    {
+        $user = auth()->user();
+
+        return response()->json(['on_free_tier' => $user->onFreeTier()]);
     }
 
 }

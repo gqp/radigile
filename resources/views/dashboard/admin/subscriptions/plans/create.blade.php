@@ -62,6 +62,15 @@
                                 @enderror
                             </div>
 
+                            {{-- Stripe Price ID --}}
+                            <div class="mb-3">
+                                <label for="stripe_price_id" class="form-label">Stripe Price ID <small class="text-muted">(leave blank for free plan)</small></label>
+                                <input type="text" class="form-control" id="stripe_price_id" name="stripe_price_id" value="{{ old('stripe_price_id') }}" placeholder="price_1ABC...">
+                                @error('stripe_price_id')
+                                <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+
                             {{-- Plan Status --}}
                             <div class="mb-3">
                                 <label for="is_active" class="form-label">Plan Status</label>

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Cashier\Billable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,7 +15,7 @@ use Spatie\Permission\Models\Role;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasRoles, HasFactory, Notifiable;
+    use HasRoles, HasFactory, Notifiable, Billable;
 
     /**
      * The attributes that are mass assignable.
@@ -31,7 +32,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_active',
         'last_login_at',
         'force_password_reset',
-        'email_verified_at'
+        'email_verified_at',
+        'stripe_id',
+        'pm_type',
+        'pm_last_four',
+        'trial_ends_at',
     ];
 
     /**
@@ -110,4 +115,16 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $query->where('is_active', true);
     }
+
+    public function teamsOwned()
+    {
+        return $this->hasMany(Team::class, 'owner_id', 'id');
+    }
+
+    public function teamsMemberOf()
+    {
+        return $this->belongsToMany(Team::class, 'team_user', 'user_id', 'team_id');
+    }
+
+
 }
