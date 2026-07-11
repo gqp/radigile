@@ -11,6 +11,7 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -41,6 +42,11 @@ class AppServiceProvider extends ServiceProvider
             $key = Str::lower((string) $request->input('email')) . '|' . $request->ip();
             return Limit::perMinute(5)->by($key);
         });
+
+        // This app ships Bootstrap, not Tailwind — Laravel's default pagination
+        // view relies on Tailwind classes that don't apply here, leaving the
+        // prev/next arrow SVGs unstyled at native (huge) size.
+        Paginator::useBootstrapFive();
     }
 
 }

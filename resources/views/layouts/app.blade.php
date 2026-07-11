@@ -18,6 +18,8 @@
 
 @include('layouts.partials.sidebar')
 
+@include('layouts.partials.mobile-toggle')
+
 <div class="content-wrapper">
     <div class="content">
         <div class="container app-container">

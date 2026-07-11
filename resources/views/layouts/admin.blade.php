@@ -25,6 +25,8 @@
 <!-- Include Sidebar -->
 @include('layouts.admin.sidebar')
 
+@include('layouts.partials.mobile-toggle')
+
 <!-- Content Wrapper -->
 <div class="content-wrapper">
     <!-- Main Content -->

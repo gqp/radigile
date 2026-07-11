@@ -75,53 +75,55 @@
         </form>
 
         <!-- Render Questions Table -->
-        <table class="table">
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>Text</th>
-                <th>Category</th>
-                <th>Tags</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach($questions as $question)
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
                 <tr>
-                    <td>{{ $question->id }}</td>
-                    <td>{{ $question->text }}</td>
-                    <td>{{ $question->category->name ?? 'No category assigned' }}</td>
-                    <td>
-                        @if ($question->tags->isNotEmpty())
-                            @foreach ($question->tags as $tag)
-                                <span class="badge bg-primary text-light">{{ $tag->name }}</span>
-                            @endforeach
-                        @else
-                            <span class="text-muted">No tags</span>
-                        @endif
-                    </td>
-                    <td>
-                        <form method="POST" action="{{ route('admin.questions.toggle-active', $question->id) }}">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="btn btn-sm {{ $question->is_active ? 'btn-success' : 'btn-secondary' }}">
-                                {{ $question->is_active ? 'Active' : 'Inactive' }}
-                            </button>
-                        </form>
-                    </td>
-                    <td>
-                        <a href="{{ route('admin.questions.edit', $question->id) }}" class="btn btn-sm btn-primary">Edit</a>
-                        <form action="{{ route('admin.questions.destroy', $question->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-                        </form>
-                    </td>
+                    <th>#</th>
+                    <th>Text</th>
+                    <th>Category</th>
+                    <th>Tags</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                 </tr>
-            @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                @foreach($questions as $question)
+                    <tr>
+                        <td>{{ $question->id }}</td>
+                        <td>{{ $question->text }}</td>
+                        <td>{{ $question->category->name ?? 'No category assigned' }}</td>
+                        <td>
+                            @if ($question->tags->isNotEmpty())
+                                @foreach ($question->tags as $tag)
+                                    <span class="badge bg-primary text-light">{{ $tag->name }}</span>
+                                @endforeach
+                            @else
+                                <span class="text-muted">No tags</span>
+                            @endif
+                        </td>
+                        <td>
+                            <form method="POST" action="{{ route('admin.questions.toggle-active', $question->id) }}">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="btn btn-sm {{ $question->is_active ? 'btn-success' : 'btn-secondary' }}">
+                                    {{ $question->is_active ? 'Active' : 'Inactive' }}
+                                </button>
+                            </form>
+                        </td>
+                        <td>
+                            <a href="{{ route('admin.questions.edit', $question->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                            <form action="{{ route('admin.questions.destroy', $question->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
 
         <!-- Pagination Links -->
         <div class="mt-4">

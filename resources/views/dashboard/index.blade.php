@@ -66,20 +66,22 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-light"><strong><i class="fas fa-user-plus"></i> Recent Users</strong></div>
                 <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr><th>Name</th><th>Email</th><th>Joined</th></tr>
-                        </thead>
-                        <tbody>
-                            @foreach($recentUsers as $u)
-                            <tr>
-                                <td>{{ $u->name }}</td>
-                                <td class="text-muted small">{{ $u->email }}</td>
-                                <td class="text-muted small">{{ $u->created_at->diffForHumans() }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Name</th><th>Email</th><th>Joined</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach($recentUsers as $u)
+                                <tr>
+                                    <td>{{ $u->name }}</td>
+                                    <td class="text-muted small">{{ $u->email }}</td>
+                                    <td class="text-muted small">{{ $u->created_at->diffForHumans() }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="card-footer text-end">
                     <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-outline-primary">All Users</a>
@@ -90,20 +92,22 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-light"><strong><i class="fas fa-layer-group"></i> Recent Teams</strong></div>
                 <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr><th>Team</th><th>Owner</th><th>Created</th></tr>
-                        </thead>
-                        <tbody>
-                            @foreach($recentTeams as $team)
-                            <tr>
-                                <td><a href="{{ route('admin.teams.show', $team) }}">{{ $team->name }}</a></td>
-                                <td class="text-muted small">{{ $team->owner->name ?? '—' }}</td>
-                                <td class="text-muted small">{{ $team->created_at->diffForHumans() }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Team</th><th>Owner</th><th>Created</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach($recentTeams as $team)
+                                <tr>
+                                    <td><a href="{{ route('admin.teams.show', $team) }}">{{ $team->name }}</a></td>
+                                    <td class="text-muted small">{{ $team->owner->name ?? '—' }}</td>
+                                    <td class="text-muted small">{{ $team->created_at->diffForHumans() }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="card-footer text-end">
                     <a href="{{ route('admin.teams.index') }}" class="btn btn-sm btn-outline-primary">All Teams</a>
