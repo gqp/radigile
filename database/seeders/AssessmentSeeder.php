@@ -5,14 +5,16 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-public function run()
+class AssessmentSeeder extends Seeder
 {
-    foreach (\App\Models\Team::all() as $team) {
-        \App\Models\Assessment::create([
-            'team_id' => $team->id,
-            'title' => 'Initial Maturity Check',
-            'created_by' => $team->owner_id,
-        ]);
+    public function run()
+    {
+        foreach (\App\Models\Team::all() as $team) {
+            \App\Models\Assessment::create([
+                'team_id' => $team->id,
+                'title' => 'Initial Maturity Check',
+                'created_by' => $team->owner_id,
+            ]);
+        }
     }
 }
-

@@ -2,20 +2,33 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Assessment;
+use App\Models\AssessmentResponse;
 use Illuminate\Database\Seeder;
 
-public function run()
+class ResponseSeeder extends Seeder
 {
-    foreach (\App\Models\Assessment::all() as $assessment) {
-        foreach ($assessment->team->members as $member) {
-            foreach ($assessment->questions as $question) {
-                \App\Models\Response::create([
-                    'assessment_id' => $assessment->id,
-                    'question_id' => $question->id,
-                    'user_id' => $member->id,
-                    'score' => rand(0, 4),
-                ]);
+    public function run(): void
+    {
+        foreach (Assessment::with(['team.members', 'questions'])->get() as $assessment) {
+            if (!$assessment->team) {
+                continue;
+            }
+
+            foreach ($assessment->team->members as $member) {
+                foreach ($assessment->questions as $assessmentQuestion) {
+                    AssessmentResponse::firstOrCreate(
+                        [
+                            'assessment_id' => $assessment->id,
+                            'user_id'       => $member->id,
+                            'question_id'   => $assessmentQuestion->question_id,
+                        ],
+                        [
+                            'score'           => rand(0, 4),
+                            'respondent_type' => 'member',
+                        ]
+                    );
+                }
             }
         }
     }

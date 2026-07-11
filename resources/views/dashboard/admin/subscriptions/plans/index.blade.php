@@ -1,8 +1,8 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('content')
     <!-- Include Navbar -->
-    @include('layouts.admin.navbar')
+    @include('layouts.partials.navbar')
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-lg-12">
@@ -23,9 +23,9 @@
                                     <thead class="table-light">
                                     <tr>
                                         <th>Name</th>
-                                        <th>Description</th>
-                                        <th>Price</th>
-                                        <th>Interval</th>
+                                        <th>Price / Interval</th>
+                                        <th>Limits</th>
+                                        <th>Features</th>
                                         <th>Status</th>
                                         <th class="text-center">Actions</th>
                                     </tr>
@@ -33,10 +33,27 @@
                                     <tbody>
                                     @foreach ($plans as $plan)
                                         <tr>
-                                            <td>{{ $plan->name }}</td>
-                                            <td>{{ $plan->description }}</td>
-                                            <td>${{ number_format($plan->price, 2) }}</td>
-                                            <td>{{ ucfirst($plan->interval) }}</td>
+                                            <td>
+                                                <strong>{{ $plan->name }}</strong>
+                                                @if($plan->description)
+                                                    <br><small class="text-muted">{{ Str::limit($plan->description, 50) }}</small>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                ${{ number_format($plan->price, 2) }}<br>
+                                                <small class="text-muted">{{ ucfirst($plan->interval) }}</small>
+                                            </td>
+                                            <td>
+                                                <small>Teams: <strong>{{ $plan->max_teams }}</strong></small><br>
+                                                <small>Members: <strong>{{ $plan->max_members }}</strong></small>
+                                            </td>
+                                            <td>
+                                                @forelse ($plan->features ?? [] as $feature)
+                                                    <span class="badge bg-primary me-1 mb-1" style="font-size:.7rem">{{ $feature }}</span>
+                                                @empty
+                                                    <span class="text-muted small">None</span>
+                                                @endforelse
+                                            </td>
                                             <td>
                                                 <span class="badge {{ $plan->is_active ? 'bg-success' : 'bg-danger' }}">
                                                     {{ $plan->is_active ? 'Active' : 'Inactive' }}

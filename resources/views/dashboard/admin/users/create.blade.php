@@ -18,6 +18,16 @@
 
                     {{-- Card Body --}}
                     <div class="card-body">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
                         <form method="POST" action="{{ route('admin.users.store') }}">
                             @csrf
 
@@ -85,6 +95,7 @@
                                 <div id="test-user-password-section" class="mt-3" style="display: none;">
                                     <div class="mb-2">
                                         <input type="password" name="password" class="form-control" placeholder="Enter password (optional)">
+                                        <small class="form-text text-muted">If set, must be at least 8 characters, with uppercase, lowercase, a number, and a symbol.</small>
                                     </div>
                                     <div>
                                         <input type="password" name="password_confirmation" class="form-control" placeholder="Confirm password">

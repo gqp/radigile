@@ -99,12 +99,9 @@
 
                     {{-- Logout Link (Common for All Users) --}}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('logout') }}"
-                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            Logout
-                        </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                        <form action="{{ route('logout') }}" method="POST">
                             @csrf
+                            <button type="submit" class="btn btn-link nav-link">Logout</button>
                         </form>
                     </li>
                 @endauth

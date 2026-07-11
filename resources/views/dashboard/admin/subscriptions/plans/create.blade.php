@@ -1,8 +1,8 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('content')
     <!-- Include Navbar -->
-    @include('layouts.admin.navbar')
+    @include('layouts.partials.navbar')
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-lg-9">
@@ -71,6 +71,26 @@
                                 @enderror
                             </div>
 
+                            {{-- Limits --}}
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="max_teams" class="form-label">Max Teams</label>
+                                    <input type="number" class="form-control" id="max_teams" name="max_teams" value="{{ old('max_teams', 1) }}" min="0" required>
+                                    <small class="text-muted">Max number of teams this user can own.</small>
+                                    @error('max_teams')
+                                    <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="max_members" class="form-label">Max Members per Team</label>
+                                    <input type="number" class="form-control" id="max_members" name="max_members" value="{{ old('max_members', 5) }}" min="0" required>
+                                    <small class="text-muted">Max members allowed in each team.</small>
+                                    @error('max_members')
+                                    <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+
                             {{-- Plan Status --}}
                             <div class="mb-3">
                                 <label for="is_active" class="form-label">Plan Status</label>
@@ -83,6 +103,33 @@
                                 @enderror
                             </div>
 
+                            {{-- Feature Toggles --}}
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold d-flex justify-content-between align-items-center">
+                                    <span>Plan Features</span>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAllFeatures()">Toggle All</button>
+                                </label>
+                                <div class="row g-2 mt-1">
+                                    @foreach ($availableFeatures as $key => $label)
+                                        <div class="col-md-6">
+                                            <div class="form-check p-3 border rounded">
+                                                <input class="form-check-input feature-check" type="checkbox"
+                                                       name="features[]" value="{{ $key }}"
+                                                       id="feature_{{ $key }}"
+                                                       {{ in_array($key, old('features', [])) ? 'checked' : '' }}>
+                                                <label class="form-check-label w-100" for="feature_{{ $key }}">
+                                                    <strong class="d-block">{{ $label }}</strong>
+                                                    <small class="text-muted">{{ $key }}</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @error('features')
+                                <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+
                             <button type="submit" class="btn btn-primary">Create Plan</button>
                         </form>
                     </div>
@@ -91,3 +138,13 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+function toggleAllFeatures() {
+    const boxes = document.querySelectorAll('.feature-check');
+    const allChecked = [...boxes].every(b => b.checked);
+    boxes.forEach(b => b.checked = !allChecked);
+}
+</script>
+@endpush

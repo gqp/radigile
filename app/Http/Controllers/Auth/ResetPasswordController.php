@@ -8,11 +8,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 
 use App\Models\User;
 
 class ResetPasswordController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('throttle:6,1')->only('reset');
+    }
+
     /**
      * Display the password reset form.
      *
@@ -39,7 +45,7 @@ class ResetPasswordController extends Controller
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', 'confirmed', PasswordRule::defaults()],
         ]);
 
         // Attempt to reset the user's password
@@ -74,10 +80,8 @@ class ResetPasswordController extends Controller
 
         // Step 1: Validate input
         $validatedData = $request->validate([
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', 'confirmed', PasswordRule::defaults()],
         ]);
-
-        \Log::info('Form validation passed.', $validatedData);
 
         // Step 2: Retrieve the authenticated user
         $user = $request->user();

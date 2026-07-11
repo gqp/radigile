@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
 class RoleController extends Controller
 {
+    protected array $systemRoles = ['Admin', 'User'];
+
     public function index()
     {
         $roles = Role::with('permissions')->get();
@@ -16,52 +19,77 @@ class RoleController extends Controller
 
     public function create()
     {
-        $permissions = Permission::all();
+        $permissions = Permission::orderBy('name')->get()->groupBy(function ($p) {
+            return str_contains($p->name, 'manage-') || $p->name === 'access-admin-panel'
+                ? 'Admin Capabilities'
+                : 'User Capabilities';
+        });
         return view('dashboard.admin.roles.create', compact('permissions'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|unique:roles',
-            'permissions' => 'required|array',
+            'name'        => 'required|string|max:100|unique:roles',
+            'permissions' => 'nullable|array',
         ]);
 
-        // Create new role
         $role = Role::create(['name' => $request->name]);
 
-        // Convert permission IDs to names
-        $permissions = Permission::whereIn('id', $request->permissions)->pluck('name')->toArray();
+        if ($request->filled('permissions')) {
+            $permNames = Permission::whereIn('id', $request->permissions)->pluck('name');
+            $role->syncPermissions($permNames);
+        }
 
-        // Sync permissions using names to avoid "no permission named" issues
-        $role->syncPermissions($permissions);
+        Cache::forget('admin_roles');
+        Cache::forget('admin_permissions');
 
-        return redirect()->route('admin.roles.index')->with('success', 'Role created successfully!');
+        return redirect()->route('admin.roles.index')->with('success', "Role \"{$role->name}\" created.");
     }
 
     public function edit(Role $role)
     {
-        $permissions = Permission::all();
-        return view('dashboard.admin.roles.edit', compact('role', 'permissions'));
+        $permissions = Permission::orderBy('name')->get()->groupBy(function ($p) {
+            return str_contains($p->name, 'manage-') || $p->name === 'access-admin-panel'
+                ? 'Admin Capabilities'
+                : 'User Capabilities';
+        });
+        $rolePermissionIds = $role->permissions->pluck('id')->toArray();
+        return view('dashboard.admin.roles.edit', compact('role', 'permissions', 'rolePermissionIds'));
     }
 
     public function update(Request $request, Role $role)
     {
         $request->validate([
-            'name' => 'required|unique:roles,name,' . $role->id,
-            'permissions' => 'required|array',
+            'name'        => 'required|string|max:100|unique:roles,name,' . $role->id,
+            'permissions' => 'nullable|array',
         ]);
 
-        // Assign permissions
-        $permissions = Permission::whereIn('id', $request->permissions)->pluck('name')->toArray();
-        $role->syncPermissions($permissions);
+        if (!in_array($role->name, $this->systemRoles)) {
+            $role->update(['name' => $request->name]);
+        }
 
-        return redirect()->route('admin.roles.index')->with('success', 'Role updated successfully!');
+        $permNames = $request->filled('permissions')
+            ? Permission::whereIn('id', $request->permissions)->pluck('name')
+            : [];
+
+        $role->syncPermissions($permNames);
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        Cache::forget('admin_roles');
+        Cache::forget('admin_permissions');
+
+        return redirect()->route('admin.roles.index')->with('success', "Role \"{$role->name}\" updated.");
     }
 
     public function destroy(Role $role)
     {
+        if (in_array($role->name, $this->systemRoles)) {
+            return back()->with('error', "The \"{$role->name}\" role is a system role and cannot be deleted.");
+        }
+
         $role->delete();
-        return redirect()->route('admin.roles.index')->with('success', 'Role deleted successfully!');
+        Cache::forget('admin_roles');
+        return redirect()->route('admin.roles.index')->with('success', 'Role deleted.');
     }
 }

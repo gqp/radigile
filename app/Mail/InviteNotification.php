@@ -28,7 +28,7 @@ class InviteNotification extends Mailable
     public function build()
     {
         return $this->subject('You Are Invited to Register')
-            ->view('emails.invite_notification')
+            ->view('emails.non_registered_invite_join_notification')
             ->with([
                 'code' => $this->code,
                 'registrationUrl' => $this->registrationUrl,

@@ -26,6 +26,7 @@
             <div class="form-group">
                 <label for="password">New Password</label>
                 <input type="password" name="password" class="form-control" required>
+                <small class="form-text text-muted">At least 8 characters, with uppercase, lowercase, a number, and a symbol.</small>
             </div>
 
             <div class="form-group">

@@ -6,7 +6,6 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
 
 class SubscriptionController extends Controller
 {
@@ -15,7 +14,7 @@ class SubscriptionController extends Controller
      */
     public function indexPlans(): \Illuminate\View\View
     {
-        $plans = Plan::all();
+        $plans = Plan::cached();
         return view('dashboard.admin.subscriptions.plans.index', compact('plans'));
     }
 
@@ -33,16 +32,14 @@ class SubscriptionController extends Controller
      */
     public function createPlan(): \Illuminate\View\View
     {
-        // Fetch all available roles
-        $roles = Role::all();
-
-        return view('dashboard.admin.subscriptions.plans.create', compact('roles'));
-
+        $availableFeatures = Plan::$availableFeatures;
+        return view('dashboard.admin.subscriptions.plans.create', compact('availableFeatures'));
     }
 
     public function editPlan(Plan $plan): \Illuminate\View\View
     {
-        return view('dashboard.admin.subscriptions.plans.edit', compact('plan'));
+        $availableFeatures = Plan::$availableFeatures;
+        return view('dashboard.admin.subscriptions.plans.edit', compact('plan', 'availableFeatures'));
     }
 
 
@@ -52,13 +49,19 @@ class SubscriptionController extends Controller
     public function storePlan(Request $request): \Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'interval' => 'required|string|in:free,monthly,yearly,lifetime',
-            'is_active' => 'required|boolean',
-            'stripe_price_id' => 'nullable|string|max:255',
+            'name'           => 'required|string|max:255',
+            'description'    => 'nullable|string',
+            'price'          => 'required|numeric|min:0',
+            'interval'       => 'required|string|in:free,monthly,yearly,lifetime',
+            'is_active'      => 'required|boolean',
+            'stripe_price_id'=> 'nullable|string|max:255',
+            'max_teams'      => 'required|integer|min:0',
+            'max_members'    => 'required|integer|min:0',
+            'features'       => 'nullable|array',
+            'features.*'     => 'string|in:' . implode(',', array_keys(Plan::$availableFeatures)),
         ]);
+
+        $validated['features'] = $request->input('features', []);
 
         Plan::create($validated);
 
@@ -68,13 +71,19 @@ class SubscriptionController extends Controller
     public function updatePlan(Request $request, Plan $plan): \Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'interval' => 'required|string|max:20',
-            'is_active' => 'required|boolean',
-            'stripe_price_id' => 'nullable|string|max:255',
+            'name'           => 'required|string|max:255',
+            'description'    => 'nullable|string',
+            'price'          => 'required|numeric|min:0',
+            'interval'       => 'required|string|in:free,monthly,yearly,lifetime',
+            'is_active'      => 'required|boolean',
+            'stripe_price_id'=> 'nullable|string|max:255',
+            'max_teams'      => 'required|integer|min:0',
+            'max_members'    => 'required|integer|min:0',
+            'features'       => 'nullable|array',
+            'features.*'     => 'string|in:' . implode(',', array_keys(Plan::$availableFeatures)),
         ]);
+
+        $validated['features'] = $request->input('features', []);
 
         $plan->update($validated);
 
@@ -98,7 +107,7 @@ class SubscriptionController extends Controller
     public function editSubscription(Subscription $subscription): \Illuminate\View\View
     {
         $users = User::all(); // Fetch all users
-        $plans = Plan::all(); // Fetch all plans
+        $plans = Plan::cached(); // Fetch all plans
         return view('dashboard.admin.subscriptions.edit', compact('subscription', 'plans','users'));
     }
 
@@ -108,7 +117,7 @@ class SubscriptionController extends Controller
     public function createSubscription(): \Illuminate\View\View
     {
         $users = User::all(); // Fetch all users
-        $plans = Plan::all(); // Fetch all plans
+        $plans = Plan::cached(); // Fetch all plans
         return view('dashboard.admin.subscriptions.create', compact('users', 'plans'));
     }
 

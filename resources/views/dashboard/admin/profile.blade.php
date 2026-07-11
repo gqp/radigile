@@ -1,8 +1,8 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('content')
     <!-- Include Navbar -->
-    @include('layouts.admin.navbar')
+    @include('layouts.partials.navbar')
     <div class="app-container">
         <div class="container mt-5">
             <div class="row justify-content-center">
@@ -111,6 +111,7 @@
                                         class="form-control @error('password') is-invalid @enderror"
                                         required
                                     >
+                                    <small class="form-text text-muted">At least 8 characters, with uppercase, lowercase, a number, and a symbol.</small>
                                     @error('password')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

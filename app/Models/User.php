@@ -126,5 +126,31 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Team::class, 'team_user', 'user_id', 'team_id');
     }
 
+    public function canCreateTeam(): bool
+    {
+        $plan = $this->activeSubscription()?->plan;
+        if (!$plan) {
+            return false;
+        }
+        return $this->teamsOwned()->count() < $plan->max_teams;
+    }
+
+    public function canAddMemberToTeam(Team $team): bool
+    {
+        $plan = $this->activeSubscription()?->plan;
+        if (!$plan) {
+            return false;
+        }
+        return $team->members()->count() < $plan->max_members;
+    }
+
+    public function planHasFeature(string $feature): bool
+    {
+        if ($this->hasPermissionTo('access-admin-panel')) {
+            return true;
+        }
+        $plan = $this->activeSubscription()?->plan;
+        return $plan?->hasFeature($feature) ?? false;
+    }
 
 }

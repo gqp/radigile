@@ -79,6 +79,34 @@
                                 <p>Teams</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.team-member-roles.index') }}" class="nav-link {{ request()->routeIs('admin.team-member-roles.*') ? 'active' : '' }}">
+                                <i class="fas fa-user-tag nav-icon"></i>
+                                <p>Member Roles</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Assessments -->
+                <li class="nav-item">
+                    <a href="#" class="nav-link {{ request()->routeIs('admin.assessments.*') || request()->routeIs('user.assessments.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-clipboard-list"></i>
+                        <p>Assessments <i class="right fas fa-angle-left"></i></p>
+                    </a>
+                    <ul class="nav nav-treeview" style="padding-left: 15px;">
+                        <li class="nav-item">
+                            <a href="{{ route('admin.assessments.index') }}" class="nav-link {{ request()->routeIs('admin.assessments.index') ? 'active' : '' }}">
+                                <i class="fas fa-list nav-icon"></i>
+                                <p>All Assessments</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('user.assessments.create') }}" class="nav-link {{ request()->routeIs('user.assessments.create') ? 'active' : '' }}">
+                                <i class="fas fa-plus nav-icon"></i>
+                                <p>Create Assessment</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
 

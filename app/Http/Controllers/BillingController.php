@@ -8,6 +8,19 @@ use Illuminate\Http\Request;
 
 class BillingController extends Controller
 {
+    public function index(): \Illuminate\View\View
+    {
+        $user = auth()->user();
+        $subscription = $user->activeSubscription();
+
+        $availablePlans = Plan::where('is_active', true)
+            ->where('interval', '!=', 'free')
+            ->orderBy('price')
+            ->get();
+
+        return view('dashboard.user.billing.index', compact('subscription', 'availablePlans'));
+    }
+
     public function checkout(Plan $plan): \Illuminate\Http\RedirectResponse
     {
         $user = auth()->user();

@@ -8,8 +8,10 @@ use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -24,14 +26,6 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'User status updated successfully.');
     }
 
-    public function index()
-    {
-        $users = User::with('roles')->get();
-        return view('dashboard.user.index', compact('users'));
-
-
-    }
-
     public function profile()
     {
         $user = Auth::user(); // Get the currently authenticated user
@@ -42,9 +36,9 @@ class UserController extends Controller
     public function create()
     {
         // Retrieve all available plans from the database
-        $plans = Plan::all();
-        $permissions = Permission::all();
-        $roles = Role::all();
+        $plans = Plan::cached();
+        $permissions = Cache::remember('admin_permissions', now()->addHour(), fn () => Permission::all());
+        $roles = Cache::remember('admin_roles', now()->addHour(), fn () => Role::all());
 
         // Pass the $plans variable to the view
         return view('dashboard.admin.users.create', compact('plans','permissions','roles'));
@@ -57,7 +51,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => ['nullable', 'string', 'confirmed', Password::defaults()],
             'role' => 'required|string|exists:roles,name',
             'test_user' => 'nullable|boolean',
             'send_notification' => 'nullable|boolean',
@@ -126,9 +120,9 @@ class UserController extends Controller
         $user = User::with('subscription.plan', 'roles')->findOrFail($id);
 
         // Retrieve all available plans
-        $plans = Plan::all();
-        $roles = Role::all();
-        $permissions = Permission::all();
+        $plans = Plan::cached();
+        $roles = Cache::remember('admin_roles', now()->addHour(), fn () => Role::all());
+        $permissions = Cache::remember('admin_permissions', now()->addHour(), fn () => Permission::all());
 
         $role = $user->roles->first();
 
@@ -143,7 +137,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => ['nullable', 'string', 'confirmed', Password::defaults()],
             'subscription' => 'nullable|integer|exists:plans,id',
             'role' => 'nullable|string|exists:roles,name',
             'is_active' => 'required|boolean',
@@ -196,7 +190,7 @@ class UserController extends Controller
         }
 
         $users = User::with('roles')->get(); // Pull all users with their roles
-        $roles = Role::all(); // Fetch all available roles
+        $roles = Cache::remember('admin_roles', now()->addHour(), fn () => Role::all()); // Fetch all available roles
 
         return view('dashboard.admin.users.index', compact('users', 'roles')); // Pass both users and roles
     }
@@ -222,7 +216,7 @@ class UserController extends Controller
 
         $request->validate([
             'email' => 'required|email|exists:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', 'confirmed', Password::defaults()],
         ]);
 
         // Check if the current password matches
@@ -262,7 +256,7 @@ class UserController extends Controller
     public function processPasswordReset(Request $request)
     {
         $request->validate([
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', 'confirmed', Password::defaults()],
         ]);
 
         $user = Auth::user();

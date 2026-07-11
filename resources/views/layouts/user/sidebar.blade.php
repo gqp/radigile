@@ -25,6 +25,13 @@
                 </li>
 
                 <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('user.assessments.*') ? 'active' : '' }}" href="{{ route('user.assessments.index') }}">
+                        <i class="nav-icon fas fa-clipboard-list"></i>
+                        <p>Assessments</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a href="{{ route('user.profile') }}" class="nav-link">
                         <i class="nav-icon fas fa-user"></i>
                         <p>Profile</p>

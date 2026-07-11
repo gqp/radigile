@@ -4,13 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\Assessment;
-use App\Models\Question;
-use App\Models\User;
 
 class AssessmentResponse extends Model
 {
-    protected $fillable = ['assessment_id', 'user_id', 'question_id', 'score', 'comment'];
+    protected $fillable = ['assessment_id', 'user_id', 'question_id', 'score', 'comment', 'respondent_type'];
 
     public function assessment(): BelongsTo
     {

@@ -17,14 +17,17 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'auth' => Authenticate::class,
-            'role' => App\Http\Middleware\RoleMiddleware::class,
+            'auth'               => Authenticate::class,
+            'role'               => App\Http\Middleware\RoleMiddleware::class,
+            'permission'         => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [
             'stripe/webhook',
         ]);
+
+        $middleware->append(App\Http\Middleware\SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -2,128 +2,322 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\TeamInviteNotification;
+use App\Mail\TeamRegistrationInvite;
+use App\Models\Setting;
 use App\Models\Team;
-use App\Models\TeamMember;
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\TeamInvitation;
+use App\Models\TeamMember;
+use App\Models\TeamMemberRole;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class UserTeamMemberController extends Controller
 {
-    /**
-     * Invite a user to a team.
-     */
-    public function invite(Request $request)
+    // ── Search registered users ───────────────────────────────────────────────
+
+    public function searchUsers(Request $request, Team $team): \Illuminate\Http\JsonResponse
     {
-        $validated = $request->validate([
-            'team_id' => 'required|exists:teams,id',
-            'email' => 'required|email',
-            'role' => 'required|string|in:admin,coach,member',
+        abort_unless(auth()->id() === $team->owner_id, 403);
+
+        $q = trim($request->input('q', ''));
+
+        if (strlen($q) < 2) {
+            return response()->json([]);
+        }
+
+        $excludeIds = $team->members()->pluck('users.id')
+            ->push($team->owner_id)
+            ->unique();
+
+        $users = User::where(function ($query) use ($q) {
+                $query->where('name', 'like', "%{$q}%")
+                      ->orWhere('email', 'like', "%{$q}%");
+            })
+            ->whereNotIn('id', $excludeIds)
+            ->limit(8)
+            ->get(['id', 'name', 'email']);
+
+        return response()->json($users);
+    }
+
+    // ── Invite a registered user (creates invitation, requires acceptance) ───
+
+    public function addMember(Request $request, Team $team): \Illuminate\Http\RedirectResponse
+    {
+        abort_unless(auth()->id() === $team->owner_id, 403);
+
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'role'    => ['required', Rule::exists('team_member_roles', 'slug')],
         ]);
 
-        $team = Team::findOrFail($validated['team_id']);
+        if (!auth()->user()->canAddMemberToTeam($team)) {
+            return back()->with('error', 'You have reached the maximum number of members allowed on your plan.');
+        }
 
-        // Ensure the inviter is the team owner
-        $this->authorize('addMember', $team);
+        $member = User::findOrFail($request->user_id);
 
-        $invitee = User::where('email', $validated['email'])->first();
+        if ($team->members()->where('users.id', $member->id)->exists()) {
+            return back()->with('error', "{$member->name} is already a member of this team.");
+        }
 
-        // If the user is registered
-        if ($invitee) {
-            // Check if already a member
-            if ($this->isUserAlreadyMember($team->id, $invitee->id)) {
-                return response()->json(['error' => 'User is already part of the team.'], 422);
+        // Check no unexpired invite already pending
+        if ($team->invitations()->where('email', $member->email)
+                ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+                ->exists()) {
+            return back()->with('error', "An invitation is already pending for {$member->name}.");
+        }
+
+        $invitation = $team->invitations()->create([
+            'email'      => $member->email,
+            'role'       => $request->role,
+            'code'       => Str::random(32),
+            'created_by' => auth()->id(),
+            'expires_at' => now()->addDays(7),
+        ]);
+
+        Mail::to($member->email)->queue(new TeamInviteNotification(
+            $invitation->code,
+            $team->name,
+            route('user.teams.invite.accept', $invitation->code)
+        ));
+
+        return back()->with('success', "Invitation sent to {$member->name}. They'll appear as a member once they accept.");
+    }
+
+    // ── Invite multiple registered users at once ─────────────────────────────
+
+    public function batchInvite(Request $request, Team $team): \Illuminate\Http\RedirectResponse
+    {
+        abort_unless(auth()->id() === $team->owner_id, 403);
+
+        $request->validate([
+            'members'        => 'required|array|min:1',
+            'members.*.id'   => 'required|exists:users,id',
+            'members.*.role' => ['required', Rule::exists('team_member_roles', 'slug')],
+            'expires_in'     => 'required|in:0,1,3,7,14,30',
+        ]);
+
+        $expiresAt = (int) $request->input('expires_in') > 0
+            ? now()->addDays((int) $request->input('expires_in'))
+            : null;
+
+        // Batch-fetch everything the loop needs up front instead of querying
+        // per iteration — avoids 3+ queries per invitee on top of the mail send.
+        $requestedIds = collect($request->input('members'))->pluck('id')->all();
+        $users = User::whereIn('id', $requestedIds)->get()->keyBy('id');
+        $existingMemberIds = $team->members()->pluck('users.id')->flip();
+        $pendingInviteEmails = $team->invitations()
+            ->where(fn ($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->pluck('email')->flip();
+
+        $sent    = 0;
+        $skipped = [];
+
+        foreach ($request->input('members') as $memberData) {
+            $member = $users->get($memberData['id']);
+            if (!$member || $member->id === $team->owner_id) continue;
+
+            if ($existingMemberIds->has($member->id)) {
+                $skipped[] = "{$member->name} (already a member)";
+                continue;
             }
 
-            // Create an invitation for a registered user
-            $invite = $team->invitations()->create([
-                'email' => $validated['email'],
-                'role' => $validated['role'],
-                'code' => \Str::random(10),
+            if ($pendingInviteEmails->has($member->email)) {
+                $skipped[] = "{$member->name} (invite already pending)";
+                continue;
+            }
+            // Track within this batch too, in case the same user appears twice.
+            $pendingInviteEmails->put($member->email, true);
+
+            $invitation = $team->invitations()->create([
+                'email'      => $member->email,
+                'role'       => $memberData['role'],
+                'code'       => Str::random(32),
                 'created_by' => auth()->id(),
-                'expires_at' => now()->addDays(7), // Expire after 7 days
+                'expires_at' => $expiresAt,
             ]);
 
-            // Send an email with the accept link
-            \Mail::to($validated['email'])->send(new \App\Mail\TeamInviteNotification(
-                $invite->code,
+            Mail::to($member->email)->queue(new TeamInviteNotification(
+                $invitation->code,
                 $team->name,
-                route('user.teams.invite.accept', $invite->code)
+                route('user.teams.invite.accept', $invitation->code)
             ));
 
-        } else {
-            // Non-registered users
-
-            // Check if Invite-Only Mode is enabled
-            $inviteOnly = Setting::where('name', 'invite_only')->value('value');
-
-            // Generate registration invite code (if "Invite-Only" is on)
-            $invitationCode = $inviteOnly ? auth()->user()->invite_code : null;
-
-            // Send a registration invite email
-            \Mail::to($validated['email'])->send(new \App\Mail\InviteNotification($invitationCode));
+            $sent++;
         }
 
-        return response()->json(['message' => 'Invitation sent successfully.']);
-    }
-
-
-    /**
-     * Check if a user is already a member of the given team.
-     *
-     * @param int $teamId
-     * @param int|null $userId
-     * @return bool
-     */
-    private function isUserAlreadyMember(int $teamId, ?int $userId): bool
-    {
-        if (!$userId) {
-            return false;
+        $message = "{$sent} invitation(s) sent.";
+        if (!empty($skipped)) {
+            $message .= ' Skipped: ' . implode(', ', $skipped) . '.';
         }
 
-        return TeamMember::isMember($userId, $teamId)->exists();
+        return back()->with($sent > 0 ? 'success' : 'info', $message);
     }
 
-    /**
-     * Get the user ID by their email address.
-     *
-     * @param string $email
-     * @return int|null
-     */
-    private function getUserIdByEmail(string $email): ?int
+    // ── Invite an unregistered user ───────────────────────────────────────────
+
+    public function invite(Request $request, Team $team): \Illuminate\Http\RedirectResponse
     {
-        return User::where('email', $email)->value('id');
-    }
+        abort_unless(auth()->id() === $team->owner_id, 403);
 
-    public function acceptInvite($code)
-    {
-        $invite = TeamInvitation::where('code', $code)
-            ->where('expires_at', '>', now())
-            ->firstOrFail();
-
-        $userId = auth()->id();
-
-        // Check if the user is already a member
-        $alreadyMember = TeamMember::where('team_id', $invite->team_id)
-            ->where('user_id', $userId)
-            ->exists();
-
-        if ($alreadyMember) {
-            return redirect()->back()->withErrors(['You are already a member of this team.']);
-        }
-
-        // Add the user to the team
-        TeamMember::create([
-            'team_id' => $invite->team_id,
-            'user_id' => $userId,
-            'role' => $invite->role,
+        $validated = $request->validate([
+            'email'      => 'required|email',
+            'role'       => 'required|in:admin,coach,member',
+            'expires_in' => 'required|in:1,3,7,14,30,0',
         ]);
 
-        // Delete the invitation
-        $invite->delete();
+        if (!auth()->user()->planHasFeature('team-invitations')) {
+            return back()->with('error', 'Team invitations are not available on your current plan. Please upgrade.');
+        }
 
-        return redirect()->route('user.teams.index')->with('success', 'You have successfully joined the team!');
+        // Registered users should be added via search, not email invite
+        if (User::where('email', $validated['email'])->exists()) {
+            return back()->with('error', 'That email belongs to a registered Radigile user. Use the search box above to add them directly.');
+        }
+
+        if ($team->owner->email === $validated['email']) {
+            return back()->with('error', 'That email address belongs to the team owner.');
+        }
+
+        if (!auth()->user()->canAddMemberToTeam($team)) {
+            return back()->with('error', 'You have reached the maximum number of members allowed on your plan.');
+        }
+
+        // Don't re-send to someone already pending
+        if ($team->invitations()->where('email', $validated['email'])
+                ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+                ->exists()) {
+            return back()->with('error', 'A pending invitation already exists for that email address.');
+        }
+
+        $expiresAt = (int) $validated['expires_in'] > 0
+            ? now()->addDays((int) $validated['expires_in'])
+            : null;
+
+        $invitation = $team->invitations()->create([
+            'email'      => $validated['email'],
+            'role'       => $validated['role'],
+            'code'       => Str::random(32),
+            'created_by' => auth()->id(),
+            'expires_at' => $expiresAt,
+        ]);
+
+        // Build registration URL — include invite code if invite-only mode is on
+        $inviteOnly = Setting::get('invite_only');
+        $registerParams = ['team_invite' => $invitation->code];
+
+        if ($inviteOnly) {
+            $registerParams['invite_code'] = auth()->user()->invite_code;
+        }
+
+        $registerUrl = route('register', $registerParams);
+        $acceptUrl   = route('user.teams.invite.accept', $invitation->code);
+
+        Mail::to($validated['email'])->queue(new TeamRegistrationInvite(
+            teamName:   $team->name,
+            role:       $validated['role'],
+            registerUrl: $registerUrl,
+            acceptUrl:  $acceptUrl,
+            inviteOnly: (bool) $inviteOnly,
+        ));
+
+        return back()->with('success', "Registration invite sent to {$validated['email']}. They'll see the team invitation after signing up.");
     }
 
+    // ── Accept an invitation ─────────────────────────────────────────────────
 
+    public function acceptInvite(string $code): \Illuminate\Http\RedirectResponse
+    {
+        $invitation = TeamInvitation::where('code', $code)
+            ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->firstOrFail();
+
+        $user = auth()->user();
+
+        if ($invitation->email !== $user->email) {
+            return redirect()->route('user.teams.index')
+                ->with('error', 'This invitation was sent to a different email address.');
+        }
+
+        if ($invitation->team->members()->where('users.id', $user->id)->exists()) {
+            $invitation->delete();
+            return redirect()->route('user.teams.index')
+                ->with('info', 'You are already a member of that team.');
+        }
+
+        TeamMember::create([
+            'team_id' => $invitation->team_id,
+            'user_id' => $user->id,
+            'role'    => $invitation->role ?? 'member',
+        ]);
+
+        $teamName = $invitation->team->name;
+        $teamId   = $invitation->team_id;
+        $invitation->delete();
+
+        return redirect()->route('user.teams.show', $teamId)
+            ->with('success', "You have joined {$teamName}!");
+    }
+
+    // ── Decline an invitation ─────────────────────────────────────────────────
+
+    public function declineInvite(string $code): \Illuminate\Http\RedirectResponse
+    {
+        $invitation = TeamInvitation::where('code', $code)->firstOrFail();
+
+        if ($invitation->email !== auth()->user()->email) {
+            return redirect()->route('user.teams.index')
+                ->with('error', 'This invitation was not sent to your email address.');
+        }
+
+        $invitation->delete();
+
+        return redirect()->route('user.teams.index')->with('info', 'Invitation declined.');
+    }
+
+    // ── Remove a member ───────────────────────────────────────────────────────
+
+    public function removeMember(Team $team, User $member): \Illuminate\Http\RedirectResponse
+    {
+        abort_unless(auth()->id() === $team->owner_id, 403);
+
+        if ($member->id === $team->owner_id) {
+            return back()->with('error', 'You cannot remove the team owner.');
+        }
+
+        $team->members()->detach($member->id);
+
+        return back()->with('success', "{$member->name} has been removed from the team.");
+    }
+
+    // ── Update a member's role ────────────────────────────────────────────────
+
+    public function updateRole(Request $request, Team $team, User $member): \Illuminate\Http\RedirectResponse
+    {
+        abort_unless(auth()->id() === $team->owner_id, 403);
+
+        $request->validate(['role' => 'required|in:admin,coach,member']);
+
+        $team->members()->updateExistingPivot($member->id, ['role' => $request->role]);
+
+        return back()->with('success', "{$member->name}'s role updated to " . ucfirst($request->role) . '.');
+    }
+
+    // ── Revoke a pending invitation ───────────────────────────────────────────
+
+    public function revokeInvitation(Team $team, TeamInvitation $invitation): \Illuminate\Http\RedirectResponse
+    {
+        abort_unless(auth()->id() === $team->owner_id, 403);
+        abort_unless($invitation->team_id === $team->id, 403);
+
+        $email = $invitation->email;
+        $invitation->delete();
+
+        return back()->with('success', "Invitation to {$email} revoked.");
+    }
 }

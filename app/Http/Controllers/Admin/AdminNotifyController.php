@@ -57,8 +57,9 @@ class AdminNotifyController extends Controller
             'expires_at' => $request->expires_at,
         ]);
 
-        // Send Email
-        Mail::to($submission->email)->send(new InviteNotification($invite->code));
+        // Queue the email so this request doesn't block on the mail provider.
+        $registrationUrl = route('register') . "?invite_code={$invite->code}";
+        Mail::to($submission->email)->queue(new InviteNotification($invite->code, $registrationUrl));
 
         return redirect()->back()->with('success', 'Invite sent successfully!');
     }

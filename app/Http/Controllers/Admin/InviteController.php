@@ -63,17 +63,20 @@ class InviteController extends Controller
         $successfulEmails = []; // Track successful emails
         $failedEmails = []; // Track failed emails
 
+        // Batch-fetch registered users up front instead of one query per email.
+        $registeredUsers = User::whereIn('email', $emails)->get()->keyBy('email');
+
         foreach ($emails as $email) {
             try {
                 // Check if the email belongs to a registered user
-                $registeredUser = User::where('email', $email)->first();
+                $registeredUser = $registeredUsers->get($email);
 
                 if ($registeredUser) {
                     // If the user is registered, send a TeamInviteNotification
                     $teamName = 'Your Team Name'; // Replace this with your logic to determine the team name
                     $acceptUrl = route('team.invitation.accept', ['email' => $email]); // Replace with your accept URL logic
 
-                    Mail::to($email)->send(new TeamInviteNotification(null, $teamName, $acceptUrl)); // No invite code needed
+                    Mail::to($email)->queue(new TeamInviteNotification(null, $teamName, $acceptUrl)); // No invite code needed
                     $this->notifyInApp($registeredUser); // Notify in-app
                 } else {
                     // If the user is not registered, create an invite and store the email
@@ -88,7 +91,8 @@ class InviteController extends Controller
                         'is_active' => true,
                     ]);
 
-                    Mail::to($email)->send(new InviteNotification($inviteCode));
+                    $registrationUrl = route('register') . "?invite_code={$inviteCode}";
+                    Mail::to($email)->queue(new InviteNotification($inviteCode, $registrationUrl));
                 }
 
                 $successfulEmails[] = $email;
@@ -190,7 +194,8 @@ class InviteController extends Controller
         ]);
 
         // Notify the registered user about the invite
-        Mail::to($request->email)->send(new InviteNotification($inviteCode));
+        $registrationUrl = route('register') . "?invite_code={$inviteCode}";
+        Mail::to($request->email)->queue(new InviteNotification($inviteCode, $registrationUrl));
 
         return redirect()->back()->with('success', 'Invite sent successfully to the registered user.');
     }

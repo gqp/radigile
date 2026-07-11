@@ -80,14 +80,11 @@ class Team extends Model
      */
     public static function canCreateMoreTeams(User $user): bool
     {
-        if ($user->hasRole('Admin')) {
-            return true; // Admins have no limit
+        if ($user->hasPermissionTo('manage-teams')) {
+            return true;
         }
 
-        $teamLimit = $user->onFreeTier() ? 2 : null; // Free plan: max 2 teams
-        $currentTeamCount = $user->teamsOwned()->count();
-
-        return is_null($teamLimit) || $currentTeamCount < $teamLimit;
+        return $user->canCreateTeam();
     }
 
     public function questions()
@@ -100,6 +97,11 @@ class Team extends Model
             'team_domain',   // Local key on Team table
             'id'             // Local key on QuestionCategory table
         );
+    }
+
+    public function assessments(): HasMany
+    {
+        return $this->hasMany(\App\Models\Assessment::class);
     }
 
     public function domain()

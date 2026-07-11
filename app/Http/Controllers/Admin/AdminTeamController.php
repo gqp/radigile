@@ -17,8 +17,8 @@ class AdminTeamController extends Controller
     public function index()
     {
         $teams = Team::with(['owner', 'members'])->get();
-        $teamDomains = TeamDomain::all();
-        $teamFrameworks = TeamFramework::all();
+        $teamDomains = TeamDomain::cached();
+        $teamFrameworks = TeamFramework::cached();
 
         return view('dashboard.admin.teams.index', compact('teams', 'teamDomains', 'teamFrameworks'));
     }
@@ -29,8 +29,8 @@ class AdminTeamController extends Controller
     public function create()
     {
         $users = User::all(); // List all registered users
-        $teamDomains = TeamDomain::all(); // Retrieve all team domains
-        $teamFrameworks = TeamFramework::all(); // Retrieve all team frameworks
+        $teamDomains = TeamDomain::cached(); // Retrieve all team domains
+        $teamFrameworks = TeamFramework::cached(); // Retrieve all team frameworks
 
         return view('dashboard.admin.teams.create', compact('users', 'teamDomains', 'teamFrameworks'));
     }
@@ -61,15 +61,18 @@ class AdminTeamController extends Controller
             'owner_id' => $validated['owner_id'],
         ]);
 
-        // Process each invited member email
+        // Process each invited member email — batch-fetch registered users up
+        // front instead of one query per email.
         $emails = $validated['team_members'] ?? [];
+        $registeredUsers = User::whereIn('email', $emails)->get()->keyBy('email');
+
         foreach ($emails as $email) {
-            $registeredUser = User::where('email', $email)->first();
+            $registeredUser = $registeredUsers->get($email);
 
             if ($registeredUser) {
                 // Send invitation to registered user
                 $acceptUrl = route('team.invitation.accept', ['team' => $team->id, 'user' => $registeredUser->id]);
-                Mail::to($email)->send(new RegisteredUserInviteNotification($team->name, $acceptUrl));
+                Mail::to($email)->queue(new RegisteredUserInviteNotification($team->name, $acceptUrl));
 
                 // Optionally attach the user to the team with a pending role
                 $team->members()->attach($registeredUser->id, ['role' => 'pending']);
@@ -86,7 +89,7 @@ class AdminTeamController extends Controller
                     'is_active' => true,
                 ]);
 
-                Mail::to($email)->send(new InviteNotification($inviteCode, $registrationUrl));
+                Mail::to($email)->queue(new InviteNotification($inviteCode, $registrationUrl));
             }
         }
 
@@ -95,14 +98,20 @@ class AdminTeamController extends Controller
             ->with('success', 'Team created and invites sent successfully!');
     }
 
+    public function show($id)
+    {
+        $team = Team::with(['owner', 'members', 'domain', 'team_frameq', 'assessments.questions', 'assessments.results'])->findOrFail($id);
+        return view('dashboard.admin.teams.show', compact('team'));
+    }
+
     public function edit($id)
     {
         // Fetch the team by its ID
         $team = Team::findOrFail($id);
 
         // Fetch any additional data you need for the edit form
-        $teamDomains = TeamDomain::all(); // Assuming you have TeamDomain models
-        $teamFrameworks = TeamFramework::all(); // Assuming you have TeamFramework models
+        $teamDomains = TeamDomain::cached(); // Assuming you have TeamDomain models
+        $teamFrameworks = TeamFramework::cached(); // Assuming you have TeamFramework models
 
         // Fetch users for assigning owner or members
         $users = User::all(); // Adjust this based on your filtering logic

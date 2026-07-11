@@ -10,14 +10,14 @@ class QuestionCategoryController extends Controller
 {
     public function index()
     {
-        $categories = QuestionCategory::all();
+        $categories = QuestionCategory::cached();
         return view('dashboard.admin.question-categories.index', compact('categories'));
 
     }
 
     public function create()
     {
-        $questionCategories = QuestionCategory::all();
+        $questionCategories = QuestionCategory::cached();
         return view('dashboard.admin.question-categories.create', compact('questionCategories'));
     }
 

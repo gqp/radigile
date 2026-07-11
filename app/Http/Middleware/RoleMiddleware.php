@@ -14,28 +14,18 @@ class RoleMiddleware
             return redirect('/login')->with('error', 'Please login to access this page.');
         }
 
-
-        // Retrieve the authenticated user and load roles explicitly
         $user = Auth::user();
-
-        // Reload roles to ensure proper assignment
         $user->loadMissing('roles');
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $userRoles = $user->getRoleNames()->toArray();
+        // Support pipe-separated roles (e.g. role:User|Admin means either role is accepted)
+        $allowedRoles = explode('|', $role);
+        $hasRole = collect($allowedRoles)->contains(fn($r) => $user->hasRole(trim($r)));
 
-        \Log::info('Checking roles for user:', [
-            'user_id' => $user->id,
-            'user_roles' => $userRoles,
-            'required_role' => $role,
-            'intended_url' => $request->url(),
-        ]);
-
-        // Check if the user has the required role
-        if (!$user->hasRole($role)) {
+        if (!$hasRole) {
             \Log::error('User denied access due to insufficient role:', [
                 'user_id' => $user->id,
-                'user_roles' => $userRoles,
+                'user_roles' => $user->getRoleNames()->toArray(),
                 'required_role' => $role,
             ]);
 

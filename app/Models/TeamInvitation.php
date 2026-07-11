@@ -8,6 +8,10 @@ class TeamInvitation extends Model
 {
     protected $fillable = ['team_id', 'email', 'role', 'code', 'expires_at', 'created_by'];
 
+    protected $casts = [
+        'expires_at' => 'datetime',
+    ];
+
     public function team()
     {
         return $this->belongsTo(Team::class);

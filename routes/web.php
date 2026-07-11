@@ -1,13 +1,16 @@
 <?php
 
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\Admin\AdminAssessmentController;
 use App\Http\Controllers\Admin\AdminNotifyController;
 use App\Http\Controllers\Admin\AdminTeamController;
+use App\Http\Controllers\Admin\TeamMaturityController;
 use App\Http\Controllers\Admin\AdminTeamMemberController;
 use App\Http\Controllers\Admin\InviteController;
 use App\Http\Controllers\Admin\QuestionCategoryController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\TeamDomainController;
+use App\Http\Controllers\Admin\AdminTeamMemberRoleController;
 use App\Http\Controllers\Admin\TeamFrameworksController;
 use App\Http\Controllers\Admin\TeamInvitationController;
 use App\Http\Controllers\AdminController;
@@ -24,7 +27,11 @@ use App\Http\Middleware\ForcePasswordReset;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\AssessmentController;
+use App\Http\Controllers\AssessmentResponseController;
+use App\Http\Controllers\AssessmentResultController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StripeWebhookController;
 
 /*
@@ -66,10 +73,15 @@ Route::middleware(['web', 'auth', ForcePasswordReset::class])->group(function ()
 });
 
 
+// ----------------- Unified Dashboard -----------------
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['web', 'auth', 'verified', CheckActiveStatus::class])
+    ->name('dashboard');
+
 // ----------------- Admin Routes -----------------
-Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin', CheckActiveStatus::class, ForcePasswordReset::class]], function () {
+Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'verified', 'permission:access-admin-panel', CheckActiveStatus::class, ForcePasswordReset::class]], function () {
     // ---- Dashboard and Admin Profile----
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard', fn() => redirect()->route('dashboard'))->name('admin.dashboard');
     Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
     Route::put('/admin/update-profile', [AdminController::class, 'updateProfile'])->name('admin.updateProfile');
@@ -104,6 +116,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin',
     Route::put('/manage-users/{user}', [UserController::class, 'update'])->name('admin.users.update');
     Route::delete('/manage-users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 
+    // ---- Admin Team Maturity Report ----
+    Route::get('/team-maturity', [TeamMaturityController::class, 'index'])->name('admin.team-maturity.index');
+
     // ---- Admin Team Management ----
     Route::resource('/teams', AdminTeamController::class)->names([
         'index' => 'admin.teams.index',      // View all teams
@@ -122,6 +137,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin',
         'edit' => 'admin.team-domains.edit',
         'update' => 'admin.team-domains.update',
         'destroy' => 'admin.team-domains.destroy',
+    ]);
+
+    Route::resource('team-member-roles', AdminTeamMemberRoleController::class)->names([
+        'index'   => 'admin.team-member-roles.index',
+        'create'  => 'admin.team-member-roles.create',
+        'store'   => 'admin.team-member-roles.store',
+        'edit'    => 'admin.team-member-roles.edit',
+        'update'  => 'admin.team-member-roles.update',
+        'destroy' => 'admin.team-member-roles.destroy',
     ]);
 
     Route::resource('team-frameworks', TeamFrameworksController::class)->names([
@@ -143,7 +167,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin',
         Route::delete('/{member}', [AdminTeamMemberController::class, 'destroy'])->name('destroy'); // Remove member
     });
 
+    // ---- Assessment Overview ----
+    Route::get('/assessments', [AdminAssessmentController::class, 'index'])->name('admin.assessments.index');
+
     // ---- Question Management Routes ----
+    Route::post('questions/generate-ai', [QuestionController::class, 'generateWithAI'])->middleware('throttle:20,1')->name('admin.questions.generate-ai');
+    Route::patch('questions/{id}/toggle-active', [QuestionController::class, 'toggleActive'])->name('admin.questions.toggle-active');
+    Route::get('questions/export', [QuestionController::class, 'export'])->name('admin.questions.export');
+    Route::post('questions/import', [QuestionController::class, 'import'])->name('admin.questions.import');
     Route::resource('questions', QuestionController::class)->names([
         'index' => 'admin.questions.index',
         'create' => 'admin.questions.create',
@@ -194,11 +225,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'role:Admin',
 
 // ----------------- User Routes -----------------
 Route::prefix('user')
-    ->middleware(['web', 'auth', 'verified', 'role:User', CheckActiveStatus::class])
+    ->middleware(['web', 'auth', 'verified', 'permission:access-user-portal', CheckActiveStatus::class])
     ->group(function () {
 
         // ---- User Dashboard ----
-        Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
+        Route::get('/dashboard', fn() => redirect()->route('dashboard'))->name('user.dashboard');
 
         // ---- User Team Management ----
         Route::resource('/teams', UserTeamController::class)->names([
@@ -211,9 +242,17 @@ Route::prefix('user')
             'show' => 'user.teams.show',       // Show specific team
         ]);
 
-        Route::get('/teams/invite/accept/{code}', [UserTeamMemberController::class, 'acceptInvite'])
-            ->name('user.teams.invite.accept')
-            ->middleware(['auth']);
+        Route::post('/teams/invite/{code}/accept',  [UserTeamMemberController::class, 'acceptInvite'])->name('user.teams.invite.accept');
+        Route::post('/teams/invite/{code}/decline', [UserTeamMemberController::class, 'declineInvite'])->name('user.teams.invite.decline');
+
+        Route::get('/search/users',                             [UserTeamController::class, 'searchUsers'])->name('user.search.users');
+        Route::get('/teams/{team}/members/search',              [UserTeamMemberController::class, 'searchUsers'])->name('user.teams.members.search');
+        Route::post('/teams/{team}/members',                   [UserTeamMemberController::class, 'addMember'])->name('user.teams.members.add');
+        Route::post('/teams/{team}/members/batch',             [UserTeamMemberController::class, 'batchInvite'])->name('user.teams.members.batch');
+        Route::post('/teams/{team}/members/invite',            [UserTeamMemberController::class, 'invite'])->name('user.teams.members.invite');
+        Route::delete('/teams/{team}/members/{member}',        [UserTeamMemberController::class, 'removeMember'])->name('user.teams.members.remove');
+        Route::patch('/teams/{team}/members/{member}/role',    [UserTeamMemberController::class, 'updateRole'])->name('user.teams.members.update-role');
+        Route::delete('/teams/{team}/invitations/{invitation}', [UserTeamMemberController::class, 'revokeInvitation'])->name('user.teams.invitations.revoke');
 
         // ---- User Profile ----
         Route::prefix('profile')->group(function () {
@@ -227,6 +266,29 @@ Route::prefix('user')
         Route::post('/subscribe/free', [SubscriptionController::class, 'subscribeToFreePlan'])->name('subscribe.free');
     });
 
+// ----------------- Assessment Routes (User + Admin) -----------------
+Route::prefix('user/assessments')
+    ->middleware(['web', 'auth', 'verified', CheckActiveStatus::class])
+    ->group(function () {
+        Route::get('/',                                           [AssessmentController::class, 'index'])->name('user.assessments.index');
+        Route::get('/create',                                     [AssessmentController::class, 'create'])->name('user.assessments.create');
+        Route::post('/',                                          [AssessmentController::class, 'store'])->name('user.assessments.store');
+        Route::get('/{assessment}',                               [AssessmentController::class, 'show'])->name('user.assessments.show');
+        Route::delete('/{assessment}',                            [AssessmentController::class, 'destroy'])->name('user.assessments.destroy');
+        Route::post('/{assessment}/publish',                      [AssessmentController::class, 'publish'])->name('user.assessments.publish');
+        Route::post('/{assessment}/close',                        [AssessmentController::class, 'close'])->name('user.assessments.close');
+        Route::post('/{assessment}/questions',                    [AssessmentController::class, 'addQuestion'])->name('user.assessments.questions.add');
+        Route::delete('/{assessment}/questions/{questionId}',     [AssessmentController::class, 'removeQuestion'])->name('user.assessments.questions.remove');
+        Route::post('/{assessment}/questions/generate-ai',        [AssessmentController::class, 'generateQuestion'])->middleware('throttle:20,1')->name('user.assessments.questions.generate-ai');
+        Route::post('/{assessment}/questions/ai',                 [AssessmentController::class, 'createAndAddQuestion'])->name('user.assessments.questions.create-ai');
+        Route::post('/{assessment}/evaluators',                   [AssessmentController::class, 'inviteEvaluator'])->name('user.assessments.evaluators.invite');
+        Route::delete('/{assessment}/evaluators/{evaluatorUser}', [AssessmentController::class, 'removeEvaluator'])->name('user.assessments.evaluators.remove');
+        Route::put('/{assessment}/participants',                  [AssessmentController::class, 'updateParticipants'])->name('user.assessments.participants.update');
+        Route::get('/{assessment}/take',                          [AssessmentResponseController::class, 'show'])->name('user.assessments.take');
+        Route::post('/{assessment}/responses',                    [AssessmentResponseController::class, 'store'])->name('user.assessments.responses.store');
+        Route::get('/{assessment}/results',                       [AssessmentResultController::class, 'show'])->name('user.assessments.results');
+    });
+
 // ----------------- Misc Subscription Routes -----------------
 Route::middleware(['web', 'auth', CheckActiveStatus::class])->group(function () {
     Route::get('/access-feature', [SubscriptionController::class, 'accessFeature'])->name('subscription.access-feature');
@@ -234,7 +296,8 @@ Route::middleware(['web', 'auth', CheckActiveStatus::class])->group(function () 
 });
 
 // ----------------- Billing Routes (Stripe) -----------------
-Route::middleware(['web', 'auth', 'verified', 'role:User', CheckActiveStatus::class])->prefix('billing')->group(function () {
+Route::middleware(['web', 'auth', 'verified', 'permission:access-user-portal', CheckActiveStatus::class])->prefix('billing')->group(function () {
+    Route::get('/', [BillingController::class, 'index'])->name('billing.index');
     Route::get('/checkout/{plan}', [BillingController::class, 'checkout'])->name('billing.checkout');
     Route::get('/success', [BillingController::class, 'success'])->name('billing.success');
     Route::get('/cancel', [BillingController::class, 'cancel'])->name('billing.cancel');
@@ -242,4 +305,5 @@ Route::middleware(['web', 'auth', 'verified', 'role:User', CheckActiveStatus::cl
 });
 
 // ----------------- Stripe Webhook -----------------
-Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
+    ->middleware(\Laravel\Cashier\Http\Middleware\VerifyWebhookSignature::class);

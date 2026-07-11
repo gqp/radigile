@@ -146,6 +146,7 @@
 
                     <div class="col-md-6">
                         <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
+                        <small class="form-text text-muted">At least 8 characters, with uppercase, lowercase, a number, and a symbol.</small>
 
                         @error('password')
                         <span class="invalid-feedback" role="alert">

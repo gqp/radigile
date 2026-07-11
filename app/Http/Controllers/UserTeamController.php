@@ -2,18 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Assessment;
 use App\Models\Team;
+use App\Models\TeamInvitation;
+use App\Models\TeamMemberRole;
+use App\Models\User;
+use App\Services\TeamMaturityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use App\Models\TeamDomain;
 use App\Models\TeamFramework;
-use App\Models\Invite;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\TeamInviteNotification;
 
 class UserTeamController extends Controller
 {
+    public function __construct(private TeamMaturityService $teamMaturityService)
+    {
+    }
+
     /**
      * Display a listing of teams the authenticated user belongs to or owns.
      */
@@ -21,26 +27,41 @@ class UserTeamController extends Controller
     {
         $user = Auth::user();
 
-        // Fetch pending invites for the authenticated user
-        $pendingInvites = Invite::where('email', $user->email) // Use email or id as needed
-        ->where(function ($query) {
-            $query->whereNull('expires_at') // Active invites
-            ->orWhere('expires_at', '>', now());
-        })
-            ->with('team') // Ensure relationships are eager loaded
+        $pendingInvites = TeamInvitation::where('email', $user->email)
+            ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->with('team')
             ->get();
 
-        // Fetch teams the user owns
-        $ownedTeams = $user->teamsOwned ?? collect(); // Use null coalescing to avoid null errors
+        $ownedTeams = $user->teamsOwned()
+            ->with(['team_frameq', 'members'])
+            ->withCount(['invitations as pending_count' => fn($q) =>
+                $q->where(fn($q2) => $q2->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ])
+            ->get();
 
-        // Fetch teams the user is a member of
-        $memberTeams = $user->teamsMemberOf ?? collect(); // Use null coalescing to avoid null errors
+        $memberTeams = $user->teamsMemberOf()
+            ->with(['owner', 'team_frameq'])
+            ->withPivot('role', 'created_at')
+            ->get();
 
-        // Pass variables to the view
+        $pendingAssessments = Assessment::where('status', 'active')
+            ->whereHas('team', function ($q) use ($user) {
+                $q->where('owner_id', $user->id)
+                  ->orWhereHas('members', fn($m) => $m->where('users.id', $user->id));
+            })
+            ->whereDoesntHave('results', fn($q) => $q->where('user_id', $user->id))
+            ->with('team')
+            ->get();
+
+        $allTeams = $ownedTeams->merge($memberTeams)->unique('id')->load('members');
+        $maturityByTeamId = $this->teamMaturityService->build($allTeams)->keyBy(fn ($entry) => $entry['team']->id);
+
         return view('dashboard.user.teams.index', [
-            'ownedTeams' => $ownedTeams,
-            'memberTeams' => $memberTeams,
-            'pendingInvites' => $pendingInvites,
+            'ownedTeams'         => $ownedTeams,
+            'memberTeams'        => $memberTeams,
+            'pendingInvites'     => $pendingInvites,
+            'pendingAssessments' => $pendingAssessments,
+            'maturityByTeamId'   => $maturityByTeamId,
         ]);
     }
 
@@ -49,25 +70,71 @@ class UserTeamController extends Controller
      */
     public function show($id)
     {
-        // Fetch the specific team with members, ensuring it belongs to the auth user
-        $team = Team::with('members.user')
+        $userId = Auth::id();
+
+        $team = Team::with(['members', 'owner', 'domain', 'team_frameq', 'assessments.questions', 'assessments.results'])
             ->where('id', $id)
-            ->ownedBy(Auth::id())
+            ->where(function ($q) use ($userId) {
+                $q->where('owner_id', $userId)
+                  ->orWhereHas('members', fn($m) => $m->where('users.id', $userId));
+            })
             ->firstOrFail();
 
-        // Pass the team data to the corresponding Blade view
-        return view('dashboard.user.teams.show', compact('team'));
+        $isOwner = $team->owner_id === $userId;
+
+        $outgoingInvitations = $isOwner
+            ? $team->invitations()
+                ->with('createdBy')
+                ->orderByDesc('created_at')
+                ->get()
+            : collect();
+
+        $memberRoles = TeamMemberRole::allOrdered();
+
+        $maturity = $this->teamMaturityService->build(collect([$team]))->first();
+
+        $opportunities = collect();
+        if ($maturity['assessment']) {
+            $opportunities = $maturity['categories']->zip($maturity['scores'])
+                ->map(fn ($pair) => ['name' => $pair[0], 'score' => $pair[1]])
+                ->sortBy('score')
+                ->take(3)
+                ->values();
+        }
+
+        $maturityHistory = $this->teamMaturityService->history($team);
+
+        return view('dashboard.user.teams.show', compact(
+            'team', 'isOwner', 'outgoingInvitations', 'memberRoles', 'maturity', 'opportunities', 'maturityHistory'
+        ));
     }
 
     public function create()
     {
-        // Fetch required data for the form
-        $users = User::all();
-        $teamDomains = TeamDomain::all(); // Assuming TeamDomain contains data about team domains
-        $teamFrameworks = TeamFramework::all();     // Assuming TeamType contains information about types
+        $teamDomains    = TeamDomain::cached();
+        $teamFrameworks = TeamFramework::cached();
+        $memberRoles    = TeamMemberRole::allOrdered();
 
-        // Pass the data to the view
-        return view('dashboard.user.teams.create', compact('teamDomains', 'teamFrameworks', 'users'));
+        return view('dashboard.user.teams.create', compact('teamDomains', 'teamFrameworks', 'memberRoles'));
+    }
+
+    public function searchUsers(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $q = trim($request->input('q', ''));
+
+        if (strlen($q) < 2) {
+            return response()->json([]);
+        }
+
+        $users = User::where('id', '!=', Auth::id())
+            ->where(function ($query) use ($q) {
+                $query->where('name', 'like', "%{$q}%")
+                      ->orWhere('email', 'like', "%{$q}%");
+            })
+            ->limit(8)
+            ->get(['id', 'name', 'email']);
+
+        return response()->json($users);
     }
 
     /**
@@ -95,17 +162,56 @@ class UserTeamController extends Controller
             'team_framework_id.required' => 'Please select a valid team framework.',
         ]);
 
-        // Create the team and associate it with the authenticated user
-        $team = new Team();
-        $team->name = $validated['name'];
-        $team->description = $validated['description'] ?? null;
-        $team->team_domain_id = $validated['team_domain_id'];
-        $team->team_framework_id = $validated['team_framework_id'];
-        $team->owner_id = Auth::id();
-        $team->save();
+        $request->validate([
+            'members'        => 'nullable|array',
+            'members.*.id'   => 'required|exists:users,id',
+            'members.*.role' => ['required', Rule::exists('team_member_roles', 'slug')],
+        ]);
 
-        // Redirect to the index page with a success message
-        return redirect()->route('user.teams.index')->with('success', 'Team created successfully!');
+        $team = Team::create([
+            'name'              => $validated['name'],
+            'description'       => $validated['description'] ?? null,
+            'team_domain_id'    => $validated['team_domain_id'],
+            'team_framework_id' => $validated['team_framework_id'],
+            'owner_id'          => Auth::id(),
+        ]);
+
+        // Send invitations to pre-selected members — they must accept before joining.
+        // Batch-fetch up front instead of one query per member.
+        $memberIds = collect($request->input('members', []))->pluck('id');
+        $members = User::whereIn('id', $memberIds)->get()->keyBy('id');
+
+        $inviteCount = 0;
+        foreach ($request->input('members', []) as $memberData) {
+            if ((int) $memberData['id'] === Auth::id()) continue;
+
+            $member = $members->get($memberData['id']);
+            if (!$member) continue;
+
+            $invitation = $team->invitations()->create([
+                'email'      => $member->email,
+                'role'       => $memberData['role'],
+                'code'       => \Illuminate\Support\Str::random(32),
+                'created_by' => Auth::id(),
+                'expires_at' => now()->addDays(7),
+            ]);
+
+            \Illuminate\Support\Facades\Mail::to($member->email)->queue(
+                new \App\Mail\TeamInviteNotification(
+                    $invitation->code,
+                    $team->name,
+                    route('user.teams.invite.accept', $invitation->code)
+                )
+            );
+
+            $inviteCount++;
+        }
+
+        $message = $inviteCount > 0
+            ? "Team created! {$inviteCount} invitation(s) sent — members will appear once they accept."
+            : 'Team created! Use the team page to invite members.';
+
+        return redirect()->route('user.teams.show', $team->id)->with('success', $message);
     }
 
     /**
@@ -113,20 +219,14 @@ class UserTeamController extends Controller
      */
     public function edit($id)
     {
-        // Fetch the team with members while ensuring the authenticated user is the owner
-        $team = Team::with('members')
-            ->where('id', $id)
-            ->where('owner_id', Auth::id()) // Ensure the authenticated user is the owner
+        $team = Team::where('id', $id)
+            ->where('owner_id', Auth::id())
             ->firstOrFail();
 
-        // Fetch required data for edit form dropdowns
-        $teamDomains = TeamDomain::all();
-        $teamFrameworks = TeamFramework::all();
-        $users = User::all();
-        $members = $team->members;
+        $teamDomains    = TeamDomain::cached();
+        $teamFrameworks = TeamFramework::cached();
 
-        // Pass the team, users, members, and dropdown data to the edit view
-        return view('dashboard.user.teams.edit', compact('team', 'users', 'members', 'teamDomains', 'teamFrameworks'));
+        return view('dashboard.user.teams.edit', compact('team', 'teamDomains', 'teamFrameworks'));
     }
 
     /**
@@ -135,20 +235,19 @@ class UserTeamController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'type' => 'required|in:private,public',
-            'team_domain_id' => 'required|exists:team_domains,id',
+            'name'              => 'required|string|max:255',
+            'description'       => 'nullable|string',
+            'type'              => 'required|in:private,public',
+            'team_domain_id'    => 'required|exists:team_domains,id',
             'team_framework_id' => 'required|exists:team_frameworks,id',
-            'invite_emails' => 'nullable|string', // Optional invites
         ], [
-            'team_domain_id.required' => 'Please select a valid team domain.',
+            'team_domain_id.required'    => 'Please select a valid team domain.',
             'team_framework_id.required' => 'Please select a valid team framework.',
         ]);
 
         $team = Team::findOrFail($id);
 
-        $this->authorize('update', $team);
+        abort_unless(Auth::id() === $team->owner_id, 403);
 
         // Update team details
         $team->update([
@@ -159,29 +258,7 @@ class UserTeamController extends Controller
             'team_framework_id' => $validated['team_framework_id'],
         ]);
 
-        // Process invitation emails if provided
-        $emails = explode(',', $validated['invite_emails'] ?? '');
-        $emails = array_filter(array_map('trim', $emails)); // Clean up email list
-
-        foreach ($emails as $email) {
-            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $invite = $team->invitations()->create([
-                    'email' => $email,
-                    'code' => \Str::random(10),
-                    'created_by' => auth()->id(),
-                    'expires_at' => now()->addDays(7),
-                ]);
-
-                // Send invite email
-                Mail::to($email)->send(new TeamInviteNotification(
-                    $invite->code,
-                    $team->name,
-                    route('user.teams.invite.accept', $invite->code)
-                ));
-            }
-        }
-
-        return redirect()->route('user.teams.edit', $team->id)->with('success', 'Team updated successfully, and invitations sent!');
+        return redirect()->route('user.teams.show', $team->id)->with('success', 'Team updated successfully!');
     }
 
 }

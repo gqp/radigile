@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreQuestionRequest;
 use App\Http\Requests\UpdateQuestionRequest;
 use App\Models\Tag;
+use App\Services\AiQuestionGenerator;
+use Illuminate\Support\Facades\DB;
 class QuestionController extends Controller
 {
     public function index(Request $request)
@@ -51,8 +53,8 @@ class QuestionController extends Controller
         $questions = $query->paginate(10);
 
         // Fetch all categories and tags for the dropdowns/filters
-        $categories = QuestionCategory::all();
-        $tags = Tag::all(); // Get all available tags
+        $categories = QuestionCategory::cached();
+        $tags = Tag::cached(); // Get all available tags
 
         // Return the view with filters applied
         return view('dashboard.admin.questions.index', compact('categories', 'tags', 'questions'));
@@ -60,8 +62,8 @@ class QuestionController extends Controller
 
     public function create()
     {
-        $categories = QuestionCategory::all(); // Fetch all categories to be used in the form
-        $tags = Tag::all(); // Fetch all existing tags to populate in the form
+        $categories = QuestionCategory::cached(); // Fetch all categories to be used in the form
+        $tags = Tag::cached(); // Fetch all existing tags to populate in the form
         return view('dashboard.admin.questions.create', compact('categories', 'tags'));
     }
 
@@ -93,8 +95,8 @@ class QuestionController extends Controller
     public function edit($id)
     {
         $question = Question::findOrFail($id); // Find the question by ID or throw a 404 error
-        $categories = QuestionCategory::all(); // Fetch all categories for the dropdown
-        $tags = Tag::all();
+        $categories = QuestionCategory::cached(); // Fetch all categories for the dropdown
+        $tags = Tag::cached();
         return view('dashboard.admin.questions.edit', compact('question', 'categories', 'tags')); // Pass the question and categories to the edit view
     }
 
@@ -133,6 +135,122 @@ class QuestionController extends Controller
     {
         $question = Question::findOrFail($id);
         return response()->json($question);
+    }
+
+    public function generateWithAI(Request $request, AiQuestionGenerator $generator)
+    {
+        $request->validate([
+            'description' => 'required|string|min:10|max:500',
+            'category'    => 'nullable|string|max:100',
+            'framework'   => 'nullable|string|max:100',
+        ]);
+
+        $result = $generator->generate($request->description, $request->category, $request->framework);
+
+        if (isset($result['error'])) {
+            return response()->json(['error' => $result['error']], $result['status']);
+        }
+
+        return response()->json($result);
+    }
+
+    public function export()
+    {
+        $questions = Question::with(['category', 'tags'])->orderBy('id')->get();
+
+        $payload = [
+            'questions' => $questions->map(fn (Question $question) => [
+                'text'      => $question->text,
+                'category'  => $question->category->name ?? null,
+                'tags'      => $question->tags->pluck('name')->values(),
+                'tip_0'     => $question->tip_0,
+                'tip_1'     => $question->tip_1,
+                'tip_2'     => $question->tip_2,
+                'tip_3'     => $question->tip_3,
+                'tip_4'     => $question->tip_4,
+                'is_active' => $question->is_active,
+            ])->values(),
+        ];
+
+        $filename = 'questions-export-' . now()->format('Y-m-d-His') . '.json';
+
+        return response()->streamDownload(function () use ($payload) {
+            echo json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }, $filename, ['Content-Type' => 'application/json']);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:json|max:10240',
+        ]);
+
+        $data = json_decode(file_get_contents($request->file('file')->getRealPath()), true);
+
+        if (json_last_error() !== JSON_ERROR_NONE || !isset($data['questions']) || !is_array($data['questions'])) {
+            return back()->withErrors(['error' => 'Invalid file. Please upload a JSON file exported from this system.']);
+        }
+
+        $created = 0;
+        $updated = 0;
+        $skipped = 0;
+
+        DB::transaction(function () use ($data, &$created, &$updated, &$skipped) {
+            foreach ($data['questions'] as $row) {
+                if (empty($row['text']) || empty($row['category'])) {
+                    $skipped++;
+                    continue;
+                }
+
+                $category = QuestionCategory::firstOrCreate(['name' => trim($row['category'])]);
+
+                $question = Question::where('category_id', $category->id)
+                    ->where('text', $row['text'])
+                    ->first();
+
+                $attributes = [
+                    'text'        => $row['text'],
+                    'category_id' => $category->id,
+                    'tip_0'       => $row['tip_0'] ?? null,
+                    'tip_1'       => $row['tip_1'] ?? null,
+                    'tip_2'       => $row['tip_2'] ?? null,
+                    'tip_3'       => $row['tip_3'] ?? null,
+                    'tip_4'       => $row['tip_4'] ?? null,
+                    'is_active'   => array_key_exists('is_active', $row) ? (bool) $row['is_active'] : true,
+                ];
+
+                if ($question) {
+                    $question->update($attributes);
+                    $updated++;
+                } else {
+                    $question = Question::create($attributes);
+                    $created++;
+                }
+
+                if (!empty($row['tags']) && is_array($row['tags'])) {
+                    $tagIds = collect($row['tags'])->filter()->map(
+                        fn ($name) => Tag::firstOrCreate(['name' => trim($name)])->id
+                    );
+                    $question->tags()->sync($tagIds);
+                }
+            }
+        });
+
+        $message = "Import complete: {$created} created, {$updated} updated";
+        if ($skipped > 0) {
+            $message .= ", {$skipped} skipped (missing text or category)";
+        }
+
+        return redirect()->route('admin.questions.index')->with('success', $message . '.');
+    }
+
+    public function toggleActive($id)
+    {
+        $question = Question::findOrFail($id); // Find question
+        $question->is_active = !$question->is_active; // Toggle `is_active`
+        $question->save(); // Save changes
+
+        return back()->with('success', 'Question status updated successfully.');
     }
 
     public function destroy($id)

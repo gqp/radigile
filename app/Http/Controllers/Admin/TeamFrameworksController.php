@@ -11,7 +11,7 @@ class TeamFrameworksController extends Controller
     public function index()
     {
         // Fetch all team frameworks from the database
-        $frameworks = TeamFramework::all(); // Correct usage of the model
+        $frameworks = TeamFramework::cached();
 
         // Return the index view with the frameworks
         return view('dashboard.admin.team-frameworks.index', compact('frameworks'));

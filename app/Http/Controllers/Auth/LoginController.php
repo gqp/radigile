@@ -16,17 +16,7 @@ class LoginController extends Controller
      */
     protected function redirectTo()
     {
-        $user = auth()->user();
-
-        if ($user->hasRole('Admin')) {
-            return route('admin.dashboard');
-        }
-
-        if ($user->hasRole('User')) {
-            return route('user.dashboard');
-        }
-
-        return '/'; // Default fallback
+        return route('dashboard');
     }
 
     /**
@@ -57,6 +47,9 @@ class LoginController extends Controller
         ]);
 
         if (auth()->attempt($request->only('email', 'password'))) {
+            // Regenerate the session ID to prevent session fixation.
+            $request->session()->regenerate();
+
             $user = auth()->user();
 
             // Reload roles and other states
@@ -104,5 +97,6 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+        $this->middleware('throttle:login')->only('login');
     }
 }

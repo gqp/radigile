@@ -18,8 +18,21 @@ class Question extends Model
         'tip_1',
         'tip_2',
         'tip_3',
-        'tip_4'
+        'tip_4',
+        'is_active',
     ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    /**
+     * Query Scope: Get only active (enabled) questions.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 
     // Relationship with QuestionCategory
     public function category(): BelongsTo

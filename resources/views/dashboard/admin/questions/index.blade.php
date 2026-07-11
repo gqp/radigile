@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('content')
     <div class="container">
@@ -28,7 +28,19 @@
             @endif
         @endif
 
-        <a href="{{ route('admin.questions.create') }}" class="btn btn-primary mb-3">Create New Question</a>
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+            <a href="{{ route('admin.questions.create') }}" class="btn btn-primary">Create New Question</a>
+            <a href="{{ route('admin.questions.export') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-download"></i> Export
+            </a>
+            <form method="POST" action="{{ route('admin.questions.import') }}" enctype="multipart/form-data" class="d-flex align-items-center gap-2">
+                @csrf
+                <input type="file" name="file" accept="application/json,.json" class="form-control form-control-sm" required style="max-width: 260px;">
+                <button type="submit" class="btn btn-outline-secondary">
+                    <i class="bi bi-upload"></i> Import
+                </button>
+            </form>
+        </div>
 
         <form method="GET" action="{{ route('admin.questions.index') }}">
             <div class="form-group">
@@ -70,6 +82,7 @@
                 <th>Text</th>
                 <th>Category</th>
                 <th>Tags</th>
+                <th>Status</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -87,6 +100,15 @@
                         @else
                             <span class="text-muted">No tags</span>
                         @endif
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ route('admin.questions.toggle-active', $question->id) }}">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="btn btn-sm {{ $question->is_active ? 'btn-success' : 'btn-secondary' }}">
+                                {{ $question->is_active ? 'Active' : 'Inactive' }}
+                            </button>
+                        </form>
                     </td>
                     <td>
                         <a href="{{ route('admin.questions.edit', $question->id) }}" class="btn btn-sm btn-primary">Edit</a>

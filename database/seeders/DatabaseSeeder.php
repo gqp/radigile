@@ -18,11 +18,13 @@ class DatabaseSeeder extends Seeder
             SettingsSeeder::class,
             PlanSeeder::class,
             SubscriptionSeeder::class,
-            TeamDomainSeeder::class,  // Ensure this populates the `team_domains` table
-            TeamFrameworkSeeder::class,  // Ensure this populates the `team_frameworks` table
-            TeamSeeder::class,  // Finally, this creates `teams`
+            TeamDomainSeeder::class,
+            TeamFrameworkSeeder::class,
+            TeamMemberRoleSeeder::class,
+            TeamSeeder::class,
             QuestionCategorySeeder::class,
             QuestionSeeder::class,
+            AssessmentSeeder::class,
         ]);
     }
 }

@@ -3,16 +3,33 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 
 class QuestionCategory extends Model
 {
     protected $fillable = ['name', 'description'];
 
+    /**
+     * Admin-managed and rarely changes — cache instead of hitting the DB on
+     * every question-library/assessment-builder page load.
+     */
+    public static function cached()
+    {
+        return Cache::remember('question_categories', now()->addHour(), fn () => static::all());
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => Cache::forget('question_categories'));
+        static::deleted(fn () => Cache::forget('question_categories'));
+    }
+
     // Relationship: A QuestionCategory can have many Questions
     public function questions(): HasMany
     {
-        return $this->hasMany(Question::class);
+        return $this->hasMany(Question::class, 'category_id');
     }
 
     // Function to generate radar data (MUST be inside the class)
