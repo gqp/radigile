@@ -12,6 +12,10 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Auth\Notifications\ResetPassword;
+use App\Mail\VerifyEmailMail;
+use App\Mail\ResetPasswordMail;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -47,6 +51,24 @@ class AppServiceProvider extends ServiceProvider
         // view relies on Tailwind classes that don't apply here, leaving the
         // prev/next arrow SVGs unstyled at native (huge) size.
         Paginator::useBootstrapFive();
+
+        // Route the two built-in auth notifications through our branded
+        // Mailables instead of Laravel's plain default template, so every
+        // email the app sends looks consistent.
+        VerifyEmail::toMailUsing(function ($notifiable, $verificationUrl) {
+            return (new VerifyEmailMail($notifiable->name, $verificationUrl))
+                ->to($notifiable->getEmailForVerification());
+        });
+
+        ResetPassword::toMailUsing(function ($notifiable, $token) {
+            $url = url(route('password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ], false));
+
+            return (new ResetPasswordMail($notifiable->name, $url))
+                ->to($notifiable->getEmailForPasswordReset());
+        });
     }
 
 }
