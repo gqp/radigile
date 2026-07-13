@@ -1,17 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Team Invitation</title>
-</head>
-<body>
-<h1>You’ve Been Invited To Join the Team: {{ $teamName }}</h1>
-<p>Hello,</p>
-<p>You’ve been invited to join the team <strong>{{ $teamName }}</strong>.</p>
+@extends('emails.layouts.branded')
 
-<p><a href="{{ $acceptUrl }}">Click here to accept the invitation</a></p>
+@section('title', 'Team Invitation')
 
-<p>If you believe this email was sent to you by mistake, please ignore it.</p>
+@section('content')
+    <h1 style="margin:0 0 16px; font-size:22px; font-weight:700; color:#2d2438;">
+        You're invited to join {{ $teamName }} 🌱
+    </h1>
 
-<p>Best, <br> The Team</p>
-</body>
-</html>
+    <p style="margin:0 0 24px;">
+        You've been invited to join <strong>{{ $teamName }}</strong> on Radigile —
+        accept below to start collaborating with your team.
+    </p>
+
+    <x-email.button :url="$acceptUrl">Accept Invitation</x-email.button>
+
+    <p style="margin:0; font-size:13px; color:#948b9e;">
+        Didn't expect this invite? No action needed — you can safely ignore this email.
+    </p>
+@endsection
