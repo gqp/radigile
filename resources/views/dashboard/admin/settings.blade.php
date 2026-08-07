@@ -76,14 +76,50 @@
                                 </form>
                             </div>
 
-                            {{-- Additional Settings Placeholder --}}
+                            {{-- Developer Tools --}}
                             <div class="mt-4">
-                                <h6 class="text-secondary">
-                                    <i class="bi bi-wrench-adjustable"></i> Coming Soon!
-                                </h6>
-                                <p class="text-muted mb-0">
-                                    Add more settings here in the future...
-                                </p>
+                                <h5 class="text-secondary">
+                                    <i class="bi bi-wrench-adjustable"></i> Developer Tools
+                                </h5>
+                                <hr>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <strong>Generate Demo Data</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            Creates demo users, teams, and months of historical assessments with realistic
+                                            trend data. Safe to run more than once — existing demo data won't be duplicated.
+                                            Runs in the background and can take a minute or two.
+                                        </small>
+                                    </div>
+                                    <form action="{{ route('admin.demo-data.run') }}" method="POST" class="ms-auto">
+                                        @csrf
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm text-nowrap"
+                                                onclick="return confirm('This will add demo users, teams, and assessments to the database. Continue?')">
+                                            <i class="bi bi-database-add"></i> Generate Demo Data
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div class="d-flex align-items-center mt-3">
+                                    <div class="me-3">
+                                        <strong>Remove Demo Data</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            Deletes all demo users, teams, and their assessments/subscriptions. The demo
+                                            questions added to the shared question library are left in place, since real
+                                            assessments may have started using them.
+                                        </small>
+                                    </div>
+                                    <form action="{{ route('admin.demo-data.remove') }}" method="POST" class="ms-auto">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-outline-danger btn-sm text-nowrap"
+                                                onclick="return confirm('This will permanently delete all demo users, teams, assessments, and subscriptions. Continue?')">
+                                            <i class="bi bi-database-dash"></i> Remove Demo Data
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
