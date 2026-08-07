@@ -44,6 +44,50 @@
                                 @error('team_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
 
+                            @if ($templates->isNotEmpty() || $aiGenerationEnabled)
+                                <div class="mb-4" id="template-picker-section" style="display:none;">
+                                    <label class="form-label">How do you want to start? <small class="text-muted">(optional)</small></label>
+                                    <input type="hidden" name="template_id" id="template_id" value="{{ old('template_id') }}">
+                                    <input type="hidden" name="ai_generate" id="ai_generate" value="{{ old('ai_generate', '0') }}">
+                                    <div id="template-picker-list" class="list-group" style="max-height: 260px; overflow-y:auto;">
+                                        <button type="button" class="list-group-item list-group-item-action template-option active" data-mode="scratch" data-template-id="" data-team-id="*">
+                                            Start from scratch
+                                        </button>
+                                        @if ($aiGenerationEnabled)
+                                            <button type="button" class="list-group-item list-group-item-action template-option" data-mode="ai" data-template-id="" data-team-id="*">
+                                                <i class="bi bi-stars"></i> <strong>Generate with AI</strong>
+                                                <small class="text-muted d-block">Draft a full set of questions tailored to this team.</small>
+                                            </button>
+                                        @endif
+                                        @foreach ($templates as $template)
+                                            <button type="button" class="list-group-item list-group-item-action template-option"
+                                                    data-mode="template"
+                                                    data-template-id="{{ $template->id }}"
+                                                    data-team-id="{{ $template->is_public ? '*' : $template->team_id }}"
+                                                    data-title="{{ $template->title }}">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <strong>{{ $template->title }}</strong>
+                                                    <span class="badge {{ $template->is_public ? 'bg-success' : 'bg-secondary' }}">
+                                                        {{ $template->is_public ? 'Public' : ($template->team->name ?? 'Team') }}
+                                                    </span>
+                                                </div>
+                                                @if ($template->description)
+                                                    <small class="text-muted d-block">{{ \Illuminate\Support\Str::limit($template->description, 100) }}</small>
+                                                @endif
+                                            </button>
+                                        @endforeach
+                                    </div>
+
+                                    @if ($aiGenerationEnabled)
+                                        <div id="aiNoteSection" class="mt-2" style="display:none;">
+                                            <label for="ai_note" class="form-label small">Anything specific to focus on? <small class="text-muted">(optional)</small></label>
+                                            <textarea name="ai_note" id="ai_note" rows="2" class="form-control form-control-sm"
+                                                      placeholder="e.g. we just adopted Kanban and want to focus on flow">{{ old('ai_note') }}</textarea>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+
                             <div class="mb-3">
                                 <label for="title" class="form-label">Assessment Title</label>
                                 <input type="text" name="title" id="title"
@@ -71,4 +115,50 @@
         </div>
     </div>
 </div>
+
+@if ($templates->isNotEmpty() || $aiGenerationEnabled)
+    @push('scripts')
+    <script>
+        (function () {
+            const teamSelect = document.getElementById('team_id');
+            const section = document.getElementById('template-picker-section');
+            const templateIdInput = document.getElementById('template_id');
+            const aiGenerateInput = document.getElementById('ai_generate');
+            const aiNoteSection = document.getElementById('aiNoteSection');
+            const options = document.querySelectorAll('.template-option');
+
+            function refreshTemplatesForTeam() {
+                const teamId = teamSelect.value;
+                let anyVisible = false;
+
+                options.forEach(function (option) {
+                    const optionTeamId = option.dataset.teamId;
+                    const visible = optionTeamId === '*' || optionTeamId === teamId;
+                    option.style.display = visible ? '' : 'none';
+                    if (visible) anyVisible = true;
+                });
+
+                section.style.display = (teamId && anyVisible) ? '' : 'none';
+            }
+
+            options.forEach(function (option) {
+                option.addEventListener('click', function () {
+                    options.forEach(function (o) { o.classList.remove('active'); });
+                    option.classList.add('active');
+                    templateIdInput.value = option.dataset.templateId || '';
+                    if (aiGenerateInput) {
+                        aiGenerateInput.value = option.dataset.mode === 'ai' ? '1' : '0';
+                    }
+                    if (aiNoteSection) {
+                        aiNoteSection.style.display = option.dataset.mode === 'ai' ? '' : 'none';
+                    }
+                });
+            });
+
+            teamSelect.addEventListener('change', refreshTemplatesForTeam);
+            refreshTemplatesForTeam();
+        })();
+    </script>
+    @endpush
+@endif
 @endsection

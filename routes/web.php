@@ -307,6 +307,10 @@ Route::prefix('user/assessments')
         Route::delete('/{assessment}/questions/{questionId}',     [AssessmentController::class, 'removeQuestion'])->name('user.assessments.questions.remove');
         Route::post('/{assessment}/questions/generate-ai',        [AssessmentController::class, 'generateQuestion'])->middleware('throttle:20,1')->name('user.assessments.questions.generate-ai');
         Route::post('/{assessment}/questions/ai',                 [AssessmentController::class, 'createAndAddQuestion'])->name('user.assessments.questions.create-ai');
+        Route::get('/{assessment}/ai/context',                    [AssessmentController::class, 'aiContext'])->name('user.assessments.ai.context');
+        Route::post('/{assessment}/ai/generate-batch',            [AssessmentController::class, 'generateQuestionsBatch'])->middleware('throttle:6,1')->name('user.assessments.ai.generate-batch');
+        Route::get('/{assessment}/ai/generate-batch/{requestId}', [AssessmentController::class, 'pollGenerateBatch'])->name('user.assessments.ai.generate-batch.poll');
+        Route::post('/{assessment}/ai/commit',                    [AssessmentController::class, 'commitGeneratedQuestions'])->name('user.assessments.ai.commit');
         Route::post('/{assessment}/evaluators',                   [AssessmentController::class, 'inviteEvaluator'])->name('user.assessments.evaluators.invite');
         Route::delete('/{assessment}/evaluators/{evaluatorUser}', [AssessmentController::class, 'removeEvaluator'])->name('user.assessments.evaluators.remove');
         Route::put('/{assessment}/participants',                  [AssessmentController::class, 'updateParticipants'])->name('user.assessments.participants.update');

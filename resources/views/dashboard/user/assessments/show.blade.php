@@ -29,6 +29,11 @@
                 <i class="bi bi-arrow-left"></i> Back
             </a>
             @if ($isOwner)
+                @if ($assessment->questions->count() > 0)
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#saveAsTemplateForm">
+                        <i class="bi bi-bookmark-plus"></i> Save as Template
+                    </button>
+                @endif
                 @if ($assessment->isDraft())
                     <form method="POST" action="{{ route('user.assessments.publish', $assessment) }}">
                         @csrf
@@ -60,6 +65,31 @@
             @endif
         </div>
     </div>
+
+    @if ($isOwner && $assessment->questions->count() > 0)
+        <div class="collapse mb-4" id="saveAsTemplateForm">
+            <div class="card card-body shadow-sm">
+                <form method="POST" action="{{ route('user.assessments.save-as-template', $assessment) }}">
+                    @csrf
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-5">
+                            <label for="template_title" class="form-label">Template Title</label>
+                            <input type="text" name="title" id="template_title" class="form-control form-control-sm"
+                                   value="{{ old('title', $assessment->title) }}" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="template_description" class="form-label">Description <small class="text-muted">(optional)</small></label>
+                            <input type="text" name="description" id="template_description" class="form-control form-control-sm"
+                                   value="{{ old('description', $assessment->description) }}">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary btn-sm w-100">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 
     @if ($isOwner && $assessment->isDraft() && $assessment->questions->count() === 0)
         <div class="alert alert-warning" id="noQuestionsWarning">
@@ -109,6 +139,61 @@
                     @endif
                 </div>
             </div>
+
+            {{-- Generate Full Assessment with AI (draft only, plan-gated) --}}
+            @if ($isOwner && $assessment->isDraft() && auth()->user()->planHasFeature('ai-question-generation'))
+            <div class="card shadow-sm mb-4 border-primary" id="aiBatchPanel"
+                 data-context-url="{{ route('user.assessments.ai.context', $assessment) }}"
+                 data-generate-url="{{ route('user.assessments.ai.generate-batch', $assessment) }}"
+                 data-poll-url-template="{{ route('user.assessments.ai.generate-batch.poll', [$assessment, '__REQUEST_ID__']) }}"
+                 data-commit-url="{{ route('user.assessments.ai.commit', $assessment) }}"
+                 data-autostart="{{ session('ai_autostart') ? 'true' : 'false' }}"
+                 data-autostart-note="{{ session('ai_note') }}">
+                <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
+                    <i class="bi bi-stars"></i>
+                    <strong>Generate Full Assessment</strong>
+                    <span class="badge bg-light text-primary ms-1">Beta</span>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">Draft a full set of questions tailored to this team — its framework, domain, and (if it's been assessed before) its maturity history. Review and edit before anything is added.</p>
+
+                    <div id="aiBatchContext" class="small text-muted mb-3 d-none"></div>
+
+                    <div class="mb-2">
+                        <label for="aiBatchNote" class="form-label small fw-semibold">Anything specific to focus on? <small class="text-muted">(optional)</small></label>
+                        <textarea id="aiBatchNote" class="form-control form-control-sm" rows="2"></textarea>
+                    </div>
+                    <div class="row g-2 align-items-end">
+                        <div class="col-auto">
+                            <label class="form-label small fw-semibold">How many questions?</label>
+                            <input type="number" id="aiBatchCount" class="form-control form-control-sm" value="8" min="3" max="12" style="width:80px;">
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" id="aiBatchGenerateBtn" class="btn btn-sm btn-primary">
+                                <i class="bi bi-stars"></i> Generate Questions
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="aiBatchLoading" class="d-none text-muted small mt-2">
+                        <span class="spinner-border spinner-border-sm me-1" role="status"></span> Generating&hellip; larger batches can take up to a minute.
+                    </div>
+                    <div id="aiBatchError" class="d-none text-danger small mt-2"></div>
+
+                    {{-- Review checklist: populated after generation, all pre-checked --}}
+                    <div id="aiBatchReview" class="d-none mt-3 border-top pt-3">
+                        <p class="small text-muted mb-2">Review the drafted questions below. Uncheck any you don't want, then add the rest to the assessment.</p>
+                        <div id="aiBatchList" style="max-height:400px; overflow-y:auto;"></div>
+                        <div class="d-flex gap-2 mt-2">
+                            <button type="button" id="aiBatchCommitBtn" class="btn btn-sm btn-success">
+                                <i class="bi bi-check-circle"></i> Add Selected to Assessment
+                            </button>
+                            <button type="button" id="aiBatchCancelBtn" class="btn btn-sm btn-outline-secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
 
             {{-- Generate with AI (draft only, plan-gated) --}}
             @if ($isOwner && $assessment->isDraft() && auth()->user()->planHasFeature('ai-question-generation'))
@@ -775,5 +860,219 @@
     function cancelAiReview() {
         document.getElementById('aiReviewPanel')?.classList.add('d-none');
     }
+
+    // ---- Generate Full Assessment with AI (batch) ----
+    const AI_BATCH_CATEGORIES = @json($categories->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])->values());
+
+    (function () {
+        const panel = document.getElementById('aiBatchPanel');
+        if (!panel) return;
+
+        const contextEl = document.getElementById('aiBatchContext');
+        const noteEl = document.getElementById('aiBatchNote');
+        const countEl = document.getElementById('aiBatchCount');
+        const generateBtn = document.getElementById('aiBatchGenerateBtn');
+        const loadingEl = document.getElementById('aiBatchLoading');
+        const errorEl = document.getElementById('aiBatchError');
+        const reviewEl = document.getElementById('aiBatchReview');
+        const listEl = document.getElementById('aiBatchList');
+        const commitBtn = document.getElementById('aiBatchCommitBtn');
+        const cancelBtn = document.getElementById('aiBatchCancelBtn');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+        function categoryOptions(selectedName) {
+            let bestMatchId = '';
+            const options = AI_BATCH_CATEGORIES.map(cat => {
+                if (selectedName && cat.name.toLowerCase() === String(selectedName).toLowerCase()) {
+                    bestMatchId = cat.id;
+                }
+                return `<option value="${cat.id}">${escapeHtml(cat.name)}</option>`;
+            });
+            // The placeholder is deliberately NOT disabled — if the AI's
+            // suggested category doesn't match any real one, this stays the
+            // genuinely-selected value instead of the browser silently
+            // falling back to the first real option, which would make an
+            // unmatched category look like a confident (wrong) choice.
+            return { html: '<option value="">Select a category&hellip;</option>' + options.join(''), bestMatchId };
+        }
+
+        async function fetchContext() {
+            contextEl.classList.remove('d-none');
+            contextEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Assembling team context&hellip;';
+            try {
+                const res = await fetch(panel.dataset.contextUrl, {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                const data = await res.json();
+                contextEl.textContent = data.summary;
+            } catch (err) {
+                contextEl.textContent = 'Could not load team context.';
+            }
+        }
+
+        function renderDrafts(drafts) {
+            listEl.innerHTML = drafts.map((d, i) => {
+                const tipsHtml = [0, 1, 2, 3, 4].map(n =>
+                    `<div class="small text-muted"><strong>${n}:</strong> ${escapeHtml((d.tips && d.tips[n]) || (d.tips && d.tips[String(n)]) || '')}</div>`
+                ).join('');
+
+                let categoryField;
+                if (d.source === 'candidate') {
+                    categoryField = `<span class="badge bg-secondary">${escapeHtml(d.category)}</span> <span class="badge bg-light text-muted border">Reused</span>`;
+                } else {
+                    const { html, bestMatchId } = categoryOptions(d.category);
+                    const suggestedHint = !bestMatchId && d.category
+                        ? `<div class="small text-warning"><i class="bi bi-exclamation-triangle"></i> AI suggested "${escapeHtml(d.category)}" — no exact match, please pick one</div>`
+                        : '';
+                    categoryField = `<select class="form-select form-select-sm mt-1" data-draft-category="${i}">${html}</select>${suggestedHint}`;
+                    setTimeout(() => {
+                        const sel = listEl.querySelector(`[data-draft-category="${i}"]`);
+                        if (sel && bestMatchId) sel.value = bestMatchId;
+                    });
+                }
+
+                return `
+                    <div class="border-bottom py-2" data-draft-index="${i}">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input ai-batch-checkbox" id="aiDraft${i}" data-index="${i}" checked>
+                            <label class="form-check-label small fw-semibold" for="aiDraft${i}">${escapeHtml(d.text)}</label>
+                        </div>
+                        <div class="ms-4">
+                            ${categoryField}
+                            <details class="mt-1"><summary class="small text-muted">Tips</summary>${tipsHtml}</details>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Generation runs on the queue (a full batch routinely takes
+        // 20-30+ seconds — too long to hold a synchronous request open
+        // reliably), so this dispatches the job and polls for the result
+        // rather than awaiting a single fetch.
+        const POLL_INTERVAL_MS = 2000;
+        const POLL_MAX_ATTEMPTS = 45; // ~90s ceiling before giving up
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function pollForResult(requestId) {
+            const pollUrl = panel.dataset.pollUrlTemplate.replace('__REQUEST_ID__', requestId);
+
+            for (let attempt = 0; attempt < POLL_MAX_ATTEMPTS; attempt++) {
+                await sleep(POLL_INTERVAL_MS);
+
+                const res = await fetch(pollUrl, {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                const data = await res.json();
+
+                if (data.status === 'completed') return data;
+                if (data.status === 'failed') throw new Error(data.error || 'Something went wrong. Please try again.');
+                // status === 'pending' — keep polling
+            }
+
+            throw new Error('This is taking longer than expected. Please try again.');
+        }
+
+        generateBtn.addEventListener('click', async function () {
+            errorEl.classList.add('d-none');
+            generateBtn.disabled = true;
+            loadingEl.classList.remove('d-none');
+            reviewEl.classList.add('d-none');
+
+            try {
+                const dispatchRes = await fetch(panel.dataset.generateUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ note: noteEl.value.trim() || null, count: parseInt(countEl.value, 10) || 8 }),
+                });
+                const dispatchData = await dispatchRes.json();
+                if (!dispatchRes.ok) throw new Error(dispatchData.error || 'Unknown error');
+
+                const data = await pollForResult(dispatchData.request_id);
+
+                panel.dataset.currentDrafts = JSON.stringify(data.drafts);
+                renderDrafts(data.drafts);
+                reviewEl.classList.remove('d-none');
+            } catch (err) {
+                errorEl.textContent = err.message || 'Something went wrong. Please try again.';
+                errorEl.classList.remove('d-none');
+            } finally {
+                generateBtn.disabled = false;
+                loadingEl.classList.add('d-none');
+            }
+        });
+
+        commitBtn.addEventListener('click', async function () {
+            const drafts = JSON.parse(panel.dataset.currentDrafts || '[]');
+            const items = [];
+
+            listEl.querySelectorAll('.ai-batch-checkbox:checked').forEach(cb => {
+                const i = parseInt(cb.dataset.index, 10);
+                const draft = drafts[i];
+                if (!draft) return;
+
+                if (draft.source === 'candidate') {
+                    items.push({ source: 'candidate', question_id: draft.question_id });
+                } else {
+                    const sel = listEl.querySelector(`[data-draft-category="${i}"]`);
+                    items.push({
+                        source: 'new',
+                        text: draft.text,
+                        category_id: sel ? sel.value : '',
+                        tips: draft.tips,
+                    });
+                }
+            });
+
+            if (items.length === 0) {
+                errorEl.textContent = 'Select at least one question to add.';
+                errorEl.classList.remove('d-none');
+                return;
+            }
+
+            commitBtn.disabled = true;
+            errorEl.classList.add('d-none');
+
+            try {
+                const res = await fetch(panel.dataset.commitUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ items }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Could not save the questions.');
+
+                applyAddedQuestions(data);
+                reviewEl.classList.add('d-none');
+                noteEl.value = '';
+                showLibraryToast(items.length + ' question' + (items.length === 1 ? '' : 's') + ' added.');
+            } catch (err) {
+                errorEl.textContent = err.message || 'Something went wrong. Please try again.';
+                errorEl.classList.remove('d-none');
+            } finally {
+                commitBtn.disabled = false;
+            }
+        });
+
+        cancelBtn.addEventListener('click', function () {
+            reviewEl.classList.add('d-none');
+        });
+
+        if (panel.dataset.autostart === 'true' && panel.dataset.autostartNote) {
+            noteEl.value = panel.dataset.autostartNote;
+        }
+        fetchContext();
+    })();
 </script>
 @endpush

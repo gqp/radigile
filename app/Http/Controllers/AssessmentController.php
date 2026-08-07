@@ -13,10 +13,14 @@ use App\Models\Question;
 use App\Models\QuestionCategory;
 use App\Models\Team;
 use App\Models\User;
+use App\Jobs\GenerateAssessmentQuestionBatch;
 use App\Services\AiQuestionGenerator;
+use App\Services\AssessmentContextBuilder;
 use App\Services\TeamMaturityService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class AssessmentController extends Controller
 {
@@ -162,7 +166,10 @@ class AssessmentController extends Controller
             ->orderBy('title')
             ->get();
 
-        return view('dashboard.user.assessments.create', compact('teams', 'templates'));
+        // planHasFeature() already returns true for admins (access-admin-panel bypass).
+        $aiGenerationEnabled = $user->planHasFeature('ai-question-generation');
+
+        return view('dashboard.user.assessments.create', compact('teams', 'templates', 'aiGenerationEnabled'));
     }
 
     public function store(Request $request)
@@ -172,6 +179,8 @@ class AssessmentController extends Controller
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
             'template_id' => 'nullable|exists:assessment_templates,id',
+            'ai_generate' => 'nullable|boolean',
+            'ai_note'     => 'nullable|string|max:500',
         ]);
 
         $user = auth()->user();
@@ -208,6 +217,13 @@ class AssessmentController extends Controller
                     ['order' => ++$order]
                 );
             }
+        }
+
+        if (!empty($validated['ai_generate'])) {
+            return redirect()->route('user.assessments.show', $assessment)
+                ->with('ai_autostart', true)
+                ->with('ai_note', $validated['ai_note'] ?? null)
+                ->with('success', 'Assessment created. Generating AI questions below...');
         }
 
         return redirect()->route('user.assessments.show', $assessment)
@@ -437,6 +453,128 @@ class AssessmentController extends Controller
         }
 
         return back()->with('success', 'Question created and added.');
+    }
+
+    public function aiContext(Assessment $assessment, AssessmentContextBuilder $contextBuilder)
+    {
+        $this->authorizeAiGeneration($assessment);
+
+        $context = $contextBuilder->build($assessment->team);
+
+        return response()->json([
+            'summary'         => $context['summary'],
+            'has_history'     => $context['history']['has_history'],
+            'candidate_count' => count($context['candidates']),
+            'is_high_churn'   => $context['churn']['is_high_churn'] ?? false,
+        ]);
+    }
+
+    /**
+     * Dispatches question-batch generation to the queue and returns
+     * immediately — a full batch routinely takes 20-30+ seconds, too long
+     * to hold open a synchronous request reliably. The browser polls
+     * pollGenerateBatch() for the result.
+     */
+    public function generateQuestionsBatch(Request $request, Assessment $assessment)
+    {
+        $this->authorizeAiGeneration($assessment);
+
+        $validated = $request->validate([
+            'note'  => 'nullable|string|max:500',
+            'count' => 'nullable|integer|min:3|max:12',
+        ]);
+
+        $requestId = (string) Str::uuid();
+
+        // Seed a "pending" entry before dispatch so the first poll — which
+        // can land before the queue worker has even picked the job up —
+        // finds a real status instead of a false "not found".
+        Cache::put(
+            "ai-batch-request:{$requestId}",
+            ['assessment_id' => $assessment->id, 'status' => 'pending'],
+            now()->addMinutes(10)
+        );
+
+        GenerateAssessmentQuestionBatch::dispatch(
+            $assessment->id,
+            $requestId,
+            $validated['note'] ?? null,
+            $validated['count'] ?? 8,
+        );
+
+        return response()->json(['request_id' => $requestId]);
+    }
+
+    public function pollGenerateBatch(Assessment $assessment, string $requestId)
+    {
+        $this->authorizeAiGeneration($assessment);
+
+        $result = Cache::get("ai-batch-request:{$requestId}");
+
+        if (!$result || (int) $result['assessment_id'] !== $assessment->id) {
+            return response()->json(['status' => 'failed', 'error' => 'This request has expired. Please try again.'], 404);
+        }
+
+        return response()->json($result);
+    }
+
+    public function commitGeneratedQuestions(Request $request, Assessment $assessment)
+    {
+        $this->authorizeAiGeneration($assessment);
+
+        $validated = $request->validate([
+            'items'               => 'required|array|min:1',
+            'items.*.source'      => 'required|in:candidate,new',
+            'items.*.question_id' => 'required_if:items.*.source,candidate|nullable|exists:questions,id',
+            'items.*.text'        => 'required_if:items.*.source,new|nullable|string|max:255',
+            'items.*.category_id' => 'required_if:items.*.source,new|nullable|exists:question_categories,id',
+            'items.*.tips'        => 'nullable|array',
+            'items.*.tips.0'      => 'nullable|string',
+            'items.*.tips.1'      => 'nullable|string',
+            'items.*.tips.2'      => 'nullable|string',
+            'items.*.tips.3'      => 'nullable|string',
+            'items.*.tips.4'      => 'nullable|string',
+        ]);
+
+        $order = $assessment->questions()->max('order') ?? 0;
+        $added = collect();
+
+        foreach ($validated['items'] as $item) {
+            if ($item['source'] === 'candidate') {
+                $question = Question::findOrFail($item['question_id']);
+            } else {
+                $question = Question::create([
+                    'text'        => $item['text'],
+                    'category_id' => $item['category_id'],
+                    'tip_0'       => $item['tips']['0'] ?? null,
+                    'tip_1'       => $item['tips']['1'] ?? null,
+                    'tip_2'       => $item['tips']['2'] ?? null,
+                    'tip_3'       => $item['tips']['3'] ?? null,
+                    'tip_4'       => $item['tips']['4'] ?? null,
+                    'is_active'   => true,
+                ]);
+            }
+
+            $order++;
+            $aq = AssessmentQuestion::firstOrCreate(
+                ['assessment_id' => $assessment->id, 'question_id' => $question->id],
+                ['order' => $order]
+            );
+            $added->push($aq->load('question.category'));
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'added' => $added->map(fn ($aq) => [
+                    'question_id' => $aq->question_id,
+                    'text'        => $aq->question->text,
+                    'category'    => $aq->question->category->name ?? '—',
+                ]),
+                'total' => $assessment->questions()->count(),
+            ]);
+        }
+
+        return back()->with('success', 'AI-generated questions added.');
     }
 
     public function removeQuestion(Assessment $assessment, int $questionId)
