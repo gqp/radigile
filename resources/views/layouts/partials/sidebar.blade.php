@@ -19,9 +19,17 @@
 
                 {{-- My Teams --}}
                 <li class="nav-item">
-                    <a href="{{ route('user.teams.index') }}" class="nav-link {{ request()->routeIs('user.teams.*') ? 'active' : '' }}">
+                    <a href="{{ route('user.teams.index') }}" class="nav-link {{ request()->routeIs('user.teams.index') || request()->routeIs('user.teams.show') || request()->routeIs('user.teams.edit') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-user-friends"></i>
                         <p>My Teams</p>
+                    </a>
+                </li>
+
+                {{-- Browse Teams --}}
+                <li class="nav-item">
+                    <a href="{{ route('user.teams.browse') }}" class="nav-link {{ request()->routeIs('user.teams.browse') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-compass"></i>
+                        <p>Browse Teams</p>
                     </a>
                 </li>
 
@@ -57,57 +65,51 @@
                 {{-- ── Admin Section ── --}}
                 <li class="nav-header" style="color: #c2c7d0; font-size: 0.7rem; letter-spacing: 0.05rem; padding: 10px 15px 4px;">ADMINISTRATION</li>
 
-                <li class="nav-item">
-                    <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-users"></i>
-                        <p>Users</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{{ route('admin.plans.index') }}" class="nav-link {{ request()->routeIs('admin.plans.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-file-lines"></i>
-                        <p>Plans</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{{ route('admin.subscriptions.index') }}" class="nav-link {{ request()->routeIs('admin.subscriptions.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-handshake"></i>
-                        <p>Subscriptions</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{{ route('admin.roles.index') }}" class="nav-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-shield-alt"></i>
-                        <p>Roles</p>
-                    </a>
-                </li>
-
-                {{-- Manage Teams --}}
-                <li class="nav-item {{ request()->routeIs('admin.teams.*') || request()->routeIs('team-frameworks.*') || request()->routeIs('team-domains.*') || request()->routeIs('admin.team-member-roles.*') ? 'menu-open' : '' }}">
-                    <a href="#" class="nav-link {{ request()->routeIs('admin.teams.*') || request()->routeIs('team-frameworks.*') || request()->routeIs('team-domains.*') || request()->routeIs('admin.team-member-roles.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-layer-group"></i>
-                        <p>Manage Teams <i class="right fas fa-angle-left"></i></p>
+                {{-- Users & Roles --}}
+                <li class="nav-item {{ request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-users-cog"></i>
+                        <p>Users & Roles <i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview" style="padding-left: 15px;">
                         <li class="nav-item">
-                            <a href="{{ route('admin.team-frameworks.index') }}" class="nav-link {{ request()->routeIs('team-frameworks.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                                <i class="fas fa-users nav-icon"></i>
+                                <p>All Users</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.roles.index') }}" class="nav-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                                <i class="fas fa-shield-alt nav-icon"></i>
+                                <p>Roles</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                {{-- Teams --}}
+                <li class="nav-item {{ request()->routeIs('admin.teams.*') || request()->routeIs('admin.team-frameworks.*') || request()->routeIs('admin.team-domains.*') || request()->routeIs('admin.team-member-roles.*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ request()->routeIs('admin.teams.*') || request()->routeIs('admin.team-frameworks.*') || request()->routeIs('admin.team-domains.*') || request()->routeIs('admin.team-member-roles.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-layer-group"></i>
+                        <p>Teams <i class="right fas fa-angle-left"></i></p>
+                    </a>
+                    <ul class="nav nav-treeview" style="padding-left: 15px;">
+                        <li class="nav-item">
+                            <a href="{{ route('admin.teams.index') }}" class="nav-link {{ request()->routeIs('admin.teams.index') || request()->routeIs('admin.teams.show') || request()->routeIs('admin.teams.create') || request()->routeIs('admin.teams.edit') ? 'active' : '' }}">
+                                <i class="fas fa-users nav-icon"></i>
+                                <p>All Teams</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.team-frameworks.index') }}" class="nav-link {{ request()->routeIs('admin.team-frameworks.*') ? 'active' : '' }}">
                                 <i class="fas fa-cogs nav-icon"></i>
                                 <p>Frameworks</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('admin.team-domains.index') }}" class="nav-link {{ request()->routeIs('team-domains.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.team-domains.index') }}" class="nav-link {{ request()->routeIs('admin.team-domains.*') ? 'active' : '' }}">
                                 <i class="fas fa-network-wired nav-icon"></i>
                                 <p>Domains</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('admin.teams.index') }}" class="nav-link {{ request()->routeIs('admin.teams.index') || request()->routeIs('admin.teams.show') || request()->routeIs('admin.teams.create') || request()->routeIs('admin.teams.edit') ? 'active' : '' }}">
-                                <i class="fas fa-users nav-icon"></i>
-                                <p>All Teams</p>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -119,17 +121,17 @@
                     </ul>
                 </li>
 
-                {{-- Manage Questions --}}
-                <li class="nav-item {{ request()->routeIs('admin.questions.*') || request()->routeIs('admin.question-categories.*') ? 'menu-open' : '' }}">
-                    <a href="#" class="nav-link {{ request()->routeIs('admin.questions.*') || request()->routeIs('admin.question-categories.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-question-circle"></i>
-                        <p>Questions <i class="right fas fa-angle-left"></i></p>
+                {{-- Assessment Library --}}
+                <li class="nav-item {{ request()->routeIs('admin.assessment-templates.*') || request()->routeIs('admin.questions.*') || request()->routeIs('admin.question-categories.*') || request()->routeIs('admin.tags.*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ request()->routeIs('admin.assessment-templates.*') || request()->routeIs('admin.questions.*') || request()->routeIs('admin.question-categories.*') || request()->routeIs('admin.tags.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-book"></i>
+                        <p>Assessment Library <i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview" style="padding-left: 15px;">
                         <li class="nav-item">
-                            <a href="{{ route('admin.question-categories.index') }}" class="nav-link {{ request()->routeIs('admin.question-categories.*') ? 'active' : '' }}">
-                                <i class="fas fa-list-alt nav-icon"></i>
-                                <p>Categories</p>
+                            <a href="{{ route('admin.assessment-templates.index') }}" class="nav-link {{ request()->routeIs('admin.assessment-templates.*') ? 'active' : '' }}">
+                                <i class="fas fa-clipboard-list nav-icon"></i>
+                                <p>Templates</p>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -138,43 +140,63 @@
                                 <p>Questions</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.question-categories.index') }}" class="nav-link {{ request()->routeIs('admin.question-categories.*') ? 'active' : '' }}">
+                                <i class="fas fa-list-alt nav-icon"></i>
+                                <p>Categories</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.tags.index') }}" class="nav-link {{ request()->routeIs('admin.tags.*') ? 'active' : '' }}">
+                                <i class="fas fa-tags nav-icon"></i>
+                                <p>Tags</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
-                {{-- Manage Tags --}}
-                <li class="nav-item {{ request()->routeIs('admin.tags.*') ? 'menu-open' : '' }}">
-                    <a href="#" class="nav-link {{ request()->routeIs('admin.tags.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-tags"></i>
-                        <p>Tags <i class="right fas fa-angle-left"></i></p>
+                {{-- Plans & Subscriptions --}}
+                <li class="nav-item {{ request()->routeIs('admin.plans.*') || request()->routeIs('admin.subscriptions.*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ request()->routeIs('admin.plans.*') || request()->routeIs('admin.subscriptions.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                        <p>Plans & Subscriptions <i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview" style="padding-left: 15px;">
                         <li class="nav-item">
-                            <a href="{{ route('admin.tags.index') }}" class="nav-link {{ request()->routeIs('admin.tags.index') ? 'active' : '' }}">
-                                <i class="fas fa-list nav-icon"></i>
-                                <p>All Tags</p>
+                            <a href="{{ route('admin.plans.index') }}" class="nav-link {{ request()->routeIs('admin.plans.*') ? 'active' : '' }}">
+                                <i class="fas fa-file-lines nav-icon"></i>
+                                <p>Plans</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('admin.tags.create') }}" class="nav-link {{ request()->routeIs('admin.tags.create') ? 'active' : '' }}">
-                                <i class="fas fa-plus nav-icon"></i>
-                                <p>Add Tag</p>
+                            <a href="{{ route('admin.subscriptions.index') }}" class="nav-link {{ request()->routeIs('admin.subscriptions.*') ? 'active' : '' }}">
+                                <i class="fas fa-handshake nav-icon"></i>
+                                <p>Subscriptions</p>
                             </a>
                         </li>
                     </ul>
                 </li>
 
-                <li class="nav-item">
-                    <a href="{{ route('admin.notify-me') }}" class="nav-link {{ request()->routeIs('admin.notify-me') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-message"></i>
-                        <p>Notify-me</p>
+                {{-- Signups & Invites --}}
+                <li class="nav-item {{ request()->routeIs('admin.notify-me') || request()->routeIs('admin.invites.*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ request()->routeIs('admin.notify-me') || request()->routeIs('admin.invites.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-user-plus"></i>
+                        <p>Signups & Invites <i class="right fas fa-angle-left"></i></p>
                     </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{{ route('admin.invites.index') }}" class="nav-link {{ request()->routeIs('admin.invites.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-envelope-open-text"></i>
-                        <p>Invites</p>
-                    </a>
+                    <ul class="nav nav-treeview" style="padding-left: 15px;">
+                        <li class="nav-item">
+                            <a href="{{ route('admin.notify-me') }}" class="nav-link {{ request()->routeIs('admin.notify-me') ? 'active' : '' }}">
+                                <i class="fas fa-message nav-icon"></i>
+                                <p>Notify-me</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.invites.index') }}" class="nav-link {{ request()->routeIs('admin.invites.*') ? 'active' : '' }}">
+                                <i class="fas fa-envelope-open-text nav-icon"></i>
+                                <p>Invites</p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
                 <li class="nav-item">

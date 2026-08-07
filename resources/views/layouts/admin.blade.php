@@ -23,7 +23,7 @@
 
 <body class="hold-transition sidebar-mini">
 <!-- Include Sidebar -->
-@include('layouts.admin.sidebar')
+@include('layouts.partials.sidebar')
 
 @include('layouts.partials.mobile-toggle')
 
