@@ -39,6 +39,11 @@ class DemoDataSeeder extends Seeder
 {
     private const HISTORY_MONTHS = 9;
 
+    private const TEAM_NAMES = [
+        'Platform Engineering', 'Growth Squad', 'Checkout Experience',
+        'Data Platform', 'Mobile Guild', 'Design Systems',
+    ];
+
     public function run(): void
     {
         $this->command?->info('Seeding question library...');
@@ -67,6 +72,47 @@ class DemoDataSeeder extends Seeder
         }
 
         $this->command?->info('Done.');
+    }
+
+    /**
+     * Removes everything this seeder creates, identified the same way
+     * seedTeams()/seedUsers()/seedAdminInvites() tag their own rows (team
+     * name allowlist, "demo.*@example.com" email pattern, "DEMO"-prefixed
+     * invite codes) — so it's safe to call even if the seeder was never run,
+     * or run multiple times.
+     *
+     * Deliberately leaves the question library alone: seedQuestionLibrary()
+     * adds questions into shared, globally-visible categories via
+     * updateOrCreate(), and by the time someone clicks "remove demo data"
+     * those questions may already be in use by real (non-demo) assessments —
+     * deleting them would cascade-delete real assessments' question links.
+     *
+     * @return array{users: int, teams: int, invites: int} rows removed, by kind
+     */
+    public function tearDown(): array
+    {
+        $counts = [
+            'users' => User::where('email', 'like', 'demo.%@example.com')->count(),
+            'teams' => Team::whereIn('name', self::TEAM_NAMES)->count(),
+            'invites' => Invite::where('code', 'like', 'DEMO%')->count(),
+        ];
+
+        DB::transaction(function () {
+            // Deleting a team cascades to its assessments, and from there to
+            // assessment_questions/responses/results/evaluators/excluded_members,
+            // plus team_invitations and the team_user pivot.
+            Team::whereIn('name', self::TEAM_NAMES)->delete();
+
+            // Deleting a user cascades to their subscriptions and any
+            // remaining team_user/evaluator/response rows tied to them
+            // (independent of the team cascade above, e.g. an external
+            // evaluator on another team's demo assessment).
+            User::where('email', 'like', 'demo.%@example.com')->delete();
+
+            Invite::where('code', 'like', 'DEMO%')->delete();
+        });
+
+        return $counts;
     }
 
     // ------------------------------------------------------------------
@@ -283,15 +329,10 @@ class DemoDataSeeder extends Seeder
         $frameworkIds = TeamFramework::pluck('id')->all();
         $memberRoles = TeamMemberRole::allOrdered();
 
-        $teamNames = [
-            'Platform Engineering', 'Growth Squad', 'Checkout Experience',
-            'Data Platform', 'Mobile Guild', 'Design Systems',
-        ];
-
         $teams = collect();
         $userPool = $users->values();
 
-        foreach ($teamNames as $index => $name) {
+        foreach (self::TEAM_NAMES as $index => $name) {
             if (empty($domainIds) || empty($frameworkIds)) {
                 $this->command?->warn('No team domains/frameworks found — run the base seeders first.');
                 break;

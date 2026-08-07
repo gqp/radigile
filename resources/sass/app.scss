@@ -25,3 +25,19 @@
     }
 }
 
+// AdminLTE's `.bg-white` utility darkens any direct-child <a> via
+// `!important` (meant for plain links sitting on a white background), which
+// also catches solid buttons like .btn-primary when they're a direct child
+// of a white card-footer — e.g. the "Manage" button on assessment cards.
+// `.btn.btn-primary` outranks AdminLTE's `.bg-white > a` on specificity, so
+// this restores full-contrast white text without touching AdminLTE itself.
+.btn.btn-primary {
+    color: #fff !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+        color: #fff !important;
+    }
+}
+

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\RunDemoDataSeeder;
+use Database\Seeders\DemoDataSeeder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -16,6 +18,34 @@ class AdminController extends Controller
     public function settings()
     {
         return view("dashboard.admin.settings");
+    }
+
+    /**
+     * Queue the demo data seeder — it generates 9 months of historical
+     * assessments across several teams, which is too slow to run inline in
+     * a web request, so it runs on the queue worker instead.
+     */
+    public function runDemoDataSeeder()
+    {
+        RunDemoDataSeeder::dispatch();
+
+        return back()->with('success', 'Demo data generation has been queued. It can take a minute or two to finish — refresh the relevant pages shortly to see it.');
+    }
+
+    /**
+     * Deleting demo teams/users cascades through everything under them
+     * (assessments, responses, subscriptions, etc.) via foreign keys, so
+     * this is fast enough to run inline rather than queueing it.
+     */
+    public function removeDemoData()
+    {
+        $counts = (new DemoDataSeeder())->tearDown();
+
+        if (array_sum($counts) === 0) {
+            return back()->with('info', 'No demo data found to remove.');
+        }
+
+        return back()->with('success', "Removed demo data: {$counts['users']} users, {$counts['teams']} teams, {$counts['invites']} invite codes — along with all assessments, responses, and subscriptions tied to them.");
     }
 
     public function updateName(Request $request)
