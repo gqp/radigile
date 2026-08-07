@@ -177,7 +177,7 @@ class UserTeamMemberController extends Controller
 
         // Registered users should be added via search, not email invite
         if (User::where('email', $validated['email'])->exists()) {
-            return back()->with('error', 'That email belongs to a registered Radigile user. Use the search box above to add them directly.');
+            return back()->with('error', 'That email belongs to a registered Radagile user. Use the search box above to add them directly.');
         }
 
         if ($team->owner->email === $validated['email']) {

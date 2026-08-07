@@ -9,7 +9,7 @@
 
     <p style="margin:0 0 24px;">
         Hi {{ $approverName }}, <strong>{{ $requesterName }}</strong> has requested to join
-        <strong>{{ $teamName }}</strong> on Radigile.
+        <strong>{{ $teamName }}</strong> on Radagile.
     </p>
 
     @if ($requestMessage)

@@ -4,7 +4,7 @@
 # CI runner, etc.) — this isn't invoked automatically by anything.
 set -euo pipefail
 
-cd /var/www/radigile
+cd /var/www/radagile
 
 php artisan down --retry=5
 

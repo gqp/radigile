@@ -1,4 +1,4 @@
-# 🌟 Radigile - A New Era of Team Growth
+# 🌟 Radagile - A New Era of Team Growth
 
 ## 🏆 Product Vision
 To empower teams with the insights, tools, and guidance to master Agile, break through plateaus, and achieve lasting transformation.
@@ -89,8 +89,8 @@ Before you start, ensure you have the following installed:
 
 ### Step 1️⃣: Clone the Repository
 ```bash
-git clone https://github.com/your-repo/radigile.git
-cd radigile
+git clone https://github.com/your-repo/radagile.git
+cd radagile
 ```
 
 ### Step 2️⃣: Install Backend Dependencies
@@ -108,7 +108,7 @@ composer install
   DB_CONNECTION=mysql
   DB_HOST=127.0.0.1
   DB_PORT=3306
-  DB_DATABASE=radigile_db
+  DB_DATABASE=radagile_db
   DB_USERNAME=root
   DB_PASSWORD=your_password
   ```
@@ -173,7 +173,7 @@ Access your application at **`http://127.0.0.1:8000`** 🚀.
 
 ## 🎉 Get Started
 
-With these steps, you're ready to explore Radigile locally. For feature suggestions or contributions:
+With these steps, you're ready to explore Radagile locally. For feature suggestions or contributions:
 
 1. Submit a pull request 🛠️
 2. Open a GitHub issue 🐛
@@ -181,4 +181,4 @@ With these steps, you're ready to explore Radigile locally. For feature suggesti
 ---
 
 ### 🚀 Ready to unlock your team's Agile potential?
-💙 **Radigile** – Empowering teams to break through and achieve lasting growth.
+💙 **Radagile** – Empowering teams to break through and achieve lasting growth.

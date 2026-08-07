@@ -20,7 +20,7 @@ class TeamRegistrationInvite extends Mailable
 
     public function build(): static
     {
-        return $this->subject("You've been invited to join {$this->teamName} on Radigile")
+        return $this->subject("You've been invited to join {$this->teamName} on Radagile")
             ->view('emails.team_registration_invite');
     }
 }

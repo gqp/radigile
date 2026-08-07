@@ -8,7 +8,7 @@
     </h1>
 
     <p style="margin:0 0 24px;">
-        Hi {{ $name }}, we received a request to reset the password for your Radigile account.
+        Hi {{ $name }}, we received a request to reset the password for your Radagile account.
     </p>
 
     <x-email.button :url="$resetUrl">Reset Password</x-email.button>

@@ -8,7 +8,7 @@
     </h1>
 
     <p style="margin:0 0 24px;">
-        You've been invited to join a team on Radigile. Since you're not registered yet,
+        You've been invited to join a team on Radagile. Since you're not registered yet,
         create your account below to get started.
     </p>
 

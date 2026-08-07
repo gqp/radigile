@@ -113,7 +113,7 @@
 
     <!-- Full-Width Content -->
     <div class="content-section-container">
-        <h1 class="about-heading">About Radigile</h1>
+        <h1 class="about-heading">About Radagile</h1>
 
         <div class="content-section">
             <h5 class="content-title">Product Vision</h5>

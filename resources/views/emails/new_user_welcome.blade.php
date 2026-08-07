@@ -1,10 +1,10 @@
 @extends('emails.layouts.branded')
 
-@section('title', $isTestUser ? 'Your Test Account Is Ready' : 'Welcome to Radigile')
+@section('title', $isTestUser ? 'Your Test Account Is Ready' : 'Welcome to Radagile')
 
 @section('content')
     <h1 style="margin:0 0 16px; font-size:22px; font-weight:700; color:#2d2438;">
-        Hi {{ $name }}, welcome to Radigile 🌱
+        Hi {{ $name }}, welcome to Radagile 🌱
     </h1>
 
     <p style="margin:0 0 24px;">
@@ -30,6 +30,6 @@
     <x-email.button :url="url('/login')">Log In</x-email.button>
 
     <p style="margin:0; font-size:13px; color:#948b9e;">
-        Thank you for using Radigile!
+        Thank you for using Radagile!
     </p>
 @endsection
