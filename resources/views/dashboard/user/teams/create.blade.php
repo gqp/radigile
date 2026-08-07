@@ -78,7 +78,7 @@
                             <label for="type" class="form-label fw-semibold">Visibility</label>
                             <select name="type" id="type" class="form-select">
                                 <option value="private" selected>Private — only invited members can see it</option>
-                                <option value="public">Public — visible to all Radigile users</option>
+                                <option value="public">Public — visible to all Radagile users</option>
                             </select>
                         </div>
 
@@ -117,7 +117,7 @@
                         <div id="memberInputs"></div>
 
                         <p class="text-muted small mb-0 mt-2">
-                            Only registered Radigile users can be added here. To invite new users, visit the team page after creation.
+                            Only registered Radagile users can be added here. To invite new users, visit the team page after creation.
                         </p>
 
                     </div>

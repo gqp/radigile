@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Radigile.com - A New Era of Team Growth'),
+    'name' => env('APP_NAME', 'Radagile.com - A New Era of Team Growth'),
 
     /*
     |--------------------------------------------------------------------------

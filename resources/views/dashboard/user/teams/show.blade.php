@@ -207,7 +207,7 @@
                             @if(auth()->user()->planHasFeature('team-invitations'))
                                 <div class="alert alert-info py-2 px-3 mb-3">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    No Radigile account found for <strong id="notFoundEmail"></strong>.
+                                    No Radagile account found for <strong id="notFoundEmail"></strong>.
                                     Send them a registration invite and they'll be added once they sign up.
                                 </div>
                                 <form method="POST" action="{{ route('user.teams.members.invite', $team->id) }}" id="inviteForm">
@@ -240,7 +240,7 @@
                             @else
                                 <div class="alert alert-warning py-2 px-3 mb-0">
                                     <i class="fas fa-lock me-1"></i>
-                                    No Radigile account found. Sending registration invites requires a higher plan.
+                                    No Radagile account found. Sending registration invites requires a higher plan.
                                 </div>
                             @endif
                         </div>

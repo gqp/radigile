@@ -20,7 +20,7 @@ class NewUserWelcomeMail extends Mailable
 
     public function build(): static
     {
-        return $this->subject($this->isTestUser ? 'Your Test Account Is Ready' : 'Welcome to Radigile')
+        return $this->subject($this->isTestUser ? 'Your Test Account Is Ready' : 'Welcome to Radagile')
             ->view('emails.new_user_welcome');
     }
 }

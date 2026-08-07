@@ -20,7 +20,7 @@
                 {{-- Header / logo --}}
                 <tr>
                     <td align="center" style="padding:32px 32px 16px;">
-                        <img src="{{ asset('imgs/logo-purple.png') }}" alt="Radigile.com" width="200" style="display:block; max-width:200px; height:auto;">
+                        <img src="{{ asset('imgs/logo-purple.png') }}" alt="Radagile.com" width="200" style="display:block; max-width:200px; height:auto;">
                     </td>
                 </tr>
 
@@ -35,7 +35,7 @@
                 <tr>
                     <td style="padding:20px 40px; background-color:#f9f7fd; border-top:1px solid #ece5fb;" align="center">
                         <p style="margin:0; font-size:12px; color:#a79cb5;">
-                            &copy; {{ date('Y') }} Radigile.com &mdash; A New Era of Team Growth
+                            &copy; {{ date('Y') }} Radagile.com &mdash; A New Era of Team Growth
                         </p>
                     </td>
                 </tr>

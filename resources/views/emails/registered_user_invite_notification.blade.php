@@ -8,7 +8,7 @@
     </h1>
 
     <p style="margin:0 0 24px;">
-        You've been invited to join <strong>{{ $teamName }}</strong> on Radigile —
+        You've been invited to join <strong>{{ $teamName }}</strong> on Radagile —
         accept below to start collaborating with your team.
     </p>
 

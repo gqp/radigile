@@ -6,7 +6,7 @@ and adapt each piece, then apply it on the server yourself.
 
 ## Files here
 
-- `nginx/radigile.conf` — server block: forces HTTPS, serves only
+- `nginx/radagile.conf` — server block: forces HTTPS, serves only
   `public/`, blocks `.env`/`.git`/`storage`/`bootstrap/cache` from ever
   being served directly, adds security headers as a backup for anything
   that doesn't reach PHP, caches static assets.
@@ -19,7 +19,7 @@ and adapt each piece, then apply it on the server yourself.
   (`exec`, `shell_exec`, `system`, etc.), sets upload limits and
   session-cookie flags.
   Apply: adjust the PHP version path, drop into
-  `/etc/php/8.2/fpm/conf.d/99-radigile-hardening.ini`,
+  `/etc/php/8.2/fpm/conf.d/99-radagile-hardening.ini`,
   `systemctl restart php8.2-fpm`.
 
 - `deploy.sh` — reference deploy script: pulls code, installs deps, builds
@@ -70,8 +70,8 @@ to every other schema on the box — not just this app's data. Create a
 scoped user instead:
 
 ```sql
-CREATE USER 'radigile_app'@'localhost' IDENTIFIED BY '<generate a long random password>';
-GRANT SELECT, INSERT, UPDATE, DELETE ON radigiledb.* TO 'radigile_app'@'localhost';
+CREATE USER 'radagile_app'@'localhost' IDENTIFIED BY '<generate a long random password>';
+GRANT SELECT, INSERT, UPDATE, DELETE ON radagiledb.* TO 'radagile_app'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
@@ -110,21 +110,21 @@ deploying this change:
    `php artisan queue:work` in a terminal, it'll die on logout/deploy:
 
    ```ini
-   ; /etc/supervisor/conf.d/radigile-worker.conf
-   [program:radigile-worker]
+   ; /etc/supervisor/conf.d/radagile-worker.conf
+   [program:radagile-worker]
    process_name=%(program_name)s_%(process_num)02d
-   command=php /var/www/radigile/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+   command=php /var/www/radagile/artisan queue:work --sleep=3 --tries=3 --max-time=3600
    autostart=true
    autorestart=true
    numprocs=1
    user=www-data
    redirect_stderr=true
-   stdout_logfile=/var/www/radigile/storage/logs/worker.log
+   stdout_logfile=/var/www/radagile/storage/logs/worker.log
    ```
 
-   `supervisorctl reread && supervisorctl update && supervisorctl start radigile-worker:*`
+   `supervisorctl reread && supervisorctl update && supervisorctl start radagile-worker:*`
 
 3. Every deploy that changes code the worker touches needs
-   `supervisorctl restart radigile-worker:*` (or `queue:restart` after the
+   `supervisorctl restart radagile-worker:*` (or `queue:restart` after the
    next job finishes) — a long-lived worker process caches the old code in
    memory otherwise.
