@@ -2,64 +2,65 @@
 
 @section('content')
 @include('layouts.partials.navbar')
-<div class="container mt-4">
+<div class="container py-4">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">All Assessments</h2>
-        <a href="{{ route('user.assessments.create') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Create Assessment
-        </a>
+        <h4 class="mb-0"><i class="fas fa-clipboard-list"></i> All Assessments</h4>
+        <div class="d-flex align-items-center gap-2">
+            <div class="btn-group btn-group-sm" role="group" aria-label="Assessments view toggle">
+                <button type="button" id="admin-assessments-view-table-btn" class="btn btn-outline-secondary" onclick="setAdminAssessmentsView('table')">
+                    <i class="fas fa-list"></i> Table
+                </button>
+                <button type="button" id="admin-assessments-view-card-btn" class="btn btn-outline-secondary" onclick="setAdminAssessmentsView('card')">
+                    <i class="fas fa-th-large"></i> Cards
+                </button>
+            </div>
+            <a href="{{ route('user.assessments.create') }}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-circle"></i> Create Assessment
+            </a>
+        </div>
     </div>
 
-    @if ($assessments->isEmpty())
-        <div class="alert alert-light border">No assessments have been created yet.</div>
-    @else
-        <div class="card shadow-sm">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Title</th>
-                                <th>Team</th>
-                                <th>Created By</th>
-                                <th>Status</th>
-                                <th class="text-center">Questions</th>
-                                <th class="text-center">Responses</th>
-                                <th class="text-center">Evaluators</th>
-                                <th>Created</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($assessments as $assessment)
-                            <tr>
-                                <td><strong>{{ $assessment->title }}</strong>
-                                    @if ($assessment->description)
-                                        <br><small class="text-muted">{{ Str::limit($assessment->description, 60) }}</small>
-                                    @endif
-                                </td>
-                                <td>{{ $assessment->team->name }}</td>
-                                <td>{{ $assessment->creator->name }}</td>
-                                <td>
-                                    @if ($assessment->isDraft())
-                                        <span class="badge bg-secondary">Draft</span>
-                                    @elseif ($assessment->isActive())
-                                        <span class="badge bg-success">Active</span>
-                                    @else
-                                        <span class="badge bg-dark">Closed</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">{{ $assessment->questions->count() }}</td>
-                                <td class="text-center">{{ $assessment->responses->pluck('user_id')->unique()->count() }}</td>
-                                <td class="text-center">{{ $assessment->evaluators->count() }}</td>
-                                <td>{{ $assessment->created_at->format('d M Y') }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <strong><span id="admin-assessments-count">{{ $assessments->total() }}</span> assessment{{ $assessments->total() === 1 ? '' : 's' }}</strong>
+            <x-search-box id="admin-assessments-search" placeholder="Search title, team, or creator..." live />
         </div>
-    @endif
+    </div>
+
+    <div id="admin-assessments-results" data-live-url="{{ route('admin.assessments.index') }}">
+        @include('dashboard.admin.assessments._results', ['assessments' => $assessments])
+    </div>
 </div>
+
+<style>
+    .admin-assessment-card { transition: transform .15s ease, box-shadow .15s ease; }
+    .admin-assessment-card:hover { transform: translateY(-4px); box-shadow: 0 .75rem 1.5rem rgba(0,0,0,.15) !important; }
+</style>
 @endsection
+
+@push('scripts')
+<script>
+    function setAdminAssessmentsView(mode) {
+        document.querySelectorAll('.admin-assessments-view-table').forEach(el => el.classList.toggle('d-none', mode !== 'table'));
+        document.querySelectorAll('.admin-assessments-view-cards').forEach(el => el.classList.toggle('d-none', mode !== 'card'));
+        document.getElementById('admin-assessments-view-table-btn').classList.toggle('active', mode === 'table');
+        document.getElementById('admin-assessments-view-card-btn').classList.toggle('active', mode === 'card');
+        localStorage.setItem('adminAssessmentsViewMode', mode);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        setAdminAssessmentsView(localStorage.getItem('adminAssessmentsViewMode') === 'card' ? 'card' : 'table');
+
+        initLiveSearch('admin-assessments-search', 'admin-assessments-results', {
+            onSwap: function () {
+                setAdminAssessmentsView(localStorage.getItem('adminAssessmentsViewMode') === 'card' ? 'card' : 'table');
+                const totalEl = document.getElementById('admin-assessments-total-value');
+                if (totalEl) {
+                    document.getElementById('admin-assessments-count').textContent = totalEl.textContent;
+                }
+            },
+        });
+    });
+</script>
+@endpush

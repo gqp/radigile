@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\Searchable;
+use App\Http\Controllers\Concerns\Sortable;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -12,6 +14,8 @@ use App\Mail\InviteNotification;
 
 class AdminNotifyController extends Controller
 {
+    use Sortable, Searchable;
+
     /**
      * Toggle the global "Notify Me" feature on/off.
      */
@@ -31,7 +35,15 @@ class AdminNotifyController extends Controller
      */
     public function index()
     {
-        $submissions = NotifyMe::all();  // Retrieve all submissions
+        $query = NotifyMe::query();
+        $this->applySearch($query, ['name', 'email', 'company']);
+        $this->applySort($query, ['name', 'email', 'company', 'created_at'], 'created_at', 'desc');
+        $submissions = $query->paginate(15)->withQueryString();
+
+        if (request()->ajax()) {
+            return view('dashboard.admin.notify._results', compact('submissions'));
+        }
+
         $notifyMeStatus = Setting::get('notify_me'); // Fetch the global Notify Me status
         return view('dashboard.admin.notify.index', compact('submissions', 'notifyMeStatus'));
     }

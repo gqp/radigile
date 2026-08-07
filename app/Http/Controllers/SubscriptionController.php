@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\Searchable;
+use App\Http\Controllers\Concerns\Sortable;
 use App\Models\Plan;
 use App\Models\User;
 use App\Models\Subscription;
@@ -9,6 +11,8 @@ use Illuminate\Http\Request;
 
 class SubscriptionController extends Controller
 {
+    use Sortable, Searchable;
+
     /**
      * Show all plans for the admin to manage.
      */
@@ -23,7 +27,15 @@ class SubscriptionController extends Controller
      */
     public function indexSubscriptions(): \Illuminate\View\View
     {
-        $subscriptions = Subscription::with(['user', 'plan'])->get();
+        $query = Subscription::with(['user', 'plan']);
+        $this->applySearch($query, ['user.name', 'user.email', 'plan.name']);
+        $this->applySort($query, ['starts_at', 'ends_at', 'is_active'], 'starts_at', 'desc');
+        $subscriptions = $query->paginate(15)->withQueryString();
+
+        if (request()->ajax()) {
+            return view('dashboard.admin.subscriptions._results', compact('subscriptions'));
+        }
+
         return view('dashboard.admin.subscriptions.index', compact('subscriptions'));
     }
 

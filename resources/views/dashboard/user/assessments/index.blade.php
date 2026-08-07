@@ -34,293 +34,45 @@
 
     {{-- My Assessments (as owner) --}}
     <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-            <strong>My Assessments ({{ $myAssessments->count() }})</strong>
+        <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <strong><span id="my-assessments-count">{{ $myAssessments->total() }}</span> My Assessments</strong>
+            <x-search-box id="my-assessments-search" param="my_search" page-param="my_page" placeholder="Search my assessments..." live />
         </div>
-        <div class="card-body p-0">
-            @if ($myAssessments->isEmpty())
-                <p class="text-muted p-3 mb-0">You haven't created any assessments yet.</p>
-            @else
-                {{-- Table view --}}
-                <div class="table-responsive assessments-view-table">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Title</th>
-                                <th>Team</th>
-                                <th class="text-center">Maturity</th>
-                                <th>Status</th>
-                                <th>Questions</th>
-                                <th>Responses</th>
-                                <th>Created</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($myAssessments as $assessment)
-                            <tr>
-                                <td><strong>{{ $assessment->title }}</strong></td>
-                                <td>{{ $assessment->team->name }}</td>
-                                <td class="text-center">
-                                    @include('dashboard.partials.mini-radar', ['team' => $assessment->team, 'size' => 44])
-                                </td>
-                                <td>
-                                    @if ($assessment->isDraft())
-                                        <span class="badge bg-secondary">Draft</span>
-                                    @elseif ($assessment->isActive())
-                                        <span class="badge bg-success">Active</span>
-                                    @else
-                                        <span class="badge bg-dark">Closed</span>
-                                    @endif
-                                </td>
-                                <td>{{ $assessment->questions->count() }}</td>
-                                <td>{{ $assessment->responses->pluck('user_id')->unique()->count() }}</td>
-                                <td>{{ $assessment->created_at->format('d M Y') }}</td>
-                                <td class="text-end">
-                                    <a href="{{ route('user.assessments.show', $assessment) }}" class="btn btn-sm btn-outline-primary">Manage</a>
-                                    @if ($assessment->isClosed())
-                                        <a href="{{ route('user.assessments.results', $assessment) }}" class="btn btn-sm btn-outline-dark">Results</a>
-                                    @endif
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Card view --}}
-                <div class="row g-4 p-3 assessments-view-cards d-none">
-                    @foreach ($myAssessments as $assessment)
-                    @php
-                        $headerClass = $assessment->isDraft() ? 'bg-secondary' : ($assessment->isActive() ? 'bg-success' : 'bg-dark');
-                    @endphp
-                    <div class="col-md-6 col-xl-4">
-                        <div class="card h-100 shadow border-0 assessment-card">
-                            <div class="card-header {{ $headerClass }} text-white d-flex align-items-center gap-2 py-3">
-                                <i class="fas fa-clipboard-list fa-lg"></i>
-                                <h5 class="mb-0 fw-bold text-truncate">{{ $assessment->title }}</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex justify-content-center mb-3">
-                                    @include('dashboard.partials.mini-radar', ['team' => $assessment->team, 'size' => 110])
-                                </div>
-                                <div class="d-flex flex-wrap gap-2 mb-3">
-                                    <span class="badge bg-light text-dark border px-3 py-2">
-                                        <i class="fas fa-users me-1"></i> {{ $assessment->team->name }}
-                                    </span>
-                                    <span class="badge {{ $headerClass }} px-3 py-2">
-                                        @if ($assessment->isDraft()) Draft @elseif ($assessment->isActive()) Active @else Closed @endif
-                                    </span>
-                                </div>
-                                <p class="mb-1 small text-muted"><i class="fas fa-question-circle me-1"></i> {{ $assessment->questions->count() }} questions</p>
-                                <p class="mb-1 small text-muted"><i class="fas fa-reply me-1"></i> {{ $assessment->responses->pluck('user_id')->unique()->count() }} responses</p>
-                                <p class="text-muted small mb-0"><i class="fas fa-calendar me-1"></i> Created {{ $assessment->created_at->format('d M Y') }}</p>
-                            </div>
-                            <div class="card-footer bg-white border-top-0 d-flex gap-2 pb-3">
-                                <a href="{{ route('user.assessments.show', $assessment) }}" class="btn btn-primary flex-fill">Manage</a>
-                                @if ($assessment->isClosed())
-                                    <a href="{{ route('user.assessments.results', $assessment) }}" class="btn btn-outline-dark flex-fill">Results</a>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            @endif
+        <div class="card-body p-0" id="my-assessments-results" data-live-url="{{ route('user.assessments.index', ['section' => 'my']) }}">
+            @include('dashboard.user.assessments._my-results', ['myAssessments' => $myAssessments, 'maturityByTeamId' => $maturityByTeamId])
         </div>
     </div>
 
     {{-- Pending (need to take) --}}
     <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-            <strong>Pending — Awaiting Your Response ({{ $pendingAssessments->count() }})</strong>
+        <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <strong><span id="pending-assessments-count">{{ $pendingAssessments->total() }}</span> Pending — Awaiting Your Response</strong>
+            <x-search-box id="pending-assessments-search" param="pending_search" page-param="pending_page" placeholder="Search pending..." live />
         </div>
-        <div class="card-body p-0">
-            @if ($pendingAssessments->isEmpty())
-                <p class="text-muted p-3 mb-0">Nothing waiting for your response.</p>
-            @else
-                {{-- Table view --}}
-                <div class="table-responsive assessments-view-table">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Title</th>
-                                <th>Team</th>
-                                <th class="text-center">Maturity</th>
-                                <th>Questions</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($pendingAssessments as $assessment)
-                            <tr>
-                                <td><strong>{{ $assessment->title }}</strong></td>
-                                <td>{{ $assessment->team->name }}</td>
-                                <td class="text-center">
-                                    @include('dashboard.partials.mini-radar', ['team' => $assessment->team, 'size' => 44])
-                                </td>
-                                <td>{{ $assessment->questions->count() }}</td>
-                                <td class="text-end">
-                                    <a href="{{ route('user.assessments.take', $assessment) }}" class="btn btn-sm btn-success">Take Assessment</a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Card view --}}
-                <div class="row g-4 p-3 assessments-view-cards d-none">
-                    @foreach ($pendingAssessments as $assessment)
-                    <div class="col-md-6 col-xl-4">
-                        <div class="card h-100 shadow border-0 assessment-card">
-                            <div class="card-header bg-warning text-dark d-flex align-items-center gap-2 py-3">
-                                <i class="fas fa-hourglass-half fa-lg"></i>
-                                <h5 class="mb-0 fw-bold text-truncate">{{ $assessment->title }}</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex justify-content-center mb-3">
-                                    @include('dashboard.partials.mini-radar', ['team' => $assessment->team, 'size' => 110])
-                                </div>
-                                <span class="badge bg-light text-dark border px-3 py-2 mb-3 d-inline-block">
-                                    <i class="fas fa-users me-1"></i> {{ $assessment->team->name }}
-                                </span>
-                                <p class="text-muted small mb-0"><i class="fas fa-question-circle me-1"></i> {{ $assessment->questions->count() }} questions</p>
-                            </div>
-                            <div class="card-footer bg-white border-top-0 pb-3">
-                                <a href="{{ route('user.assessments.take', $assessment) }}" class="btn btn-success w-100">Take Assessment</a>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            @endif
+        <div class="card-body p-0" id="pending-assessments-results" data-live-url="{{ route('user.assessments.index', ['section' => 'pending']) }}">
+            @include('dashboard.user.assessments._pending-results', ['pendingAssessments' => $pendingAssessments, 'maturityByTeamId' => $maturityByTeamId])
         </div>
     </div>
 
     {{-- Completed (taken, waiting to close) --}}
     <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-            <strong>Completed — Awaiting Results ({{ $completedAssessments->count() }})</strong>
+        <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <strong><span id="completed-assessments-count">{{ $completedAssessments->total() }}</span> Completed — Awaiting Results</strong>
+            <x-search-box id="completed-assessments-search" param="completed_search" page-param="completed_page" placeholder="Search completed..." live />
         </div>
-        <div class="card-body p-0">
-            @if ($completedAssessments->isEmpty())
-                <p class="text-muted p-3 mb-0">No completed assessments waiting on the owner to close.</p>
-            @else
-                {{-- Table view --}}
-                <div class="table-responsive assessments-view-table">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Title</th>
-                                <th>Team</th>
-                                <th class="text-center">Maturity</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($completedAssessments as $assessment)
-                            <tr>
-                                <td><strong>{{ $assessment->title }}</strong></td>
-                                <td>{{ $assessment->team->name }}</td>
-                                <td class="text-center">
-                                    @include('dashboard.partials.mini-radar', ['team' => $assessment->team, 'size' => 44])
-                                </td>
-                                <td><span class="badge bg-info text-dark">Submitted — waiting for owner to close</span></td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Card view --}}
-                <div class="row g-4 p-3 assessments-view-cards d-none">
-                    @foreach ($completedAssessments as $assessment)
-                    <div class="col-md-6 col-xl-4">
-                        <div class="card h-100 shadow border-0 assessment-card">
-                            <div class="card-header bg-info text-dark d-flex align-items-center gap-2 py-3">
-                                <i class="fas fa-check-circle fa-lg"></i>
-                                <h5 class="mb-0 fw-bold text-truncate">{{ $assessment->title }}</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex justify-content-center mb-3">
-                                    @include('dashboard.partials.mini-radar', ['team' => $assessment->team, 'size' => 110])
-                                </div>
-                                <span class="badge bg-light text-dark border px-3 py-2 mb-3 d-inline-block">
-                                    <i class="fas fa-users me-1"></i> {{ $assessment->team->name }}
-                                </span>
-                                <p class="text-muted small mb-0">Submitted — waiting for owner to close</p>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            @endif
+        <div class="card-body p-0" id="completed-assessments-results" data-live-url="{{ route('user.assessments.index', ['section' => 'completed']) }}">
+            @include('dashboard.user.assessments._completed-results', ['completedAssessments' => $completedAssessments, 'maturityByTeamId' => $maturityByTeamId])
         </div>
     </div>
 
     {{-- Closed (results available) --}}
     <div class="card shadow-sm">
-        <div class="card-header bg-light">
-            <strong>Closed — Results Available ({{ $closedAssessments->count() }})</strong>
+        <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <strong><span id="closed-assessments-count">{{ $closedAssessments->total() }}</span> Closed — Results Available</strong>
+            <x-search-box id="closed-assessments-search" param="closed_search" page-param="closed_page" placeholder="Search closed..." live />
         </div>
-        <div class="card-body p-0">
-            @if ($closedAssessments->isEmpty())
-                <p class="text-muted p-3 mb-0">No closed assessments yet.</p>
-            @else
-                {{-- Table view --}}
-                <div class="table-responsive assessments-view-table">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Title</th>
-                                <th>Team</th>
-                                <th class="text-center">Maturity</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($closedAssessments as $assessment)
-                            <tr>
-                                <td><strong>{{ $assessment->title }}</strong></td>
-                                <td>{{ $assessment->team->name }}</td>
-                                <td class="text-center">
-                                    @include('dashboard.partials.mini-radar', ['team' => $assessment->team, 'size' => 44])
-                                </td>
-                                <td class="text-end">
-                                    <a href="{{ route('user.assessments.results', $assessment) }}" class="btn btn-sm btn-outline-dark">View Results</a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Card view --}}
-                <div class="row g-4 p-3 assessments-view-cards d-none">
-                    @foreach ($closedAssessments as $assessment)
-                    <div class="col-md-6 col-xl-4">
-                        <div class="card h-100 shadow border-0 assessment-card">
-                            <div class="card-header bg-dark text-white d-flex align-items-center gap-2 py-3">
-                                <i class="fas fa-lock fa-lg"></i>
-                                <h5 class="mb-0 fw-bold text-truncate">{{ $assessment->title }}</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex justify-content-center mb-3">
-                                    @include('dashboard.partials.mini-radar', ['team' => $assessment->team, 'size' => 110])
-                                </div>
-                                <span class="badge bg-light text-dark border px-3 py-2 mb-3 d-inline-block">
-                                    <i class="fas fa-users me-1"></i> {{ $assessment->team->name }}
-                                </span>
-                            </div>
-                            <div class="card-footer bg-white border-top-0 pb-3">
-                                <a href="{{ route('user.assessments.results', $assessment) }}" class="btn btn-outline-dark w-100">View Results</a>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            @endif
+        <div class="card-body p-0" id="closed-assessments-results" data-live-url="{{ route('user.assessments.index', ['section' => 'closed']) }}">
+            @include('dashboard.user.assessments._closed-results', ['closedAssessments' => $closedAssessments, 'maturityByTeamId' => $maturityByTeamId])
         </div>
     </div>
 
@@ -343,63 +95,90 @@
         localStorage.setItem('assessmentsViewMode', mode);
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        setAssessmentsView(localStorage.getItem('assessmentsViewMode') === 'card' ? 'card' : 'table');
-    });
+    // Initializes every not-yet-charted .maturity-radar canvas within `root`.
+    // Scoped so it can be re-run after an AJAX swap inserts new canvases,
+    // without re-initializing charts that already exist elsewhere on the page.
+    function initMaturityRadars(root) {
+        root.querySelectorAll('.maturity-radar').forEach(function (canvas) {
+            const categories = JSON.parse(canvas.dataset.categories);
+            const scores = JSON.parse(canvas.dataset.scores);
+            const mini = canvas.dataset.mini === 'true';
 
-    document.querySelectorAll('.maturity-radar').forEach(function (canvas) {
-        const categories = JSON.parse(canvas.dataset.categories);
-        const scores = JSON.parse(canvas.dataset.scores);
-        const mini = canvas.dataset.mini === 'true';
+            // A radar needs 3+ axes to read as a shape — with fewer, Chart.js
+            // just draws an overlapping line, so fall back to a bar chart.
+            if (categories.length < 3) {
+                new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: categories,
+                        datasets: [{
+                            label: 'Current Maturity',
+                            data: scores,
+                            backgroundColor: 'rgba(13, 110, 253, 0.6)',
+                        }],
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { min: 0, max: 4, ticks: { stepSize: 1 } },
+                            y: { ticks: { display: !mini } },
+                        },
+                        plugins: { legend: { display: false } },
+                    },
+                });
+                return;
+            }
 
-        // A radar needs 3+ axes to read as a shape — with fewer, Chart.js
-        // just draws an overlapping line, so fall back to a bar chart.
-        if (categories.length < 3) {
             new Chart(canvas, {
-                type: 'bar',
+                type: 'radar',
                 data: {
                     labels: categories,
                     datasets: [{
                         label: 'Current Maturity',
                         data: scores,
-                        backgroundColor: 'rgba(13, 110, 253, 0.6)',
+                        backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                        borderColor: 'rgba(13, 110, 253, 1)',
+                        pointBackgroundColor: 'rgba(13, 110, 253, 1)',
                     }],
                 },
                 options: {
-                    indexAxis: 'y',
                     maintainAspectRatio: false,
                     scales: {
-                        x: { min: 0, max: 4, ticks: { stepSize: 1 } },
-                        y: { ticks: { display: !mini } },
+                        r: {
+                            min: 0, max: 4, ticks: { stepSize: 1, display: !mini },
+                            pointLabels: { display: !mini, font: { size: 11 } },
+                        },
                     },
                     plugins: { legend: { display: false } },
                 },
             });
-            return;
-        }
+        });
+    }
 
-        new Chart(canvas, {
-            type: 'radar',
-            data: {
-                labels: categories,
-                datasets: [{
-                    label: 'Current Maturity',
-                    data: scores,
-                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
-                    borderColor: 'rgba(13, 110, 253, 1)',
-                    pointBackgroundColor: 'rgba(13, 110, 253, 1)',
-                }],
-            },
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        min: 0, max: 4, ticks: { stepSize: 1, display: !mini },
-                        pointLabels: { display: !mini, font: { size: 11 } },
-                    },
+    document.addEventListener('DOMContentLoaded', function () {
+        setAssessmentsView(localStorage.getItem('assessmentsViewMode') === 'card' ? 'card' : 'table');
+        initMaturityRadars(document);
+
+        [
+            ['my-assessments-search', 'my-assessments-results', 'my-assessments-total-value', 'my-assessments-count'],
+            ['pending-assessments-search', 'pending-assessments-results', 'pending-assessments-total-value', 'pending-assessments-count'],
+            ['completed-assessments-search', 'completed-assessments-results', 'completed-assessments-total-value', 'completed-assessments-count'],
+            ['closed-assessments-search', 'closed-assessments-results', 'closed-assessments-total-value', 'closed-assessments-count'],
+        ].forEach(function ([searchId, resultsId, totalValueId, countId]) {
+            initLiveSearch(searchId, resultsId, {
+                onSwap: function () {
+                    setAssessmentsView(localStorage.getItem('assessmentsViewMode') === 'card' ? 'card' : 'table');
+                    const resultsEl = document.getElementById(resultsId);
+                    if (resultsEl) {
+                        initMaturityRadars(resultsEl);
+                    }
+                    const totalEl = document.getElementById(totalValueId);
+                    if (totalEl) {
+                        document.getElementById(countId).textContent = totalEl.textContent;
+                    }
                 },
-                plugins: { legend: { display: false } },
-            },
+            });
         });
     });
 </script>

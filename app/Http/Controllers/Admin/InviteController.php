@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\Searchable;
+use App\Http\Controllers\Concerns\Sortable;
 use App\Http\Controllers\Controller;
 use App\Mail\InviteNotification;
 use App\Models\Invite;
@@ -14,6 +16,7 @@ use Illuminate\Support\Str;
 
 class InviteController extends Controller
 {
+    use Sortable, Searchable;
 
     public function toggleInviteOnly(Request $request)
     {
@@ -35,7 +38,16 @@ class InviteController extends Controller
     public function index()
     {
         $users = User::orderBy('name')->get();
-        $invites = Invite::with(['creator', 'invitedUser'])->get(); // Eager load relationships
+
+        $inviteQuery = Invite::with(['creator', 'invitedUser']);
+        $this->applySearch($inviteQuery, ['code', 'email', 'invitedUser.name', 'invitedUser.email']);
+        $this->applySort($inviteQuery, ['code', 'max_uses', 'times_used', 'is_active', 'expires_at'], 'created_at', 'desc');
+        $invites = $inviteQuery->paginate(15)->withQueryString();
+
+        if (request()->ajax()) {
+            return view('dashboard.admin.invites._results', compact('invites'));
+        }
+
         $inviteOnly = Setting::get('invite_only'); // Get current invite-only toggle status
 
         return view('dashboard.admin.invites.index', [

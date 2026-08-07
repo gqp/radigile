@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\Searchable;
+use App\Http\Controllers\Concerns\Sortable;
 use App\Mail\NewUserNotification;
 use App\Models\Plan;
 use App\Models\Subscription;
@@ -17,6 +19,8 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    use Sortable, Searchable;
+
     public function toggleActive($id)
     {
         $user = User::findOrFail($id); // Find user
@@ -189,7 +193,15 @@ class UserController extends Controller
             abort(403, 'Access denied');
         }
 
-        $users = User::with('roles')->get(); // Pull all users with their roles
+        $query = User::with(['roles', 'subscription.plan']);
+        $this->applySearch($query, ['name', 'email']);
+        $this->applySort($query, ['name', 'email', 'last_login_at', 'created_at'], 'created_at', 'desc');
+        $users = $query->paginate(15)->withQueryString();
+
+        if (request()->ajax()) {
+            return view('dashboard.admin.users._results', compact('users'));
+        }
+
         $roles = Cache::remember('admin_roles', now()->addHour(), fn () => Role::all()); // Fetch all available roles
 
         return view('dashboard.admin.users.index', compact('users', 'roles')); // Pass both users and roles

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\Searchable;
+use App\Http\Controllers\Concerns\Sortable;
 use App\Http\Controllers\Controller;
 use App\Models\Team;
 use App\Models\User;
@@ -11,12 +13,22 @@ use Illuminate\Http\Request;
 
 class AdminTeamController extends Controller
 {
+    use Sortable, Searchable;
+
     /**
      * Display a listing of all teams.
      */
     public function index()
     {
-        $teams = Team::with(['owner', 'members'])->get();
+        $query = Team::with(['owner', 'members']);
+        $this->applySearch($query, ['name', 'description', 'owner.name']);
+        $this->applySort($query, ['name', 'created_at'], 'created_at', 'desc');
+        $teams = $query->paginate(15)->withQueryString();
+
+        if (request()->ajax()) {
+            return view('dashboard.admin.teams._results', compact('teams'));
+        }
+
         $teamDomains = TeamDomain::cached();
         $teamFrameworks = TeamFramework::cached();
 

@@ -141,72 +141,30 @@
                     <h5 class="mb-0">All Invites</h5>
                 </div>
                 <div class="card-body">
-                    @if($invites->isEmpty())
-                        <p>No invites found.</p>
-                    @else
-                        <table class="table table-bordered table-striped">
-                            <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Code</th>
-                                <th>Invited User</th>
-                                <th>Created By</th>
-                                <th>Max Uses</th>
-                                <th>Times Used</th>
-                                <th>Active</th>
-                                <th>Expires At</th>
-                                <th>Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($invites as $invite)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $invite->code }}</td>
-                                    <td>
-                                        @if($invite->invitedUser)
-                                            {{-- Registered User --}}
-                                            <strong>{{ $invite->invitedUser->name }}</strong>
-                                            ({{ $invite->invitedUser->email }})
-                                        @else
-                                            {{-- Non-registered User --}}
-                                            <span class="text-danger">
-                                                    Non-registered User
-                                                </span>
-                                            ({{ $invite->email }})
-                                        @endif
-                                    </td>
-                                    <td>{{ $invite->creator->name ?? 'N/A' }}</td>
-                                    <td>{{ $invite->max_uses }}</td>
-                                    <td>{{ $invite->times_used }}</td>
-                                    <td>
-                                            <span class="badge bg-{{ $invite->is_active ? 'success' : 'danger' }}">
-                                                {{ $invite->is_active ? 'Active' : 'Inactive' }}
-                                            </span>
-                                    </td>
-                                    <td>{{ $invite->expires_at ? $invite->expires_at->format('Y-m-d H:i:s') : 'Does not expire' }}</td>
-                                    <td>
-                                        @if($invite->is_active)
-                                            <form method="POST" action="{{ route('admin.invites.disable', $invite->id) }}" class="d-inline">
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="submit" class="btn btn-sm btn-danger">Disable</button>
-                                            </form>
-                                        @else
-                                            <form method="POST" action="{{ route('admin.invites.enable', $invite->id) }}" class="d-inline">
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="submit" class="btn btn-sm btn-success">Enable</button>
-                                            </form>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-                    @endif
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                        <strong><span id="admin-invites-count">{{ $invites->total() }}</span> invite{{ $invites->total() === 1 ? '' : 's' }}</strong>
+                        <x-search-box id="admin-invites-search" placeholder="Search code or email..." live />
+                    </div>
+                    <div id="admin-invites-results" data-live-url="{{ route('admin.invites.index') }}">
+                        @include('dashboard.admin.invites._results', ['invites' => $invites])
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        initLiveSearch('admin-invites-search', 'admin-invites-results', {
+            onSwap: function () {
+                const totalEl = document.getElementById('admin-invites-total-value');
+                if (totalEl) {
+                    document.getElementById('admin-invites-count').textContent = totalEl.textContent;
+                }
+            },
+        });
+    });
+</script>
+@endpush

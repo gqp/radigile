@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\Searchable;
+use App\Http\Controllers\Concerns\Sortable;
 use App\Models\Assessment;
 use App\Models\AssessmentEvaluator;
 use App\Models\AssessmentQuestion;
@@ -12,9 +14,12 @@ use App\Models\User;
 use App\Services\AiQuestionGenerator;
 use App\Services\TeamMaturityService;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class AssessmentController extends Controller
 {
+    use Sortable, Searchable;
+
     public function __construct(private TeamMaturityService $teamMaturityService)
     {
     }
@@ -23,15 +28,20 @@ class AssessmentController extends Controller
     {
         $user = auth()->user();
 
-        $myAssessments = Assessment::where('created_by', $user->id)
-            ->with(['team', 'questions', 'responses', 'results'])
-            ->latest()
-            ->get();
+        $myAssessmentsQuery = Assessment::where('created_by', $user->id)
+            ->with(['team', 'questions', 'responses', 'results']);
+        $this->applySearch($myAssessmentsQuery, ['title', 'team.name'], 'my_search');
+        $this->applySort($myAssessmentsQuery, ['title', 'status', 'created_at'], 'created_at', 'desc', 'my_sort', 'my_dir');
+        $myAssessments = $myAssessmentsQuery->paginate(15, ['*'], 'my_page')->withQueryString();
 
         $teamIds = $user->teamsMemberOf()->pluck('teams.id')
             ->merge($user->teamsOwned()->pluck('id'))
             ->unique();
 
+        // Pending/Completed can only be told apart after loading each user's
+        // response state (hasBeenCompletedBy / isMemberExcluded aren't plain
+        // DB columns), so those two are filtered in PHP, then paginated
+        // manually rather than via ->paginate() on the query.
         $pendingAssessments = Assessment::where('status', 'active')
             ->where(function ($q) use ($user, $teamIds) {
                 $q->whereIn('team_id', $teamIds)
@@ -45,6 +55,7 @@ class AssessmentController extends Controller
                 $isEvaluator = $a->evaluators->contains('user_id', $user->id);
                 return $isEvaluator || !$a->isMemberExcluded($user->id);
             });
+        $pendingAssessments = $this->paginateCollection($pendingAssessments, 'title', 'pending');
 
         $completedAssessments = Assessment::where('status', 'active')
             ->where(function ($q) use ($user, $teamIds) {
@@ -55,27 +66,76 @@ class AssessmentController extends Controller
             ->with(['team', 'questions', 'responses'])
             ->get()
             ->filter(fn($a) => $a->hasBeenCompletedBy($user));
+        $completedAssessments = $this->paginateCollection($completedAssessments, 'title', 'completed');
 
-        $closedAssessments = Assessment::where('status', 'closed')
+        $closedAssessmentsQuery = Assessment::where('status', 'closed')
             ->where(function ($q) use ($user, $teamIds) {
                 $q->whereIn('team_id', $teamIds)
                   ->orWhereHas('evaluators', fn($eq) => $eq->where('user_id', $user->id));
             })
             ->where('created_by', '!=', $user->id)
-            ->with(['team'])
-            ->get();
+            ->with(['team']);
+        $this->applySearch($closedAssessmentsQuery, ['title', 'team.name'], 'closed_search');
+        $this->applySort($closedAssessmentsQuery, ['title', 'created_at'], 'created_at', 'desc', 'closed_sort', 'closed_dir');
+        $closedAssessments = $closedAssessmentsQuery->paginate(15, ['*'], 'closed_page')->withQueryString();
 
-        $relevantTeamIds = $myAssessments->pluck('team_id')
-            ->merge($pendingAssessments->pluck('team_id'))
-            ->merge($completedAssessments->pluck('team_id'))
-            ->merge($closedAssessments->pluck('team_id'))
+        $relevantTeamIds = $myAssessments->getCollection()->pluck('team_id')
+            ->merge($pendingAssessments->getCollection()->pluck('team_id'))
+            ->merge($completedAssessments->getCollection()->pluck('team_id'))
+            ->merge($closedAssessments->getCollection()->pluck('team_id'))
             ->unique();
         $allTeams = Team::with('members')->whereIn('id', $relevantTeamIds)->get();
         $maturityByTeamId = $this->teamMaturityService->build($allTeams)->keyBy(fn ($entry) => $entry['team']->id);
 
+        if (request()->ajax()) {
+            $partials = [
+                'my'        => ['dashboard.user.assessments._my-results', ['myAssessments' => $myAssessments]],
+                'pending'   => ['dashboard.user.assessments._pending-results', ['pendingAssessments' => $pendingAssessments]],
+                'completed' => ['dashboard.user.assessments._completed-results', ['completedAssessments' => $completedAssessments]],
+                'closed'    => ['dashboard.user.assessments._closed-results', ['closedAssessments' => $closedAssessments]],
+            ];
+            [$view, $data] = $partials[request('section')] ?? $partials['my'];
+            return view($view, [...$data, 'maturityByTeamId' => $maturityByTeamId]);
+        }
+
         return view('dashboard.user.assessments.index', compact(
             'myAssessments', 'pendingAssessments', 'completedAssessments', 'closedAssessments', 'maturityByTeamId'
         ));
+    }
+
+    /**
+     * Search + sort + slice an already-fetched collection into a
+     * LengthAwarePaginator, for lists that can't be paginated at the query
+     * level (see index()).
+     */
+    private function paginateCollection($collection, string $defaultSort, string $paramPrefix, int $perPage = 15): LengthAwarePaginator
+    {
+        if ($term = trim((string) request("{$paramPrefix}_search"))) {
+            $needle = strtolower($term);
+            $collection = $collection->filter(function ($item) use ($needle) {
+                return str_contains(strtolower($item->title), $needle)
+                    || str_contains(strtolower($item->team->name ?? ''), $needle);
+            });
+        }
+
+        $sort = request("{$paramPrefix}_sort", $defaultSort);
+        $dir = request("{$paramPrefix}_dir", 'desc');
+
+        $sorted = $collection->sortBy(
+            fn ($item) => $sort === 'created_at' ? $item->created_at->timestamp : strtolower($item->{$sort} ?? ''),
+            SORT_REGULAR,
+            $dir === 'desc'
+        )->values();
+
+        $page = (int) request("{$paramPrefix}_page", 1);
+
+        return new LengthAwarePaginator(
+            $sorted->forPage($page, $perPage)->values(),
+            $sorted->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query(), 'pageName' => "{$paramPrefix}_page"]
+        );
     }
 
     public function create()
