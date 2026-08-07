@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\Searchable;
+use App\Http\Controllers\Concerns\Sortable;
 use App\Models\Assessment;
+use App\Models\AssessmentTemplatePublishRequest;
 use App\Models\Team;
 use App\Models\TeamInvitation;
+use App\Models\TeamJoinRequest;
 use App\Models\TeamMemberRole;
 use App\Models\User;
 use App\Services\TeamMaturityService;
@@ -16,6 +20,8 @@ use App\Models\TeamFramework;
 
 class UserTeamController extends Controller
 {
+    use Sortable, Searchable;
+
     public function __construct(private TeamMaturityService $teamMaturityService)
     {
     }
@@ -32,17 +38,22 @@ class UserTeamController extends Controller
             ->with('team')
             ->get();
 
-        $ownedTeams = $user->teamsOwned()
+        $ownedQuery = $user->teamsOwned()
             ->with(['team_frameq', 'members'])
             ->withCount(['invitations as pending_count' => fn($q) =>
                 $q->where(fn($q2) => $q2->whereNull('expires_at')->orWhere('expires_at', '>', now()))
             ])
-            ->get();
+            ->withCount(['joinRequests as pending_requests_count' => fn($q) => $q->pending()]);
+        $this->applySearch($ownedQuery, ['name', 'description'], 'owned_search');
+        $this->applySort($ownedQuery, ['name', 'created_at'], 'created_at', 'desc', 'owned_sort', 'owned_dir');
+        $ownedTeams = $ownedQuery->paginate(15, ['*'], 'owned_page')->withQueryString();
 
-        $memberTeams = $user->teamsMemberOf()
+        $memberQuery = $user->teamsMemberOf()
             ->with(['owner', 'team_frameq'])
-            ->withPivot('role', 'created_at')
-            ->get();
+            ->withPivot('role', 'created_at');
+        $this->applySearch($memberQuery, ['name', 'description'], 'member_search');
+        $this->applySort($memberQuery, ['name'], 'name', 'asc', 'member_sort', 'member_dir');
+        $memberTeams = $memberQuery->paginate(15, ['*'], 'member_page')->withQueryString();
 
         $pendingAssessments = Assessment::where('status', 'active')
             ->whereHas('team', function ($q) use ($user) {
@@ -53,15 +64,32 @@ class UserTeamController extends Controller
             ->with('team')
             ->get();
 
-        $allTeams = $ownedTeams->merge($memberTeams)->unique('id')->load('members');
+        $teamIds = collect($ownedTeams->items())->merge(collect($memberTeams->items()))->pluck('id')->unique();
+        $allTeams = Team::with('members')->whereIn('id', $teamIds)->get();
         $maturityByTeamId = $this->teamMaturityService->build($allTeams)->keyBy(fn ($entry) => $entry['team']->id);
 
+        $myPendingJoinRequests = TeamJoinRequest::where('user_id', $user->id)
+            ->pending()
+            ->with('team')
+            ->latest()
+            ->get();
+
+        if (request()->ajax()) {
+            $partials = [
+                'owned'  => ['dashboard.user.teams._owned-results', ['ownedTeams' => $ownedTeams]],
+                'member' => ['dashboard.user.teams._member-results', ['memberTeams' => $memberTeams]],
+            ];
+            [$view, $data] = $partials[request('section')] ?? $partials['owned'];
+            return view($view, [...$data, 'maturityByTeamId' => $maturityByTeamId]);
+        }
+
         return view('dashboard.user.teams.index', [
-            'ownedTeams'         => $ownedTeams,
-            'memberTeams'        => $memberTeams,
-            'pendingInvites'     => $pendingInvites,
-            'pendingAssessments' => $pendingAssessments,
-            'maturityByTeamId'   => $maturityByTeamId,
+            'ownedTeams'             => $ownedTeams,
+            'memberTeams'            => $memberTeams,
+            'pendingInvites'         => $pendingInvites,
+            'pendingAssessments'     => $pendingAssessments,
+            'maturityByTeamId'       => $maturityByTeamId,
+            'myPendingJoinRequests'  => $myPendingJoinRequests,
         ]);
     }
 
@@ -104,8 +132,24 @@ class UserTeamController extends Controller
 
         $maturityHistory = $this->teamMaturityService->history($team);
 
+        $canApproveJoinRequests = $team->canApproveJoinRequests(Auth::user());
+        $pendingJoinRequests = $canApproveJoinRequests
+            ? $team->joinRequests()->pending()->with('user')->latest()->get()
+            : collect();
+
+        $canManageAssessments = $team->canManageAssessments(Auth::user());
+        $teamTemplates = $canManageAssessments
+            ? $team->templates()->withCount('questions')->latest()->get()
+            : collect();
+        $pendingTemplatePublishRequests = $canManageAssessments
+            ? AssessmentTemplatePublishRequest::whereIn('assessment_template_id', $team->templates()->pluck('id'))
+                ->pending()->get()->keyBy('assessment_template_id')
+            : collect();
+
         return view('dashboard.user.teams.show', compact(
-            'team', 'isOwner', 'outgoingInvitations', 'memberRoles', 'maturity', 'opportunities', 'maturityHistory'
+            'team', 'isOwner', 'outgoingInvitations', 'memberRoles', 'maturity', 'opportunities', 'maturityHistory',
+            'canApproveJoinRequests', 'pendingJoinRequests',
+            'canManageAssessments', 'teamTemplates', 'pendingTemplatePublishRequests'
         ));
     }
 
@@ -256,6 +300,7 @@ class UserTeamController extends Controller
             'type' => $validated['type'],
             'team_domain_id' => $validated['team_domain_id'],
             'team_framework_id' => $validated['team_framework_id'],
+            'open_to_join_requests' => $request->boolean('open_to_join_requests'),
         ]);
 
         return redirect()->route('user.teams.show', $team->id)->with('success', 'Team updated successfully!');

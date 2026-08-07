@@ -1,0 +1,20 @@
+@extends('emails.layouts.branded')
+
+@section('title', 'Update on your template publish request')
+
+@section('content')
+    <h1 style="margin:0 0 16px; font-size:22px; font-weight:700; color:#2d2438;">
+        Update on your request 🌱
+    </h1>
+
+    <p style="margin:0 0 24px;">
+        Hi {{ $requesterName }}, your request to publish "<strong>{{ $templateTitle }}</strong>" as a public
+        template was declined. It's still available to your team.
+    </p>
+
+    <x-email.button :url="$teamUrl">View Your Team</x-email.button>
+
+    <p style="margin:0; font-size:13px; color:#948b9e;">
+        You're welcome to request this again later.
+    </p>
+@endsection

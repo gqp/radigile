@@ -78,6 +78,36 @@
         </div>
     @endif
 
+    {{-- My Join Requests --}}
+    @if($myPendingJoinRequests->isNotEmpty())
+        <div class="alert alert-secondary border shadow-sm">
+            <div class="d-flex align-items-start gap-2">
+                <i class="fas fa-user-clock fa-lg mt-1"></i>
+                <div class="flex-grow-1">
+                    <strong>You have {{ $myPendingJoinRequests->count() }} pending join request{{ $myPendingJoinRequests->count() > 1 ? 's' : '' }}</strong>
+                    <ul class="mb-0 mt-2 list-unstyled">
+                        @foreach($myPendingJoinRequests as $request)
+                            <li class="d-flex align-items-center justify-content-between gap-3 py-1 border-bottom border-opacity-25">
+                                <span>
+                                    Requested to join <strong>{{ $request->team->name ?? 'a team' }}</strong>
+                                    <small class="text-muted ms-1">· sent {{ $request->created_at->diffForHumans() }}</small>
+                                </span>
+                                <form method="POST" action="{{ route('user.join-requests.cancel', $request) }}"
+                                      onsubmit="return confirm('Withdraw this request?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-times"></i> Withdraw
+                                    </button>
+                                </form>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Header --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="mb-0"><i class="fas fa-user-friends"></i> My Teams</h4>
@@ -98,191 +128,23 @@
 
     {{-- Teams I Own --}}
     <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-            <strong>Teams I Own ({{ $ownedTeams->count() }})</strong>
+        <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <strong><span id="owned-teams-count">{{ $ownedTeams->total() }}</span> Teams I Own</strong>
+            <x-search-box id="owned-teams-search" param="owned_search" page-param="owned_page" placeholder="Search my teams..." live />
         </div>
-        <div class="card-body p-0">
-            @if ($ownedTeams->isEmpty())
-                <p class="text-muted p-3 mb-0">You don't own any teams yet. <a href="{{ route('user.teams.create') }}">Create one</a>.</p>
-            @else
-                {{-- Table view --}}
-                <div class="table-responsive teams-view-table">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Name</th>
-                                <th class="text-center">Maturity</th>
-                                <th>Framework</th>
-                                <th class="text-center">Members</th>
-                                <th class="text-center">Pending</th>
-                                <th>Created</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($ownedTeams as $team)
-                            <tr>
-                                <td>
-                                    <strong>{{ $team->name }}</strong>
-                                    @if($team->description)
-                                        <br><small class="text-muted">{{ Str::limit($team->description, 60) }}</small>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    @include('dashboard.partials.mini-radar', ['team' => $team, 'size' => 44])
-                                </td>
-                                <td class="text-muted small">{{ $team->team_frameq->name ?? '—' }}</td>
-                                <td class="text-center">{{ $team->members->count() }}</td>
-                                <td class="text-center">
-                                    @if($team->pending_count > 0)
-                                        <a href="{{ route('user.teams.show', $team->id) }}"
-                                           class="badge bg-warning text-dark text-decoration-none"
-                                           title="{{ $team->pending_count }} invitation(s) awaiting response">
-                                            {{ $team->pending_count }}
-                                        </a>
-                                    @else
-                                        <span class="text-muted">—</span>
-                                    @endif
-                                </td>
-                                <td class="text-muted small">{{ $team->created_at->format('d M Y') }}</td>
-                                <td class="text-end">
-                                    <a href="{{ route('user.teams.show', $team->id) }}" class="btn btn-sm btn-outline-primary">View</a>
-                                    <a href="{{ route('user.teams.edit', $team->id) }}" class="btn btn-sm btn-outline-warning">Edit</a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Card view --}}
-                <div class="row g-4 p-3 teams-view-cards d-none">
-                    @foreach ($ownedTeams as $team)
-                    <div class="col-md-6 col-xl-4">
-                        <div class="card h-100 shadow border-0 team-card">
-                            <div class="card-header bg-primary text-white d-flex align-items-center gap-2 py-3">
-                                <i class="fas fa-users fa-lg"></i>
-                                <h5 class="mb-0 fw-bold text-truncate">{{ $team->name }}</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex justify-content-center mb-3">
-                                    @include('dashboard.partials.mini-radar', ['team' => $team, 'size' => 110])
-                                </div>
-                                @if($team->description)
-                                    <p class="text-muted mb-3">{{ Str::limit($team->description, 80) }}</p>
-                                @endif
-                                <div class="d-flex flex-wrap gap-2 mb-3">
-                                    <span class="badge bg-light text-dark border px-3 py-2">
-                                        <i class="fas fa-diagram-project me-1"></i> {{ $team->team_frameq->name ?? '—' }}
-                                    </span>
-                                    <span class="badge bg-light text-dark border px-3 py-2">
-                                        <i class="fas fa-user-friends me-1"></i> {{ $team->members->count() }} member{{ $team->members->count() === 1 ? '' : 's' }}
-                                    </span>
-                                    @if($team->pending_count > 0)
-                                        <span class="badge bg-warning text-dark px-3 py-2">
-                                            <i class="fas fa-envelope me-1"></i> {{ $team->pending_count }} pending
-                                        </span>
-                                    @endif
-                                </div>
-                                <p class="text-muted small mb-0"><i class="fas fa-calendar me-1"></i> Created {{ $team->created_at->format('d M Y') }}</p>
-                            </div>
-                            <div class="card-footer bg-white border-top-0 d-flex gap-2 pb-3">
-                                <a href="{{ route('user.teams.show', $team->id) }}" class="btn btn-primary flex-fill">View</a>
-                                <a href="{{ route('user.teams.edit', $team->id) }}" class="btn btn-outline-warning flex-fill">Edit</a>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            @endif
+        <div class="card-body p-0" id="owned-teams-results" data-live-url="{{ route('user.teams.index', ['section' => 'owned']) }}">
+            @include('dashboard.user.teams._owned-results', ['ownedTeams' => $ownedTeams])
         </div>
     </div>
 
     {{-- Teams I'm a Member Of --}}
     <div class="card shadow-sm">
-        <div class="card-header bg-light">
-            <strong>Teams I'm a Member Of ({{ $memberTeams->count() }})</strong>
+        <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <strong><span id="member-teams-count">{{ $memberTeams->total() }}</span> Teams I'm a Member Of</strong>
+            <x-search-box id="member-teams-search" param="member_search" page-param="member_page" placeholder="Search teams I'm in..." live />
         </div>
-        <div class="card-body p-0">
-            @if ($memberTeams->isEmpty())
-                <p class="text-muted p-3 mb-0">You haven't been added to any teams yet.</p>
-            @else
-                {{-- Table view --}}
-                <div class="table-responsive teams-view-table">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Name</th>
-                                <th class="text-center">Maturity</th>
-                                <th>Owner</th>
-                                <th>Framework</th>
-                                <th>My Role</th>
-                                <th>Joined</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($memberTeams as $team)
-                            <tr>
-                                <td>
-                                    <strong>{{ $team->name }}</strong>
-                                    @if($team->description)
-                                        <br><small class="text-muted">{{ Str::limit($team->description, 60) }}</small>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    @include('dashboard.partials.mini-radar', ['team' => $team, 'size' => 44])
-                                </td>
-                                <td class="text-muted small">{{ $team->owner->name ?? '—' }}</td>
-                                <td class="text-muted small">{{ $team->team_frameq->name ?? '—' }}</td>
-                                <td><span class="badge bg-secondary">{{ ucfirst($team->pivot->role ?? 'member') }}</span></td>
-                                <td class="text-muted small">{{ $team->pivot->created_at?->format('d M Y') ?? '—' }}</td>
-                                <td class="text-end">
-                                    <a href="{{ route('user.teams.show', $team->id) }}" class="btn btn-sm btn-outline-primary">View</a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Card view --}}
-                <div class="row g-4 p-3 teams-view-cards d-none">
-                    @foreach ($memberTeams as $team)
-                    <div class="col-md-6 col-xl-4">
-                        <div class="card h-100 shadow border-0 team-card">
-                            <div class="card-header bg-secondary text-white d-flex align-items-center gap-2 py-3">
-                                <i class="fas fa-user-friends fa-lg"></i>
-                                <h5 class="mb-0 fw-bold text-truncate">{{ $team->name }}</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex justify-content-center mb-3">
-                                    @include('dashboard.partials.mini-radar', ['team' => $team, 'size' => 110])
-                                </div>
-                                @if($team->description)
-                                    <p class="text-muted mb-3">{{ Str::limit($team->description, 80) }}</p>
-                                @endif
-                                <div class="d-flex flex-wrap gap-2 mb-3">
-                                    <span class="badge bg-light text-dark border px-3 py-2">
-                                        <i class="fas fa-crown me-1"></i> {{ $team->owner->name ?? '—' }}
-                                    </span>
-                                    <span class="badge bg-light text-dark border px-3 py-2">
-                                        <i class="fas fa-diagram-project me-1"></i> {{ $team->team_frameq->name ?? '—' }}
-                                    </span>
-                                    <span class="badge bg-info text-dark px-3 py-2">
-                                        {{ ucfirst($team->pivot->role ?? 'member') }}
-                                    </span>
-                                </div>
-                                <p class="text-muted small mb-0"><i class="fas fa-calendar me-1"></i> Joined {{ $team->pivot->created_at?->format('d M Y') ?? '—' }}</p>
-                            </div>
-                            <div class="card-footer bg-white border-top-0 pb-3">
-                                <a href="{{ route('user.teams.show', $team->id) }}" class="btn btn-primary w-100">View</a>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            @endif
+        <div class="card-body p-0" id="member-teams-results" data-live-url="{{ route('user.teams.index', ['section' => 'member']) }}">
+            @include('dashboard.user.teams._member-results', ['memberTeams' => $memberTeams])
         </div>
     </div>
 
@@ -305,63 +167,88 @@
         localStorage.setItem('teamsViewMode', mode);
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        setTeamsView(localStorage.getItem('teamsViewMode') === 'card' ? 'card' : 'table');
-    });
+    // Initializes every not-yet-charted .maturity-radar canvas within `root`.
+    // Scoped so it can be re-run after an AJAX swap inserts new canvases,
+    // without re-initializing charts that already exist elsewhere on the page.
+    function initMaturityRadars(root) {
+        root.querySelectorAll('.maturity-radar').forEach(function (canvas) {
+            const categories = JSON.parse(canvas.dataset.categories);
+            const scores = JSON.parse(canvas.dataset.scores);
+            const mini = canvas.dataset.mini === 'true';
 
-    document.querySelectorAll('.maturity-radar').forEach(function (canvas) {
-        const categories = JSON.parse(canvas.dataset.categories);
-        const scores = JSON.parse(canvas.dataset.scores);
-        const mini = canvas.dataset.mini === 'true';
+            // A radar needs 3+ axes to read as a shape — with fewer, Chart.js
+            // just draws an overlapping line, so fall back to a bar chart.
+            if (categories.length < 3) {
+                new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: categories,
+                        datasets: [{
+                            label: 'Current Maturity',
+                            data: scores,
+                            backgroundColor: 'rgba(13, 110, 253, 0.6)',
+                        }],
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { min: 0, max: 4, ticks: { stepSize: 1 } },
+                            y: { ticks: { display: !mini } },
+                        },
+                        plugins: { legend: { display: false } },
+                    },
+                });
+                return;
+            }
 
-        // A radar needs 3+ axes to read as a shape — with fewer, Chart.js
-        // just draws an overlapping line, so fall back to a bar chart.
-        if (categories.length < 3) {
             new Chart(canvas, {
-                type: 'bar',
+                type: 'radar',
                 data: {
                     labels: categories,
                     datasets: [{
                         label: 'Current Maturity',
                         data: scores,
-                        backgroundColor: 'rgba(13, 110, 253, 0.6)',
+                        backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                        borderColor: 'rgba(13, 110, 253, 1)',
+                        pointBackgroundColor: 'rgba(13, 110, 253, 1)',
                     }],
                 },
                 options: {
-                    indexAxis: 'y',
                     maintainAspectRatio: false,
                     scales: {
-                        x: { min: 0, max: 4, ticks: { stepSize: 1 } },
-                        y: { ticks: { display: !mini } },
+                        r: {
+                            min: 0, max: 4, ticks: { stepSize: 1, display: !mini },
+                            pointLabels: { display: !mini, font: { size: 11 } },
+                        },
                     },
                     plugins: { legend: { display: false } },
                 },
             });
-            return;
-        }
+        });
+    }
 
-        new Chart(canvas, {
-            type: 'radar',
-            data: {
-                labels: categories,
-                datasets: [{
-                    label: 'Current Maturity',
-                    data: scores,
-                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
-                    borderColor: 'rgba(13, 110, 253, 1)',
-                    pointBackgroundColor: 'rgba(13, 110, 253, 1)',
-                }],
-            },
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        min: 0, max: 4, ticks: { stepSize: 1, display: !mini },
-                        pointLabels: { display: !mini, font: { size: 11 } },
-                    },
+    document.addEventListener('DOMContentLoaded', function () {
+        setTeamsView(localStorage.getItem('teamsViewMode') === 'card' ? 'card' : 'table');
+        initMaturityRadars(document);
+
+        [
+            ['owned-teams-search', 'owned-teams-results', 'owned-teams-total-value', 'owned-teams-count'],
+            ['member-teams-search', 'member-teams-results', 'member-teams-total-value', 'member-teams-count'],
+        ].forEach(function ([searchId, resultsId, totalValueId, countId]) {
+            initLiveSearch(searchId, resultsId, {
+                onSwap: function () {
+                    setTeamsView(localStorage.getItem('teamsViewMode') === 'card' ? 'card' : 'table');
+                    const resultsEl = document.getElementById(resultsId);
+                    if (resultsEl) {
+                        initMaturityRadars(resultsEl);
+                    }
+                    const totalEl = document.getElementById(totalValueId);
+                    if (totalEl) {
+                        document.getElementById(countId).textContent = totalEl.textContent;
+                    }
                 },
-                plugins: { legend: { display: false } },
-            },
+            });
         });
     });
 </script>

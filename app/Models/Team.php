@@ -20,6 +20,11 @@ class Team extends Model
         'team_domain_id', // References the `team_domains` table
         'team_framework_id',   // References the `team_types` table
         'owner_id',
+        'open_to_join_requests',
+    ];
+
+    protected $casts = [
+        'open_to_join_requests' => 'boolean',
     ];
 
     public function isPublic(): bool
@@ -60,11 +65,76 @@ class Team extends Model
     }
 
     /**
+     * Relationship for join requests.
+     */
+    public function joinRequests(): HasMany
+    {
+        return $this->hasMany(TeamJoinRequest::class);
+    }
+
+    /**
+     * Whether $user can approve/reject join requests for this team — the
+     * owner always can, plus any member whose team role has been granted
+     * the 'approve-join-requests' permission.
+     */
+    public function canApproveJoinRequests(User $user): bool
+    {
+        if ($user->id === $this->owner_id) {
+            return true;
+        }
+
+        $role = $this->members()->where('users.id', $user->id)->first()?->pivot->role;
+
+        if (!$role) {
+            return false;
+        }
+
+        return TeamMemberRole::where('slug', $role)->first()?->hasPermission('approve-join-requests') ?? false;
+    }
+
+    /**
+     * Relationship for assessment templates saved by this team.
+     */
+    public function templates(): HasMany
+    {
+        return $this->hasMany(AssessmentTemplate::class);
+    }
+
+    /**
+     * Whether $user can create/manage assessments (and, by extension, pick a
+     * template / save-as-template / request-public) for this team — the
+     * owner always can, plus any member whose team role has been granted
+     * the 'manage-assessments' permission. Mirrors canApproveJoinRequests().
+     */
+    public function canManageAssessments(User $user): bool
+    {
+        if ($user->id === $this->owner_id) {
+            return true;
+        }
+
+        $role = $this->members()->where('users.id', $user->id)->first()?->pivot->role;
+
+        if (!$role) {
+            return false;
+        }
+
+        return TeamMemberRole::where('slug', $role)->first()?->hasPermission('manage-assessments') ?? false;
+    }
+
+    /**
      * Scope: Get teams owned by a specific user.
      */
     public function scopeOwnedBy($query, int $userId)
     {
         return $query->where('owner_id', $userId);
+    }
+
+    /**
+     * Scope: Get teams currently accepting join requests.
+     */
+    public function scopeOpenToJoinRequests($query)
+    {
+        return $query->where('open_to_join_requests', true);
     }
 
     /**

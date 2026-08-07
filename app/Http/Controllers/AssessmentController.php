@@ -7,6 +7,8 @@ use App\Http\Controllers\Concerns\Sortable;
 use App\Models\Assessment;
 use App\Models\AssessmentEvaluator;
 use App\Models\AssessmentQuestion;
+use App\Models\AssessmentTemplate;
+use App\Models\AssessmentTemplateQuestion;
 use App\Models\Question;
 use App\Models\QuestionCategory;
 use App\Models\Team;
@@ -141,15 +143,26 @@ class AssessmentController extends Controller
     public function create()
     {
         $user = auth()->user();
-        if (!$user->hasPermissionTo('manage-assessments') && !$user->planHasFeature('create-assessments')) {
-            return redirect()->route('user.assessments.index')
-                ->with('error', 'Your current plan does not include assessment creation. Please upgrade to access this feature.');
-        }
-        $teams = $user->hasPermissionTo('manage-assessments')
-            ? Team::orderBy('name')->get()
-            : $user->teamsOwned->merge($user->teamsMemberOf)->unique('id')->sortBy('name')->values();
+        $isAdmin = $user->hasPermissionTo('manage-assessments');
 
-        return view('dashboard.user.assessments.create', compact('teams'));
+        $teams = $isAdmin
+            ? Team::orderBy('name')->get()
+            : $user->teamsOwned->merge($user->teamsMemberOf)->unique('id')
+                ->filter(fn (Team $team) => $team->canManageAssessments($user) && $user->planHasFeature('create-assessments'))
+                ->sortBy('name')->values();
+
+        if (!$isAdmin && $teams->isEmpty()) {
+            return redirect()->route('user.assessments.index')
+                ->with('error', 'You don\'t have permission to create assessments for any team, or your plan doesn\'t include this feature.');
+        }
+
+        $templates = AssessmentTemplate::with('team')
+            ->where('is_public', true)
+            ->orWhereIn('team_id', $teams->pluck('id'))
+            ->orderBy('title')
+            ->get();
+
+        return view('dashboard.user.assessments.create', compact('teams', 'templates'));
     }
 
     public function store(Request $request)
@@ -158,27 +171,84 @@ class AssessmentController extends Controller
             'team_id'     => 'required|exists:teams,id',
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
+            'template_id' => 'nullable|exists:assessment_templates,id',
         ]);
 
         $user = auth()->user();
         $team = Team::findOrFail($validated['team_id']);
-        $isTeamAssociated = $team->owner_id === $user->id
-            || $team->members()->where('users.id', $user->id)->exists();
+        $isAdmin = $user->hasPermissionTo('manage-assessments');
 
         abort_unless(
-            $user->hasPermissionTo('manage-assessments')
-            || ($isTeamAssociated && $user->planHasFeature('create-assessments')),
+            $isAdmin || ($team->canManageAssessments($user) && $user->planHasFeature('create-assessments')),
             403
         );
 
+        $template = null;
+        if (!empty($validated['template_id'])) {
+            $template = AssessmentTemplate::findOrFail($validated['template_id']);
+            abort_unless($template->is_public || $template->team_id === $team->id, 403, 'This template is not available to this team.');
+        }
+
         $assessment = Assessment::create([
-            ...$validated,
-            'created_by' => auth()->id(),
-            'status'     => 'draft',
+            'team_id'     => $validated['team_id'],
+            'title'       => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'created_by'  => auth()->id(),
+            'status'      => 'draft',
         ]);
 
+        if ($template) {
+            $order = 0;
+            foreach ($template->questions()->with('question')->get() as $templateQuestion) {
+                if (!$templateQuestion->question?->is_active) {
+                    continue; // skip questions retired since the template was made
+                }
+                AssessmentQuestion::firstOrCreate(
+                    ['assessment_id' => $assessment->id, 'question_id' => $templateQuestion->question_id],
+                    ['order' => ++$order]
+                );
+            }
+        }
+
         return redirect()->route('user.assessments.show', $assessment)
-            ->with('success', 'Assessment created. Add questions from the library below.');
+            ->with('success', $template
+                ? 'Assessment created from template. Review the questions below.'
+                : 'Assessment created. Add questions from the library below.');
+    }
+
+    public function saveAsTemplate(Assessment $assessment)
+    {
+        $this->authorizeOwner($assessment);
+        abort_unless($assessment->questions()->count() > 0, 422, 'Add at least one question before saving as a template.');
+
+        $validated = request()->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        $isAdmin = auth()->user()->hasPermissionTo('manage-assessments');
+
+        $template = AssessmentTemplate::create([
+            'title'               => $validated['title'],
+            'description'         => $validated['description'] ?? null,
+            'team_id'             => $isAdmin ? null : $assessment->team_id,
+            'created_by'          => auth()->id(),
+            'is_public'           => $isAdmin,
+            'source_assessment_id' => $assessment->id,
+        ]);
+
+        $order = 0;
+        foreach ($assessment->questions()->with('question')->get() as $assessmentQuestion) {
+            AssessmentTemplateQuestion::create([
+                'assessment_template_id' => $template->id,
+                'question_id'            => $assessmentQuestion->question_id,
+                'order'                  => ++$order,
+            ]);
+        }
+
+        return back()->with('success', $isAdmin
+            ? 'Template saved and published globally.'
+            : 'Template saved for your team. You can request it be made public from the team page.');
     }
 
     public function show(Assessment $assessment)

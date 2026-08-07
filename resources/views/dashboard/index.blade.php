@@ -303,7 +303,7 @@
     <h4 class="mb-4">Welcome back, {{ Auth::user()->name }}!</h4>
 
     <div class="row g-3 mb-4">
-        <div class="col-lg-3 col-sm-6">
+        <div class="col-lg-4 col-md-6 col-sm-6">
             <div class="small-box bg-primary">
                 <div class="inner">
                     <h3>{{ $ownedTeams->count() }}</h3>
@@ -313,7 +313,7 @@
                 <a href="{{ route('user.teams.index') }}" class="small-box-footer">View <i class="fas fa-arrow-circle-right"></i></a>
             </div>
         </div>
-        <div class="col-lg-3 col-sm-6">
+        <div class="col-lg-4 col-md-6 col-sm-6">
             <div class="small-box bg-success">
                 <div class="inner">
                     <h3>{{ $memberTeams->count() }}</h3>
@@ -323,7 +323,7 @@
                 <a href="{{ route('user.teams.index') }}" class="small-box-footer">View <i class="fas fa-arrow-circle-right"></i></a>
             </div>
         </div>
-        <div class="col-lg-3 col-sm-6">
+        <div class="col-lg-4 col-md-6 col-sm-6">
             <div class="small-box {{ $pendingAssessments > 0 ? 'bg-warning' : 'bg-secondary' }}">
                 <div class="inner">
                     <h3>{{ $pendingAssessments }}</h3>
@@ -333,18 +333,24 @@
                 <a href="{{ route('user.assessments.index') }}" class="small-box-footer">View <i class="fas fa-arrow-circle-right"></i></a>
             </div>
         </div>
-        <div class="col-lg-3 col-sm-6">
-            <div class="small-box bg-info">
+        <div class="col-lg-4 col-md-6 col-sm-6">
+            <div class="small-box {{ $pendingJoinRequests > 0 ? 'bg-warning' : 'bg-secondary' }}">
                 <div class="inner">
-                    <h3 style="font-size:1.4rem;">{{ $subscription ? $subscription->plan->name : 'None' }}</h3>
-                    <p>Current Plan</p>
+                    <h3>{{ $pendingJoinRequests }}</h3>
+                    <p>Pending Join Requests</p>
                 </div>
-                <div class="icon"><i class="fas fa-credit-card"></i></div>
-                @if($subscription && $subscription->plan->interval !== 'free')
-                    <a href="{{ route('billing.portal') }}" class="small-box-footer">Manage <i class="fas fa-arrow-circle-right"></i></a>
-                @else
-                    <a href="{{ route('user.dashboard') }}" class="small-box-footer">Upgrade <i class="fas fa-arrow-circle-right"></i></a>
-                @endif
+                <div class="icon"><i class="fas fa-user-clock"></i></div>
+                <a href="{{ route('user.teams.index') }}" class="small-box-footer">View <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 col-sm-6">
+            <div class="small-box {{ $pendingInvitesSent > 0 ? 'bg-info' : 'bg-secondary' }}">
+                <div class="inner">
+                    <h3>{{ $pendingInvitesSent }}</h3>
+                    <p>Invites Sent (Pending)</p>
+                </div>
+                <div class="icon"><i class="fas fa-paper-plane"></i></div>
+                <a href="{{ route('user.teams.index') }}" class="small-box-footer">View <i class="fas fa-arrow-circle-right"></i></a>
             </div>
         </div>
     </div>

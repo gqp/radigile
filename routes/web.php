@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\AdminAssessmentController;
+use App\Http\Controllers\Admin\AdminAssessmentTemplateController;
+use App\Http\Controllers\AssessmentTemplateController;
 use App\Http\Controllers\Admin\AdminNotifyController;
 use App\Http\Controllers\Admin\AdminTeamController;
 use App\Http\Controllers\Admin\TeamMaturityController;
@@ -22,6 +24,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserTeamController;
 use App\Http\Controllers\UserTeamMemberController;
+use App\Http\Controllers\UserTeamJoinRequestController;
 use App\Http\Middleware\CheckActiveStatus;
 use App\Http\Middleware\ForcePasswordReset;
 use Illuminate\Support\Facades\Auth;
@@ -172,6 +175,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth', 'verified', '
     // ---- Assessment Overview ----
     Route::get('/assessments', [AdminAssessmentController::class, 'index'])->name('admin.assessments.index');
 
+    // ---- Assessment Template Library ----
+    Route::get('/assessment-templates', [AdminAssessmentTemplateController::class, 'index'])->name('admin.assessment-templates.index');
+    Route::post('/assessment-template-publish-requests/{assessmentTemplatePublishRequest}/approve', [AdminAssessmentTemplateController::class, 'approveRequest'])->name('admin.assessment-template-publish-requests.approve');
+    Route::post('/assessment-template-publish-requests/{assessmentTemplatePublishRequest}/reject', [AdminAssessmentTemplateController::class, 'rejectRequest'])->name('admin.assessment-template-publish-requests.reject');
+
     // ---- Question Management Routes ----
     Route::post('questions/generate-ai', [QuestionController::class, 'generateWithAI'])->middleware('throttle:20,1')->name('admin.questions.generate-ai');
     Route::patch('questions/{id}/toggle-active', [QuestionController::class, 'toggleActive'])->name('admin.questions.toggle-active');
@@ -234,6 +242,11 @@ Route::prefix('user')
         Route::get('/dashboard', fn() => redirect()->route('dashboard'))->name('user.dashboard');
 
         // ---- User Team Management ----
+        // Registered before the resource route below: Route::resource registers
+        // GET /teams/{team} (show), which would otherwise greedily match
+        // /teams/browse first and try (and fail) to bind "browse" as a team.
+        Route::get('/teams/browse', [UserTeamJoinRequestController::class, 'browse'])->name('user.teams.browse');
+
         Route::resource('/teams', UserTeamController::class)->names([
             'index' => 'user.teams.index',      // View all teams
             'create' => 'user.teams.create',   // Create new team
@@ -256,6 +269,16 @@ Route::prefix('user')
         Route::patch('/teams/{team}/members/{member}/role',    [UserTeamMemberController::class, 'updateRole'])->name('user.teams.members.update-role');
         Route::delete('/teams/{team}/invitations/{invitation}', [UserTeamMemberController::class, 'revokeInvitation'])->name('user.teams.invitations.revoke');
 
+        // ---- Team Join Requests ----
+        Route::post('/teams/{team}/join-requests', [UserTeamJoinRequestController::class, 'store'])->name('user.teams.join-requests.store');
+        Route::delete('/join-requests/{joinRequest}',    [UserTeamJoinRequestController::class, 'cancel'])->name('user.join-requests.cancel');
+        Route::post('/join-requests/{joinRequest}/approve', [UserTeamJoinRequestController::class, 'approve'])->name('user.join-requests.approve');
+        Route::post('/join-requests/{joinRequest}/reject',  [UserTeamJoinRequestController::class, 'reject'])->name('user.join-requests.reject');
+
+        // ---- Assessment Templates ----
+        Route::post('/assessment-templates/{template}/request-public', [AssessmentTemplateController::class, 'requestPublic'])->name('user.assessment-templates.request-public');
+        Route::delete('/assessment-templates/{template}', [AssessmentTemplateController::class, 'destroy'])->name('user.assessment-templates.destroy');
+
         // ---- User Profile ----
         Route::prefix('profile')->group(function () {
             Route::get('/', [UserController::class, 'profile'])->name('user.profile'); // View profile
@@ -276,6 +299,7 @@ Route::prefix('user/assessments')
         Route::get('/create',                                     [AssessmentController::class, 'create'])->name('user.assessments.create');
         Route::post('/',                                          [AssessmentController::class, 'store'])->name('user.assessments.store');
         Route::get('/{assessment}',                               [AssessmentController::class, 'show'])->name('user.assessments.show');
+        Route::post('/{assessment}/save-as-template',             [AssessmentController::class, 'saveAsTemplate'])->name('user.assessments.save-as-template');
         Route::delete('/{assessment}',                            [AssessmentController::class, 'destroy'])->name('user.assessments.destroy');
         Route::post('/{assessment}/publish',                      [AssessmentController::class, 'publish'])->name('user.assessments.publish');
         Route::post('/{assessment}/close',                        [AssessmentController::class, 'close'])->name('user.assessments.close');

@@ -87,6 +87,15 @@
                             @error('team_domain_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="open_to_join_requests" name="open_to_join_requests" value="1"
+                                   {{ old('open_to_join_requests', $team->open_to_join_requests) ? 'checked' : '' }}>
+                            <label for="open_to_join_requests" class="form-check-label fw-semibold">
+                                Open to join requests
+                            </label>
+                            <div class="form-text">Lets other users find this team on the Browse Teams page and request to join. You (or anyone with the "Approve Join Requests" permission) will need to approve each request.</div>
+                        </div>
+
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Save Changes

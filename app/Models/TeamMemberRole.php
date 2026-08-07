@@ -14,12 +14,13 @@ class TeamMemberRole extends Model
     ];
 
     public static array $availablePermissions = [
-        'take-assessments'    => 'Take Assessments',
-        'view-results'        => 'View Assessment Results',
-        'view-results-detail' => 'View Detailed Results & Analytics',
-        'export-results'      => 'Export Results (CSV)',
-        'invite-members'      => 'Invite Team Members',
-        'manage-assessments'  => 'Create & Manage Assessments',
+        'take-assessments'      => 'Take Assessments',
+        'view-results'          => 'View Assessment Results',
+        'view-results-detail'   => 'View Detailed Results & Analytics',
+        'export-results'        => 'Export Results (CSV)',
+        'invite-members'        => 'Invite Team Members',
+        'manage-assessments'    => 'Create & Manage Assessments',
+        'approve-join-requests' => 'Approve Join Requests',
     ];
 
     public function hasPermission(string $permission): bool

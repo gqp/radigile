@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Assessment;
 use App\Models\Team;
+use App\Models\TeamInvitation;
+use App\Models\TeamJoinRequest;
 use App\Models\User;
 use App\Models\Subscription;
 use App\Services\TeamMaturityService;
@@ -136,9 +138,23 @@ class DashboardController extends Controller
             ->concat($memberTeams->map(fn ($team) => ['team' => $team, 'role' => 'Member']))
             ->take(3);
 
+        // Join requests waiting on this user's approval, across every team
+        // they own or belong to with the "approve-join-requests" permission.
+        $approvableTeamIds = $teams
+            ->filter(fn (Team $team) => $team->canApproveJoinRequests($user))
+            ->pluck('id');
+        $pendingJoinRequests = TeamJoinRequest::whereIn('team_id', $approvableTeamIds)->pending()->count();
+
+        // Outgoing invitations this user has sent (as an owner) that are
+        // still awaiting a response.
+        $pendingInvitesSent = TeamInvitation::whereIn('team_id', $ownedTeams->pluck('id'))
+            ->where(fn ($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->count();
+
         return view('dashboard.index', compact(
             'ownedTeams', 'memberTeams', 'subscription', 'myTeams',
-            'pendingAssessments', 'assessmentsToTake', 'myCreatedAssessments', 'assessmentsTaken', 'teamMaturity'
+            'pendingAssessments', 'assessmentsToTake', 'myCreatedAssessments', 'assessmentsTaken', 'teamMaturity',
+            'pendingJoinRequests', 'pendingInvitesSent'
         ));
     }
 }

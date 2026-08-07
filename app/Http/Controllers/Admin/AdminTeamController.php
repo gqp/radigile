@@ -130,4 +130,50 @@ class AdminTeamController extends Controller
 
         return view('dashboard.admin.teams.edit', compact('team', 'teamDomains', 'teamFrameworks', 'users'));
     }
+
+    /**
+     * Update an existing team.
+     */
+    public function update(Request $request, $id)
+    {
+        $team = Team::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'team_domain_id' => 'required|exists:team_domains,id',
+            'team_framework_id' => 'nullable|exists:team_frameworks,id',
+            'owner_id' => 'required|exists:users,id',
+            'team_members' => 'nullable|array',
+            'team_members.*' => 'exists:users,id',
+        ]);
+
+        $team->update([
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'team_domain_id' => $validated['team_domain_id'],
+            'team_framework_id' => $validated['team_framework_id'] ?? null,
+            'owner_id' => $validated['owner_id'],
+            'open_to_join_requests' => $request->boolean('open_to_join_requests'),
+        ]);
+
+        $team->members()->sync($validated['team_members'] ?? []);
+
+        return redirect()
+            ->route('admin.teams.index')
+            ->with('success', 'Team updated successfully!');
+    }
+
+    /**
+     * Delete a team.
+     */
+    public function destroy($id)
+    {
+        $team = Team::findOrFail($id);
+        $team->delete();
+
+        return redirect()
+            ->route('admin.teams.index')
+            ->with('success', 'Team deleted successfully!');
+    }
 }

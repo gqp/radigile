@@ -29,32 +29,32 @@
         </div>
 
         <div class="mb-3">
-            <label for="type" class="form-label">Team Visibility</label>
-            <select class="form-control" id="type" name="type" required>
-                <option value="private" {{ old('type', $team->type) === 'private' ? 'selected' : '' }}>Private</option>
-                <option value="public" {{ old('type', $team->type) === 'public' ? 'selected' : '' }}>Public</option>
+            <label for="team_domain_id" class="form-label">Team Domain</label>
+            <select class="form-control" id="team_domain_id" name="team_domain_id" required>
+                @foreach ($teamDomains as $domain)
+                    <option value="{{ $domain->id }}" {{ old('team_domain_id', $team->team_domain_id) == $domain->id ? 'selected' : '' }}>
+                        {{ $domain->name }}
+                    </option>
+                @endforeach
             </select>
         </div>
 
         <div class="mb-3">
-            <label for="framework" class="form-label">Team Framework</label>
-            <select class="form-control" id="framework" name="framework">
-                <option value="" {{ old('framework', $team->framework) === null ? 'selected' : '' }}>None</option>
-                <option value="Scrum" {{ old('framework', $team->framework) === 'Scrum' ? 'selected' : '' }}>Scrum</option>
-                <option value="Agile" {{ old('framework', $team->framework) === 'Agile' ? 'selected' : '' }}>Agile</option>
-                <option value="Kanban" {{ old('framework', $team->framework) === 'Kanban' ? 'selected' : '' }}>Kanban</option>
+            <label for="team_framework_id" class="form-label">Team Framework</label>
+            <select class="form-control" id="team_framework_id" name="team_framework_id">
+                <option value="" {{ old('team_framework_id', $team->team_framework_id) === null ? 'selected' : '' }}>None</option>
+                @foreach ($teamFrameworks as $framework)
+                    <option value="{{ $framework->id }}" {{ old('team_framework_id', $team->team_framework_id) == $framework->id ? 'selected' : '' }}>
+                        {{ $framework->name }}
+                    </option>
+                @endforeach
             </select>
         </div>
 
-        <div class="mb-3">
-            <label for="team_domain" class="form-label">Team Domain</label>
-            <select class="form-control" id="team_domain" name="team_domain" required>
-                <option value="devops" {{ old('team_domain', $team->team_domain) === 'devops' ? 'selected' : '' }}>DevOps</option>
-                <option value="product" {{ old('team_domain', $team->team_domain) === 'product' ? 'selected' : '' }}>Product</option>
-                <option value="development" {{ old('team_domain', $team->team_domain) === 'development' ? 'selected' : '' }}>Development</option>
-                <option value="design" {{ old('team_domain', $team->team_domain) === 'design' ? 'selected' : '' }}>Design</option>
-                <option value="marketing" {{ old('team_domain', $team->team_domain) === 'marketing' ? 'selected' : '' }}>Marketing</option>
-            </select>
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="open_to_join_requests" name="open_to_join_requests" value="1"
+                   {{ old('open_to_join_requests', $team->open_to_join_requests) ? 'checked' : '' }}>
+            <label for="open_to_join_requests" class="form-check-label">Open to join requests</label>
         </div>
 
         <div class="mb-3">

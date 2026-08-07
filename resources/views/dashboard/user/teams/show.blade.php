@@ -378,6 +378,112 @@
             </div>
             @endif
 
+            {{-- Join Requests — visible to owner/approvers only --}}
+            @if ($canApproveJoinRequests && $pendingJoinRequests->isNotEmpty())
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <strong><i class="fas fa-user-clock"></i> Join Requests ({{ $pendingJoinRequests->count() }})</strong>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Requester</th>
+                                    <th>Message</th>
+                                    <th>Requested</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($pendingJoinRequests as $request)
+                                <tr>
+                                    <td>
+                                        <strong>{{ $request->user->name }}</strong>
+                                        <br><small class="text-muted">{{ $request->user->email }}</small>
+                                    </td>
+                                    <td class="text-muted small">{{ $request->message ? Str::limit($request->message, 80) : '—' }}</td>
+                                    <td class="text-muted small">{{ $request->created_at->diffForHumans() }}</td>
+                                    <td class="text-end">
+                                        <form method="POST" action="{{ route('user.join-requests.approve', $request) }}" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                        </form>
+                                        <form method="POST" action="{{ route('user.join-requests.reject', $request) }}" class="d-inline"
+                                              onsubmit="return confirm('Reject this request?')">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            {{-- Assessment Templates — visible to owners/permitted members only --}}
+            @if ($canManageAssessments && $teamTemplates->isNotEmpty())
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <strong><i class="bi bi-bookmark-star"></i> Assessment Templates ({{ $teamTemplates->count() }})</strong>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Questions</th>
+                                    <th>Scope</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($teamTemplates as $template)
+                                <tr>
+                                    <td>
+                                        <strong>{{ $template->title }}</strong>
+                                        @if ($template->description)
+                                            <br><small class="text-muted">{{ Str::limit($template->description, 80) }}</small>
+                                        @endif
+                                    </td>
+                                    <td>{{ $template->questions_count }}</td>
+                                    <td>
+                                        @if ($template->is_public)
+                                            <span class="badge bg-success">Public</span>
+                                        @else
+                                            <span class="badge bg-secondary">Team-only</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-end">
+                                        @if (!$template->is_public)
+                                            @if ($pendingTemplatePublishRequests->has($template->id))
+                                                <span class="badge bg-warning text-dark">Request pending</span>
+                                            @else
+                                                <form method="POST" action="{{ route('user.assessment-templates.request-public', $template) }}" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-outline-primary">Request Public</button>
+                                                </form>
+                                            @endif
+                                        @endif
+                                        <form method="POST" action="{{ route('user.assessment-templates.destroy', $template) }}" class="d-inline"
+                                              onsubmit="return confirm('Delete this template?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             {{-- Assessments --}}
             <div class="card shadow-sm">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
